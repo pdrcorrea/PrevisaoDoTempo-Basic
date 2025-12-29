@@ -3,27 +3,54 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PontoView • Clima</title>
+  <title>PontoView • Previsão do Tempo</title>
+
   <style>
     :root{
       --bgA:#1d4c7b; --bgB:#0b1b2b;
-      --card:#ffffff; --line:#e7eef7; --chip:#f3f6fb;
-      --muted:#6b7788; --ink:#0e1b2a;
+
+      --card:#ffffff;
+      --line:#e7eef7;
+      --chip:#f3f6fb;
+      --muted:#6b7788;
+      --ink:#0e1b2a;
+
       --topA:#163d63; --topB:#2c6aa3;
-      --radius:22px; --shadow:0 10px 30px rgba(0,0,0,.25);
+
+      --radius:22px;
+      --shadow:0 10px 30px rgba(0,0,0,.25);
+
+      /* Tipos (padrão) */
       --t-title: clamp(20px, 1.4vw, 28px);
       --t-sub:   clamp(12px, 0.9vw, 16px);
       --t-clock: clamp(34px, 2.6vw, 54px);
       --t-body:  clamp(14px, 1.05vw, 18px);
+
+      /* Destaque clima atual */
+      --t-temp:  clamp(96px, 7.2vw, 160px);
+      --t-desc:  clamp(14px, 1.15vw, 18px);
+
+      /* Próximos dias (compacto) */
+      --t-day:   clamp(12px, 0.95vw, 16px);
+      --t-minmax:clamp(14px, 1.1vw, 18px);
+
+      /* Cards/valores */
+      --t-mval:  clamp(18px, 1.35vw, 24px);
+
       --pad: clamp(16px, 1.3vw, 22px);
       --gap: clamp(14px, 1.2vw, 20px);
 
-      /* Conteúdo (moderado — não gigante) */
-      --t-temp: clamp(72px, 6vw, 120px);
-      --t-desc: clamp(14px, 1.1vw, 18px);
-      --t-mval: clamp(18px, 1.35vw, 24px);
-      --t-day:  clamp(14px, 1.05vw, 18px);
+      --panelSoft:#f6f9fe;
+
+      --anim: 420ms;
+      --ease: cubic-bezier(.2,.8,.2,1);
+
+      /* Estados térmicos */
+      --cold:#2b6cb0;
+      --nice:#1f7a4f;
+      --hot:#c05621;
     }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -32,189 +59,425 @@
       color:var(--ink);
       background: radial-gradient(1200px 700px at 50% 0%, var(--bgA) 0%, var(--bgB) 60%);
     }
-    .frame{min-height:100%; padding:clamp(14px,1.2vw,22px); display:flex; justify-content:center; align-items:stretch;}
+
+    .frame{
+      min-height:100%;
+      padding:clamp(14px,1.2vw,22px);
+      display:flex;
+      justify-content:center;
+      align-items:stretch;
+    }
+
     .card{
       width:min(1920px,100%);
       background:var(--card);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       overflow:hidden;
-      display:flex; flex-direction:column;
+      display:flex;
+      flex-direction:column;
     }
+
+    /* Topbar integrada */
     .topbar{
       background: linear-gradient(180deg, var(--topB), var(--topA));
       color:#fff;
       padding:var(--pad);
-      display:flex; justify-content:space-between; align-items:center;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
       gap:var(--gap);
     }
-    .left{display:flex; align-items:center; gap:var(--gap); min-width:45%;}
+    .leftTop{display:flex; align-items:center; gap:var(--gap); min-width:45%;}
     .badge{
-      width:clamp(44px,3.2vw,60px); height:clamp(44px,3.2vw,60px);
+      width:clamp(44px,3.2vw,60px);
+      height:clamp(44px,3.2vw,60px);
       border-radius:16px;
       background:rgba(255,255,255,.10);
       border:1px solid rgba(255,255,255,.22);
-      display:grid; place-items:center; flex:0 0 auto;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
     }
     .badge svg{width:60%; height:60%; opacity:.95}
     .titles{display:flex; flex-direction:column; gap:6px; line-height:1.05; min-width:0;}
     .titles h1{
-      margin:0; font-size:var(--t-title); font-weight:900;
-      letter-spacing:.08em; text-transform:uppercase;
+      margin:0;
+      font-size:var(--t-title);
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
     .titles .sub{
-      font-size:var(--t-sub); font-weight:800; letter-spacing:.12em;
-      text-transform:uppercase; opacity:.9;
+      font-size:var(--t-sub);
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      opacity:.9;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    .right{text-align:right; display:flex; flex-direction:column; gap:6px; min-width:30%;}
+    .rightTop{text-align:right; display:flex; flex-direction:column; gap:6px; min-width:30%;}
     .clockTop{font-size:var(--t-clock); font-weight:900; line-height:1;}
     .updated{font-size:var(--t-sub); font-weight:800; letter-spacing:.10em; text-transform:uppercase; opacity:.9;}
+
+    /* Subbar */
     .subbar{
       background:var(--chip);
       border-bottom:1px solid var(--line);
       padding:calc(var(--pad)*.6) var(--pad);
-      display:flex; justify-content:space-between; align-items:center;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
       gap:var(--gap);
       font-size:var(--t-sub);
-      font-weight:900; letter-spacing:.12em; text-transform:uppercase;
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
       color:#1c2c41;
     }
-    main{flex:1 1 auto; padding:var(--pad);}
-    .grid-2{
-      display:grid;
-      grid-template-columns: 1.05fr 0.95fr;
-      gap: var(--gap);
-      align-items:start;
-    }
-    @media (max-aspect-ratio: 4/3){ .grid-2{grid-template-columns:1fr;} }
 
-    /* Atual */
-    .now{
+    main{flex:1 1 auto; padding:var(--pad);}
+
+    /* Layout */
+    .layout{
       display:grid;
-      grid-template-columns:auto 1fr;
+      grid-template-columns: 1.22fr 0.78fr;
+      gap: var(--gap);
+      align-items: stretch;
+      min-height: 520px;
+    }
+    @media (max-aspect-ratio: 4/3){
+      .layout{grid-template-columns:1fr;}
+    }
+
+    /* ===== ESQUERDA: HERO ===== */
+    .nowHero{
+      border:1px solid var(--line);
+      border-radius: 20px;
+      padding: clamp(18px, 1.6vw, 26px);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap: 18px;
+    }
+
+    .heroTop{
+      display:flex;
       gap: var(--gap);
       align-items:center;
-      padding: 8px;
-    }
-    .bigIcon{
-      width: clamp(84px, 6vw, 110px);
-      height: clamp(84px, 6vw, 110px);
-      color:#7ea7cf;
-      display:grid; place-items:center;
-    }
-    .bigIcon svg{width:100%; height:100%}
-    .temp{
-      font-size: var(--t-temp);
-      font-weight: 300;
-      letter-spacing: -0.03em;
-      line-height: 0.95;
-    }
-    .desc{
-      font-size: var(--t-desc);
-      font-weight: 900;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color:#2a3a50;
-      margin-top: 6px;
     }
 
-    /* Métricas */
-    .metrics{
-      margin-top: var(--gap);
+    .heroIcon{
+      width: clamp(140px, 9.6vw, 210px);
+      height: clamp(140px, 9.6vw, 210px);
+      color:#7ea7cf;
       display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--gap);
+      place-items:center;
+      flex:0 0 auto;
+      position:relative;
     }
-    .metric{
-      background:#f6f9fe;
+
+    .heroIcon svg{width:100%; height:100%}
+
+    .heroText{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .heroTemp{
+      font-size: var(--t-temp);
+      font-weight: 260;
+      letter-spacing:-0.03em;
+      line-height: 0.95;
+    }
+    .heroDesc{
+      font-size: var(--t-desc);
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color:#2a3a50;
+    }
+
+    .finePrint{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    /* ===== DIREITA: SIDE SLOT ===== */
+    .side{
       border:1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
+      border-radius: 20px;
+      background: #fff;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+    .sideHeader{
+      padding: 14px 16px;
+      background: var(--panelSoft);
+      border-bottom: 1px solid var(--line);
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap: 12px;
-      min-height: 78px;
     }
-    .mleft{display:flex; align-items:center; gap:12px; min-width:0;}
-    .micon{
-      width: 46px; height: 46px;
-      border-radius: 14px;
-      background:#fff;
-      border:1px solid var(--line);
-      display:grid; place-items:center;
-      flex:0 0 auto;
-      color:#0f2f57;
-    }
-    .micon svg{width:56%; height:56%}
-    .mlabel{
+    .sideHeader .label{
       font-size: 12px;
       font-weight: 900;
       letter-spacing:.14em;
       text-transform: uppercase;
-      color:#3c4b60;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    }
-    .mvalue{
-      font-size: var(--t-mval);
-      font-weight: 900;
+      color:#3b4b62;
       white-space:nowrap;
     }
-
-    /* Próximos dias */
-    .list{display:flex; flex-direction:column; gap: var(--gap);}
-    .dayRow{
-      background:#f6f9fe;
-      border:1px solid var(--line);
-      border-radius: 18px;
-      padding: 16px;
-      display:grid;
-      grid-template-columns: auto auto 1fr auto;
-      align-items:center;
-      gap: var(--gap);
-      min-height: 84px;
+    .toggleDots{display:flex; gap:8px; align-items:center;}
+    .dot{
+      width:10px; height:10px; border-radius:999px;
+      background:#c9d7ea;
+      transition: all var(--anim) var(--ease);
     }
-    .dow{
-      width: 62px;
+    .dot.active{background:#2d76b9; width:22px;}
+
+    .slot{
+      position:relative;
+      flex:1 1 auto;
+      padding: 16px;
+    }
+    .view{
+      position:absolute;
+      inset: 16px;
+      opacity:0;
+      transform: translateY(10px);
+      pointer-events:none;
+      transition: opacity var(--anim) var(--ease), transform var(--anim) var(--ease);
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+    .view.active{
+      opacity:1;
+      transform: translateY(0);
+      pointer-events:auto;
+    }
+
+    /* View A: próximos dias compacto (SEM interação) */
+    .forecastCompact{display:flex; flex-direction:column; gap: 12px;}
+    .fRow{
+      background: var(--panelSoft);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      display:grid;
+      grid-template-columns: 52px 46px 1fr auto;
+      align-items:center;
+      gap: 12px;
+      user-select:none;
+    }
+    .fDow{
       font-size: var(--t-day);
       font-weight: 900;
       letter-spacing:.14em;
       text-transform: uppercase;
       color:#1a2a40;
     }
-    .dicon{
-      width: 54px; height: 54px;
-      border-radius: 16px;
+    .fIcon{
+      width:46px; height:46px;
+      border-radius: 14px;
       background:#fff;
       border:1px solid var(--line);
       display:grid; place-items:center;
       color:#7ea7cf;
     }
-    .dicon svg{width:64%; height:64%}
-    .dtext{min-width:0; display:flex; flex-direction:column; gap:6px;}
-    .dtitle{
-      font-size: var(--t-body);
+    .fIcon svg{width:64%; height:64%}
+    .fTitle{
+      font-size: var(--t-day);
       font-weight: 900;
       letter-spacing:.06em;
       text-transform: uppercase;
       color:#23344a;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    .drain{
-      font-size: 12px;
+    .fPop{
+      margin-top: 4px;
+      font-size: 11px;
       font-weight: 900;
       letter-spacing:.12em;
       text-transform: uppercase;
       color:#3b4b62;
       opacity:.9;
     }
-    .dtemps{
+    .fMinMax{
+      font-size: var(--t-minmax);
+      font-weight: 900;
+      white-space:nowrap;
+      color:#0e1b2a;
+    }
+
+    /* View B: detalhes do DIA DE HOJE + métricas */
+    .panelBlock{
+      background: var(--panelSoft);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+
+    .ddTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+    .ddLeft{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width:0;
+    }
+    .ddIcon{
+      width:64px; height:64px;
+      border-radius: 18px;
+      background:#fff;
+      border:1px solid var(--line);
+      display:grid; place-items:center;
+      color:#7ea7cf;
+      flex:0 0 auto;
+    }
+    .ddIcon svg{width:70%; height:70%}
+
+    .ddTitle{min-width:0; display:flex; flex-direction:column; gap: 6px;}
+    .ddDow{
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing:.14em;
+      text-transform: uppercase;
+      color:#1a2a40;
+    }
+    .ddCond{
+      font-size: var(--t-body);
+      font-weight: 900;
+      letter-spacing:.08em;
+      text-transform: uppercase;
+      color:#23344a;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .ddTemps{
+      font-size: clamp(22px, 1.8vw, 30px);
+      font-weight: 900;
+      white-space:nowrap;
+      color:#0e1b2a;
+    }
+
+    .metricsSide{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .mCard{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      min-height: 64px;
+    }
+    .mLabel{
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      color:#3b4b62;
+      white-space:nowrap;
+    }
+    .mVal{
+      font-size: var(--t-mval);
+      font-weight: 900;
+      white-space:nowrap;
+      color:#0e1b2a;
+    }
+
+    /* Sensação térmica: termômetro com pulso (ÚNICA animação) */
+    .feelWrap{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .feelLeft{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width:0;
+    }
+    .thermo{
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: #fff;
+      display:grid;
+      place-items:center;
+      position:relative;
+      overflow:hidden;
+      color: var(--nice);
+    }
+    .thermo::after{
+      content:"";
+      position:absolute;
+      inset: 0;
+      opacity:.12;
+      background: currentColor;
+      transform: scale(1);
+      animation: pulse 2.6s var(--ease) infinite;
+    }
+    @keyframes pulse{
+      0%,100%{opacity:.08; transform:scale(1)}
+      50%{opacity:.18; transform:scale(1.08)}
+    }
+    .thermo svg{width:56%; height:56%; position:relative; z-index:1;}
+    .feelText{
+      display:flex;
+      flex-direction:column;
+      gap: 4px;
+      min-width:0;
+    }
+    .feelState{
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing:.14em;
+      text-transform: uppercase;
+      color:#3b4b62;
+      white-space:nowrap;
+    }
+    .feelHint{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 220px;
+    }
+    .feelVal{
       font-size: var(--t-mval);
       font-weight: 900;
       white-space:nowrap;
     }
+
+    .feel-cold .thermo{ color: var(--cold); }
+    .feel-nice .thermo{ color: var(--nice); }
+    .feel-hot  .thermo{ color: var(--hot); }
   </style>
 </head>
 
@@ -227,9 +490,8 @@
       data-subright="FONTE • OPEN-METEO">
 
       <header class="topbar">
-        <div class="left">
+        <div class="leftTop">
           <div class="badge" aria-hidden="true">
-            <!-- nuvem -->
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 17.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 10.2 3.8 3.8 0 0 0 7 17.5h13z"/>
             </svg>
@@ -239,7 +501,7 @@
             <div class="sub" id="subtitle"></div>
           </div>
         </div>
-        <div class="right">
+        <div class="rightTop">
           <div class="clockTop" id="clockTop">--:--</div>
           <div class="updated" id="updated">ATUALIZADO • --:--</div>
         </div>
@@ -251,93 +513,107 @@
       </div>
 
       <main>
-        <div class="grid-2">
-          <section>
-            <div class="now">
-              <div class="bigIcon" id="nowIcon" aria-hidden="true"></div>
-              <div>
-                <div class="temp" id="tempNow">--°</div>
-                <div class="desc" id="descNow">CARREGANDO...</div>
+        <div class="layout">
+
+          <!-- ESQUERDA: HERO -->
+          <section class="nowHero">
+            <div class="heroTop">
+              <div class="heroIcon" id="nowIcon" aria-hidden="true"></div>
+              <div class="heroText">
+                <div class="heroTemp" id="tempNow">--°</div>
+                <div class="heroDesc" id="descNow">CARREGANDO...</div>
+              </div>
+            </div>
+            <div class="finePrint" id="finePrint">—</div>
+          </section>
+
+          <!-- DIREITA: alternância -->
+          <aside class="side">
+            <div class="sideHeader">
+              <div class="label" id="sideLabel">PRÓXIMOS DIAS</div>
+              <div class="toggleDots" aria-hidden="true">
+                <div class="dot active" id="dotA"></div>
+                <div class="dot" id="dotB"></div>
               </div>
             </div>
 
-            <div class="metrics">
-              <div class="metric">
-                <div class="mleft">
-                  <div class="micon" aria-hidden="true">
-                    <!-- vento -->
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M3 8h10a2 2 0 1 0-2-2"/>
-                      <path d="M3 12h14a2 2 0 1 1-2 2"/>
-                      <path d="M3 16h8a2 2 0 1 0 2-2"/>
-                    </svg>
-                  </div>
-                  <div class="mlabel">VENTO</div>
-                </div>
-                <div class="mvalue" id="wind">-- km/h</div>
+            <div class="slot">
+              <!-- View A: próximos dias -->
+              <div class="view active" id="viewA">
+                <div class="forecastCompact" id="forecastList"></div>
               </div>
 
-              <div class="metric">
-                <div class="mleft">
-                  <div class="micon" aria-hidden="true">
-                    <!-- umidade -->
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M12 2s6 7 6 12a6 6 0 0 1-12 0c0-5 6-12 6-12z"/>
-                    </svg>
+              <!-- View B: detalhes do HOJE + métricas -->
+              <div class="view" id="viewB">
+                <div class="panelBlock">
+                  <div class="ddTop">
+                    <div class="ddLeft">
+                      <div class="ddIcon" id="ddIcon" aria-hidden="true"></div>
+                      <div class="ddTitle">
+                        <div class="ddDow" id="ddDow">HOJE</div>
+                        <div class="ddCond" id="ddCond">—</div>
+                      </div>
+                    </div>
+                    <div class="ddTemps" id="ddTemps">—</div>
                   </div>
-                  <div class="mlabel">UMIDADE</div>
-                </div>
-                <div class="mvalue" id="humidity">--%</div>
-              </div>
 
-              <div class="metric">
-                <div class="mleft">
-                  <div class="micon" aria-hidden="true">
-                    <!-- sensação -->
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0z"/>
-                    </svg>
+                  <div class="metricsSide">
+                    <div class="mCard">
+                      <div class="mLabel">VENTO</div>
+                      <div class="mVal" id="wind">-- km/h</div>
+                    </div>
+                    <div class="mCard">
+                      <div class="mLabel">UMIDADE</div>
+                      <div class="mVal" id="humidity">--%</div>
+                    </div>
+                    <div class="mCard">
+                      <div class="mLabel">CHUVA</div>
+                      <div class="mVal" id="rain">-- mm</div>
+                    </div>
+                    <div class="mCard">
+                      <div class="mLabel">CHUVA %</div>
+                      <div class="mVal" id="ddPop">--%</div>
+                    </div>
                   </div>
-                  <div class="mlabel">SENSAÇÃO</div>
-                </div>
-                <div class="mvalue" id="feels">--°C</div>
-              </div>
 
-              <div class="metric">
-                <div class="mleft">
-                  <div class="micon" aria-hidden="true">
-                    <!-- chuva -->
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M16 13a4 4 0 0 0-8 0c0 3 4 7 4 7s4-4 4-7z"/>
-                    </svg>
+                  <div class="feelWrap" id="feelWrap">
+                    <div class="feelLeft">
+                      <div class="thermo" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0z"/>
+                        </svg>
+                      </div>
+                      <div class="feelText">
+                        <div class="feelState" id="feelState">SENSAÇÃO</div>
+                        <div class="feelHint" id="feelHint">—</div>
+                      </div>
+                    </div>
+                    <div class="feelVal" id="feels">--°C</div>
                   </div>
-                  <div class="mlabel">CHUVA</div>
+
                 </div>
-                <div class="mvalue" id="rain">-- mm</div>
               </div>
             </div>
-          </section>
+          </aside>
 
-          <section>
-            <div class="list" id="forecastList"></div>
-          </section>
         </div>
       </main>
     </div>
   </div>
 
   <script>
-    // ===== CONFIG =====
-    // Troque para sua cidade fixa (recomendado para TV)
+    // ========= CONFIG =========
     const CITY = { name: "Colatina - ES", lat: -19.538, lon: -40.626 };
+    const ROTATE_MS = 11000;
 
-    // ===== HEADER DATASET =====
+    // ========= HEADER =========
     const panel = document.getElementById("panel");
     document.getElementById("title").textContent = panel.dataset.title || "";
     document.getElementById("subtitle").textContent = panel.dataset.subtitle || CITY.name;
     document.getElementById("subLeft").textContent = panel.dataset.subleft || "";
     document.getElementById("subRight").textContent = panel.dataset.subright || "";
 
+    // clock
     function hhmm(d=new Date()){
       return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
     }
@@ -349,16 +625,18 @@
     tickClock();
     setInterval(tickClock, 1000*10);
 
-    // ===== ICONES =====
+    // ========= ÍCONES (SEM animação) =========
     function svgCloud(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 17.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 10.2 3.8 3.8 0 0 0 7 17.5h13z"/>
       </svg>`; }
+
     function svgSun(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="4"></circle>
         <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
       </svg>`; }
+
     function svgRain(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 16.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 9.2 3.8 3.8 0 0 0 7 16.5h13z"/>
@@ -366,11 +644,13 @@
         <path d="M12 19l-1 2"></path>
         <path d="M16 19l-1 2"></path>
       </svg>`; }
+
     function svgStorm(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 16.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 9.2 3.8 3.8 0 0 0 7 16.5h9"/>
         <path d="M13 14l-2 4h3l-2 4"></path>
       </svg>`; }
+
     function svgPartly(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="8" cy="8" r="3"></circle>
@@ -388,10 +668,112 @@
       if ([71,73,75,77,85,86].includes(code)) return { icon: svgCloud(), text: "Neve" };
       return { icon: svgCloud(), text: "Tempo" };
     }
+
     function dowPT(dateStr){
       const d = new Date(dateStr + "T12:00:00");
       const map = ["DOM","SEG","TER","QUA","QUI","SEX","SÁB"];
       return map[d.getDay()];
+    }
+
+    // ========= ROTATOR =========
+    const viewA = document.getElementById("viewA");
+    const viewB = document.getElementById("viewB");
+    const dotA = document.getElementById("dotA");
+    const dotB = document.getElementById("dotB");
+    const sideLabel = document.getElementById("sideLabel");
+    let showingA = true;
+
+    function showA(){
+      showingA = true;
+      viewA.classList.add("active");
+      viewB.classList.remove("active");
+      dotA.classList.add("active");
+      dotB.classList.remove("active");
+      sideLabel.textContent = "PRÓXIMOS DIAS";
+    }
+    function showB(){
+      showingA = false;
+      viewB.classList.add("active");
+      viewA.classList.remove("active");
+      dotB.classList.add("active");
+      dotA.classList.remove("active");
+      sideLabel.textContent = "HOJE";
+    }
+
+    setInterval(()=>{ showingA ? showB() : showA(); }, ROTATE_MS);
+
+    // ========= ESTADO / RENDER =========
+    let dailyData = null;
+    const selectedIndex = 0; // HOJE (fixo)
+
+    function renderForecastList(){
+      const list = document.getElementById("forecastList");
+      list.innerHTML = "";
+      if(!dailyData) return;
+
+      const { time, weather_code, temperature_2m_max, temperature_2m_min, precipitation_probability_max } = dailyData;
+
+      // Mostra amanhã + próximos 3 (total 4 linhas)
+      const start = 1;
+      const end = Math.min(time.length, 5);
+
+      for(let i=start; i<end; i++){
+        const meta = codeToMeta(weather_code[i]);
+        const pop = precipitation_probability_max?.[i] ?? 0;
+        const max = Math.round(temperature_2m_max[i]);
+        const min = Math.round(temperature_2m_min[i]);
+
+        const row = document.createElement("div");
+        row.className = "fRow";
+        row.innerHTML = `
+          <div class="fDow">${dowPT(time[i])}</div>
+          <div class="fIcon" aria-hidden="true">${meta.icon}</div>
+          <div style="min-width:0;">
+            <div class="fTitle">${meta.text.toUpperCase()}</div>
+            <div class="fPop">CHUVA ${pop}%</div>
+          </div>
+          <div class="fMinMax">${max}° / ${min}°</div>
+        `;
+        list.appendChild(row);
+      }
+    }
+
+    function thermalState(feels){
+      if (feels <= 18) return { cls:"feel-cold", label:"FRIO", hint:"Leve um agasalho." };
+      if (feels <= 27) return { cls:"feel-nice", label:"AGRADÁVEL", hint:"Clima confortável." };
+      return { cls:"feel-hot", label:"CALOR", hint:"Hidrate-se e evite sol forte." };
+    }
+
+    let currentFeels = null;
+
+    function renderTodayDetails(){
+      if(!dailyData) return;
+
+      const { time, weather_code, temperature_2m_max, temperature_2m_min, precipitation_probability_max } = dailyData;
+
+      const meta = codeToMeta(weather_code[selectedIndex]);
+      const date = time[selectedIndex];
+      const pop = precipitation_probability_max?.[selectedIndex] ?? 0;
+      const max = Math.round(temperature_2m_max[selectedIndex]);
+      const min = Math.round(temperature_2m_min[selectedIndex]);
+
+      document.getElementById("ddIcon").innerHTML = meta.icon;
+      document.getElementById("ddCond").textContent = meta.text.toUpperCase();
+      document.getElementById("ddTemps").textContent = `${max}° / ${min}°`;
+      document.getElementById("ddPop").textContent = `${pop}%`;
+
+      // Mostra "HOJE • SEG" etc.
+      document.getElementById("ddDow").textContent = `HOJE • ${dowPT(date)}`;
+
+      if (typeof currentFeels === "number"){
+        const st = thermalState(currentFeels);
+        const wrap = document.getElementById("feelWrap");
+        wrap.classList.remove("feel-cold","feel-nice","feel-hot");
+        wrap.classList.add(st.cls);
+
+        document.getElementById("feelState").textContent = `SENSAÇÃO • ${st.label}`;
+        document.getElementById("feelHint").textContent = st.hint;
+      }
     }
 
     async function loadWeather(){
@@ -407,6 +789,7 @@
       if(!res.ok) throw new Error("Falha ao carregar clima");
       const data = await res.json();
 
+      // atual (clima agora)
       const cur = data.current;
       const now = codeToMeta(cur.weather_code);
 
@@ -414,42 +797,33 @@
       document.getElementById("descNow").textContent = now.text.toUpperCase();
       document.getElementById("nowIcon").innerHTML = now.icon;
 
+      // métricas (para o painel HOJE)
       document.getElementById("wind").textContent = `${Math.round(cur.wind_speed_10m)} km/h`;
       document.getElementById("humidity").textContent = `${Math.round(cur.relative_humidity_2m)}%`;
-      document.getElementById("feels").textContent = `${Math.round(cur.apparent_temperature)}°C`;
       document.getElementById("rain").textContent = `${Number(cur.precipitation).toFixed(1)} mm`;
+      document.getElementById("feels").textContent = `${Math.round(cur.apparent_temperature)}°C`;
+      currentFeels = Math.round(cur.apparent_temperature);
 
-      // próximos dias (pula hoje)
-      const list = document.getElementById("forecastList");
-      list.innerHTML = "";
-      const times = data.daily.time;
+      // footer
+      document.getElementById("finePrint").textContent =
+        `Local: ${CITY.name}`;
 
-      for(let i=1; i<times.length; i++){
-        const date = times[i];
-        const meta = codeToMeta(data.daily.weather_code[i]);
-        const max = Math.round(data.daily.temperature_2m_max[i]);
-        const min = Math.round(data.daily.temperature_2m_min[i]);
-        const pop = data.daily.precipitation_probability_max[i] ?? 0;
+      // diários
+      dailyData = data.daily;
 
-        const row = document.createElement("div");
-        row.className = "dayRow";
-        row.innerHTML = `
-          <div class="dow">${dowPT(date)}</div>
-          <div class="dicon" aria-hidden="true">${meta.icon}</div>
-          <div class="dtext">
-            <div class="dtitle">${meta.text.toUpperCase()}</div>
-            <div class="drain">CHUVA ${pop}%</div>
-          </div>
-          <div class="dtemps">${max}° / ${min}°</div>
-        `;
-        list.appendChild(row);
-      }
+      renderForecastList();
+      renderTodayDetails();
     }
+
+    // init
+    showA();
 
     loadWeather().catch(err=>{
       document.getElementById("descNow").textContent = "SEM CONEXÃO";
+      document.getElementById("finePrint").textContent = "Sem conexão com a internet.";
       console.error(err);
     });
+
     setInterval(()=>loadWeather().catch(()=>{}), 1000*60*20);
   </script>
 </body>
