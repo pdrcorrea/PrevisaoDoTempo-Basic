@@ -2,661 +2,601 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PontoView • Previsão do Tempo</title>
-
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;700;800;900&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel • Previsão do Tempo</title>
 
   <style>
     :root{
-      --bg0:#081423;
-      --bg1:#0a2232;
+      /* Identidade (mantém o visual do seu painel) */
+      --bg: #0b1b2b;
+      --panel: #ffffff;
+      --muted: #6b7788;
+      --line: #e7eef7;
 
-      --panel:#ffffff;
-      --panel2:#f5f7fb;
+      --topbarA:#163d63;
+      --topbarB:#2c6aa3;
 
-      --text:#0f172a;
-      --dim:#475569;
+      --chip:#f3f7fd;
 
-      --stroke:#d8e1ee;
-      --stroke2:#e6edf7;
+      --ink:#0e1b2a;
 
-      --shadow: 0 18px 60px rgba(2,10,23,.18);
+      /* === Escala tipográfica para TV (AQUI É O “SEGREDO”) ===
+         Ajuste fino: se ainda ficar pequeno, aumente um pouco os clamps. */
+      --t-xxl: clamp(88px, 6.2vw, 132px); /* temperatura */
+      --t-xl:  clamp(40px, 3.2vw, 64px);  /* hora */
+      --t-lg:  clamp(22px, 1.8vw, 34px);  /* títulos cards */
+      --t-md:  clamp(18px, 1.35vw, 26px); /* textos principais */
+      --t-sm:  clamp(14px, 1.05vw, 20px); /* textos menores */
 
-      --r: 18px;
-      --pad: clamp(14px, 2.2vw, 26px);
+      /* Espaçamentos para TV */
+      --pad: clamp(18px, 1.6vw, 28px);
+      --gap: clamp(16px, 1.6vw, 26px);
+      --radius: 18px;
 
-      --header: linear-gradient(90deg, #0b2c5a, #1976b7);
-
-      /* === ESCALA REALMENTE RESPONSIVA (TV-friendly) ===
-         Baseia mais em altura (vh) que é o que define “tamanho percebido” em painéis.
-      */
-      --title: clamp(22px, 2.2vh, 42px);
-      --sub: clamp(12px, 1.25vh, 18px);
-
-      --clock: clamp(34px, 3.8vh, 70px);
-      --small: clamp(12px, 1.15vh, 16px);
-
-      --wxIcon: clamp(92px, 9.5vh, 170px);
-      --temp: clamp(96px, 11.8vh, 210px);
-
-      --desc: clamp(12px, 1.35vh, 20px);
-
-      --cardText: clamp(12px, 1.2vh, 16px);
-      --cardValue: clamp(14px, 1.4vh, 20px);
-
-      --dayText: clamp(12px, 1.2vh, 16px);
-      --dayHiLo: clamp(14px, 1.5vh, 20px);
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
     }
 
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
       margin:0;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 700px at 50% 0%, #1d4c7b 0%, var(--bg) 60%);
+      color: var(--ink);
+    }
+
+    .frame{
+      min-height:100%;
+      padding: clamp(16px, 1.4vw, 26px);
+      display:flex;
+      align-items:stretch;
+      justify-content:center;
+    }
+
+    .screen{
+      width: min(1920px, 100%);
+      background: rgba(255,255,255,.04);
+      border-radius: 24px;
+      padding: clamp(10px, 1.0vw, 16px);
+    }
+
+    .card{
+      height: calc(100vh - clamp(32px, 2.8vw, 48px));
+      max-height: 980px;
+      background: var(--panel);
+      border-radius: 22px;
       overflow:hidden;
-      background:
-        radial-gradient(1200px 900px at 25% 10%, rgba(87,184,231,.22) 0%, rgba(10,46,62,0) 60%),
-        radial-gradient(900px 700px at 75% 80%, rgba(52,198,208,.14) 0%, rgba(6,18,24,0) 65%),
-        radial-gradient(1400px 1100px at 50% 55%, var(--bg1) 0%, var(--bg0) 62%, #040a0f 100%);
-    }
-
-    .app{
-      height:100%;
-      display:grid;
-      grid-template-rows: auto 1fr;
-      gap: 14px;
-      padding: clamp(12px, 2vw, 22px);
-      position:relative;
-    }
-
-    header{
-      padding: 18px var(--pad);
-      border-radius: var(--r);
-      background: var(--header);
-      color: #fff;
       box-shadow: var(--shadow);
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* Topbar */
+    .topbar{
+      background: linear-gradient(180deg, var(--topbarB), var(--topbarA));
+      color:#fff;
+      padding: var(--pad);
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap: 16px;
-
-      opacity:0;
-      transform: translateY(10px);
-      animation: inTop 800ms cubic-bezier(.22,1,.36,1) forwards;
+      gap: var(--gap);
     }
-    @keyframes inTop{ to{ opacity:1; transform: translateY(0);} }
-
-    .h-left{
-      display:flex;
-      align-items:center;
-      gap: 16px;
-      min-width: 0;
+    .topbar-left{
+      display:flex; align-items:center; gap: var(--gap);
+      min-width: 40%;
     }
-    .iconBox{
-      width: clamp(44px, 5vh, 60px);
-      height: clamp(44px, 5vh, 60px);
+    .iconBadge{
+      width: clamp(44px, 3.2vw, 64px);
+      height: clamp(44px, 3.2vw, 64px);
       border-radius: 16px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.22);
       display:grid; place-items:center;
-      background: rgba(255,255,255,.14);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
       flex: 0 0 auto;
     }
-    .iconBox .material-icons-outlined{
-      font-size: clamp(22px, 2.6vh, 30px);
+    .iconBadge svg{
+      width: 60%;
+      height: 60%;
+      opacity: .95;
     }
-
-    .titleBlock{ min-width:0; }
-    .title{
-      font-size: var(--title);
-      font-weight: 900;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      line-height: 1.1;
-    }
-    .sub{
-      margin-top: 6px;
-      font-size: var(--sub);
-      font-weight: 800;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      opacity: .9;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width: 70vw;
-      line-height: 1.2;
-    }
-
-    .h-right{
-      text-align:right;
-      white-space:nowrap;
+    .titleWrap{
       display:flex;
       flex-direction:column;
       gap: 6px;
-      align-items:flex-end;
+      line-height:1.05;
     }
-    .clock{
-      font-size: var(--clock);
-      font-weight: 900;
-      letter-spacing: .06em;
-      line-height: 1;
-    }
-    .lastUpdate{
-      font-size: var(--small);
-      font-weight: 900;
-      letter-spacing: .12em;
+    .title{
+      font-size: clamp(22px, 1.8vw, 34px);
+      font-weight: 800;
+      letter-spacing:.06em;
       text-transform: uppercase;
+    }
+    .subtitle{
+      font-size: var(--t-sm);
       opacity: .9;
+      font-weight: 700;
+      letter-spacing:.08em;
+      text-transform: uppercase;
     }
 
-    .panel{
-      border-radius: var(--r);
-      background: var(--panel);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-
-      opacity:0;
-      transform: translateY(12px);
-      animation: inPanel 900ms cubic-bezier(.22,1,.36,1) .06s forwards;
-
-      min-height: 0;
+    .topbar-right{
+      text-align:right;
       display:flex;
       flex-direction:column;
+      gap: 8px;
+      min-width: 30%;
     }
-    @keyframes inPanel{ to{ opacity:1; transform: translateY(0);} }
+    .clock{
+      font-size: var(--t-xl);
+      font-weight: 900;
+      letter-spacing:.02em;
+      line-height:1;
+    }
+    .updated{
+      font-size: var(--t-sm);
+      opacity:.9;
+      font-weight: 800;
+      letter-spacing:.06em;
+      text-transform: uppercase;
+    }
 
-    .panelTop{
-      padding: 12px var(--pad);
-      background: #f3f7ff;
-      border-bottom: 1px solid var(--stroke2);
+    /* Sub header */
+    .subbar{
+      background: #f3f6fb;
+      border-top: 1px solid rgba(255,255,255,.18);
+      border-bottom: 1px solid var(--line);
+      padding: clamp(12px, 1vw, 18px) var(--pad);
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap: 12px;
-      flex-wrap:wrap;
-    }
-    .panelInfo{
-      font-size: var(--small);
+      gap: var(--gap);
       font-weight: 900;
-      letter-spacing: .12em;
+      letter-spacing:.10em;
       text-transform: uppercase;
-      color: #1f2a44;
+      font-size: var(--t-sm);
+      color:#1c2c41;
     }
 
-    /* === Conteúdo ocupa a altura e “enche” a tela === */
+    /* Content */
     .content{
-      padding: clamp(14px, 2.8vw, 34px);
+      padding: var(--pad);
       display:grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap: clamp(14px, 2.4vw, 28px);
-      align-items:stretch;
-      min-height: 0;
-      flex: 1;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: var(--gap);
+      flex: 1 1 auto;
+      background: #fff;
     }
 
-    /* Em telas menores vira 1 coluna */
-    @media (max-width: 980px){
-      body{ overflow:auto; }
-      .app{ height:auto; }
-      .content{ grid-template-columns: 1fr; }
-    }
-
-    /* Lado esquerdo (clima atual) centraliza melhor */
+    /* Left side */
     .left{
       display:flex;
       flex-direction:column;
-      justify-content:flex-start;
-      gap: clamp(12px, 2vh, 18px);
-      min-height: 0;
+      gap: var(--gap);
     }
 
-    .nowRow{
-      display:flex;
+    .now{
+      display:grid;
+      grid-template-columns: auto 1fr;
+      gap: var(--gap);
       align-items:center;
-      gap: clamp(14px, 2vw, 22px);
-      flex-wrap:wrap;
+      padding: clamp(10px, .8vw, 14px);
     }
 
-    .wxIcon{
-      font-size: var(--wxIcon);
-      line-height: 1;
-      transition: color 600ms ease;
+    .bigIcon{
+      width: clamp(84px, 6vw, 120px);
+      height: clamp(84px, 6vw, 120px);
+      display:grid;
+      place-items:center;
+    }
+    .bigIcon svg{
+      width:100%;
+      height:100%;
+      color:#7ea7cf;
     }
 
+    .tempWrap{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+    }
     .temp{
-      font-size: var(--temp);
-      font-weight: 200;
-      line-height: .95;
-      letter-spacing: .02em;
-      color: #0b1220;
+      font-size: var(--t-xxl);
+      font-weight: 300;
+      letter-spacing: -0.03em;
+      line-height: 0.95;
     }
     .desc{
-      margin-top: 10px;
-      font-size: var(--desc);
+      font-size: var(--t-md);
+      color:#2c3b4f;
       font-weight: 900;
-      letter-spacing: .14em;
+      letter-spacing:.10em;
       text-transform: uppercase;
-      color: var(--dim);
     }
 
-    /* Métricas maiores e legíveis */
-    .meta{
-      margin-top: clamp(8px, 1.8vh, 16px);
+    /* Metrics */
+    .metrics{
       display:grid;
       grid-template-columns: 1fr 1fr;
-      gap: clamp(10px, 1.6vh, 14px);
-      max-width: 760px;
+      gap: var(--gap);
     }
-    @media (max-width: 520px){
-      .meta{ grid-template-columns: 1fr; }
-    }
-
-    .m{
-      padding: clamp(12px, 1.8vh, 18px) clamp(12px, 1.8vh, 18px);
-      border-radius: 16px;
-      border: 1px solid var(--stroke2);
-      background: var(--panel2);
+    .metric{
+      background: #f6f9fe;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: clamp(16px, 1.2vw, 22px);
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap: 14px;
-      white-space:nowrap;
-      min-width: 0;
+      min-height: clamp(84px, 6vw, 108px); /* MAIS ALTO */
     }
-    .mLeft{
+    .metric-left{
       display:flex;
       align-items:center;
-      gap: 12px;
+      gap: 14px;
       min-width: 0;
     }
-    .mIcon{
-      width: clamp(36px, 4.2vh, 52px);
-      height: clamp(36px, 4.2vh, 52px);
+    .micon{
+      width: clamp(44px, 3.2vw, 60px);
+      height: clamp(44px, 3.2vw, 60px);
       border-radius: 16px;
-      display:grid; place-items:center;
-      background: #ffffff;
-      border: 1px solid var(--stroke2);
-      color: #0b2c5a;
+      background:#ffffff;
+      border: 1px solid var(--line);
+      display:grid;
+      place-items:center;
       flex: 0 0 auto;
     }
-    .mIcon .material-icons-outlined{
-      font-size: clamp(18px, 2.3vh, 26px);
-    }
-    .mLabel{
-      font-size: var(--cardText);
+    .micon svg{ width: 56%; height: 56%; color:#0f2f57; }
+    .mlabel{
+      font-size: var(--t-sm);
       font-weight: 900;
-      letter-spacing: .12em;
+      letter-spacing:.12em;
+      color:#3c4b60;
       text-transform: uppercase;
-      color: var(--dim);
+      white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
-    .mVal{
-      font-size: var(--cardValue);
+    .mvalue{
+      font-size: var(--t-lg); /* MAIOR */
       font-weight: 900;
-      letter-spacing: .06em;
-      color: #0b1220;
-      flex: 0 0 auto;
+      color:#0f1c2b;
+      letter-spacing:.01em;
+      white-space:nowrap;
     }
 
-    /* Previsão (lado direito) ocupa melhor e aumenta tudo */
-    .forecast{
-      display:grid;
-      gap: clamp(10px, 1.6vh, 14px);
-      align-content:start;
-      min-height: 0;
+    /* Right side */
+    .right{
+      display:flex;
+      flex-direction:column;
+      gap: var(--gap);
     }
-
-    .day{
+    .forecastList{
+      display:flex;
+      flex-direction:column;
+      gap: var(--gap);
+    }
+    .dayRow{
+      background:#f6f9fe;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: clamp(18px, 1.3vw, 24px); /* MAIS PADDING */
       display:grid;
-      grid-template-columns: clamp(62px, 6vh, 84px) clamp(54px, 6vh, 72px) 1fr clamp(100px, 9vh, 140px);
+      grid-template-columns: auto auto 1fr auto;
       align-items:center;
-      gap: 12px;
-      padding: clamp(12px, 1.8vh, 18px) clamp(12px, 1.8vh, 18px);
-      border-radius: 16px;
-      border: 1px solid var(--stroke2);
-      background: var(--panel2);
-      min-width: 0;
+      gap: var(--gap);
+      min-height: clamp(92px, 6.5vw, 120px); /* MAIS ALTO */
     }
-    @media (max-width: 980px){
-      .day{ grid-template-columns: clamp(62px, 6vh, 84px) clamp(54px, 6vh, 72px) 1fr; grid-template-rows:auto auto; }
-      .hiLo{ grid-column: 1 / -1; text-align:left; }
-    }
-
     .dow{
-      font-size: var(--dayText);
+      font-size: var(--t-md);
       font-weight: 900;
-      letter-spacing: .14em;
+      letter-spacing:.14em;
+      color:#1a2a40;
       text-transform: uppercase;
-      color: #0b1220;
+      width: clamp(52px, 4vw, 72px);
+      text-align:left;
     }
-    .dIcon{
-      width: clamp(44px, 5vh, 64px);
-      height: clamp(44px, 5vh, 64px);
-      border-radius: 16px;
-      display:grid; place-items:center;
-      background: #ffffff;
-      border: 1px solid var(--stroke2);
-      color: #0b2c5a;
+    .dicon{
+      width: clamp(54px, 4vw, 70px);
+      height: clamp(54px, 4vw, 70px);
+      border-radius: 18px;
+      background:#fff;
+      border: 1px solid var(--line);
+      display:grid;
+      place-items:center;
     }
-    .dIcon .material-icons-outlined{
-      font-size: clamp(20px, 2.6vh, 30px);
+    .dicon svg{ width: 64%; height: 64%; color:#7ea7cf; }
+    .dtext{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
     }
-
-    .dmeta{
-      font-size: var(--dayText);
+    .dtitle{
+      font-size: var(--t-md); /* MAIOR */
       font-weight: 900;
-      letter-spacing: .12em;
+      letter-spacing:.06em;
+      color:#23344a;
       text-transform: uppercase;
-      color: var(--dim);
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
-    .hiLo{
-      text-align:right;
-      font-size: var(--dayHiLo);
+    .drain{
+      font-size: var(--t-sm);
       font-weight: 900;
-      letter-spacing: .08em;
-      color: #0b1220;
+      color:#3b4b62;
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      opacity:.9;
+    }
+    .dtemps{
+      font-size: var(--t-lg); /* MAIOR */
+      font-weight: 900;
+      letter-spacing:.02em;
+      color:#0e1b2a;
       white-space:nowrap;
     }
-    .hiLo .lo{ color: var(--dim); font-weight:800; }
 
-    /* === Logo discreta, SEM badge, mas sempre visível no branco ===
-       Usamos drop-shadow para dar “contorno” sem colocar placa/badge.
-    */
-    .brand{
-      position: fixed;
-      right: 18px;
-      bottom: 14px;
-      z-index: 20;
-      pointer-events:none;
-      opacity: .26; /* discreta */
-      filter: drop-shadow(0 2px 0 rgba(15,23,42,.28))
-              drop-shadow(0 10px 16px rgba(0,0,0,.10));
-    }
-    .brand img{
-      height: clamp(18px, 2.2vh, 28px);
-      width:auto;
-      display:block;
-    }
-
-    @media (max-width: 980px){
-      .brand{ position: static; padding: 0 16px 16px; opacity:.35; }
+    /* Responsivo para telas mais estreitas (vertical) */
+    @media (max-aspect-ratio: 4/3){
+      .content{ grid-template-columns: 1fr; }
+      .card{ max-height: none; height: auto; min-height: 100vh; }
     }
   </style>
 </head>
 
 <body>
-  <div class="app">
-    <header>
-      <div class="h-left">
-        <div class="iconBox" aria-hidden="true">
-          <span class="material-icons-outlined">cloud</span>
-        </div>
-        <div class="titleBlock">
-          <div class="title">Previsão do Tempo</div>
-          <div class="sub" id="place">Localizando…</div>
-        </div>
-      </div>
+  <div class="frame">
+    <div class="screen">
+      <div class="card">
 
-      <div class="h-right">
-        <div class="clock" id="clock">--:--</div>
-        <div class="lastUpdate" id="lastUpdate">Atualizado • —</div>
-      </div>
-    </header>
-
-    <section class="panel" aria-label="Painel de previsão">
-      <div class="panelTop">
-        <div class="panelInfo">Clima atual + próximos dias</div>
-        <div class="panelInfo">Fonte • Open-Meteo</div>
-      </div>
-
-      <div class="content">
-        <div class="left">
-          <div class="nowRow">
-            <span class="material-icons-outlined wxIcon" id="wxIcon">cloud</span>
-            <div>
-              <div class="temp" id="tempNow">--°</div>
-              <div class="desc" id="descNow">—</div>
+        <!-- TOPBAR -->
+        <div class="topbar">
+          <div class="topbar-left">
+            <div class="iconBadge" aria-hidden="true">
+              <!-- cloud icon -->
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 17.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 10.2 3.8 3.8 0 0 0 7 17.5h13z"/>
+              </svg>
+            </div>
+            <div class="titleWrap">
+              <div class="title">PREVISÃO DO TEMPO</div>
+              <div class="subtitle" id="cityLabel">COLATINA - ES</div>
             </div>
           </div>
 
-          <div class="meta" aria-label="Métricas">
-            <div class="m">
-              <div class="mLeft">
-                <div class="mIcon"><span class="material-icons-outlined">air</span></div>
-                <div class="mLabel">Vento</div>
+          <div class="topbar-right">
+            <div class="clock" id="clock">--:--</div>
+            <div class="updated" id="updated">ATUALIZADO • --:--</div>
+          </div>
+        </div>
+
+        <!-- SUBBAR -->
+        <div class="subbar">
+          <div>CLIMA ATUAL + PRÓXIMOS DIAS</div>
+          <div>FONTE • OPEN-METEO</div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="content">
+
+          <!-- LEFT -->
+          <div class="left">
+            <div class="now">
+              <div class="bigIcon" id="nowIcon" aria-hidden="true"></div>
+              <div class="tempWrap">
+                <div class="temp" id="tempNow">--°</div>
+                <div class="desc" id="descNow">CARREGANDO...</div>
               </div>
-              <div class="mVal" id="wind">—</div>
             </div>
 
-            <div class="m">
-              <div class="mLeft">
-                <div class="mIcon">
-                  <!-- ✅ ícone compatível -->
-                  <span class="material-icons-outlined">humidity_high</span>
+            <div class="metrics">
+              <div class="metric">
+                <div class="metric-left">
+                  <div class="micon" aria-hidden="true">
+                    <!-- wind -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 8h10a2 2 0 1 0-2-2"/>
+                      <path d="M3 12h14a2 2 0 1 1-2 2"/>
+                      <path d="M3 16h8a2 2 0 1 0 2-2"/>
+                    </svg>
+                  </div>
+                  <div class="mlabel">VENTO</div>
                 </div>
-                <div class="mLabel">Umidade</div>
+                <div class="mvalue" id="wind">-- km/h</div>
               </div>
-              <div class="mVal" id="humidity">—</div>
-            </div>
 
-            <div class="m">
-              <div class="mLeft">
-                <div class="mIcon"><span class="material-icons-outlined">device_thermostat</span></div>
-                <div class="mLabel">Sensação</div>
+              <div class="metric">
+                <div class="metric-left">
+                  <div class="micon" aria-hidden="true">
+                    <!-- humidity -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2s6 7 6 12a6 6 0 0 1-12 0c0-5 6-12 6-12z"/>
+                    </svg>
+                  </div>
+                  <div class="mlabel">UMIDADE</div>
+                </div>
+                <div class="mvalue" id="humidity">--%</div>
               </div>
-              <div class="mVal" id="feels">—</div>
-            </div>
 
-            <div class="m">
-              <div class="mLeft">
-                <div class="mIcon"><span class="material-icons-outlined">water_drop</span></div>
-                <div class="mLabel">Chuva</div>
+              <div class="metric">
+                <div class="metric-left">
+                  <div class="micon" aria-hidden="true">
+                    <!-- thermometer -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0z"/>
+                    </svg>
+                  </div>
+                  <div class="mlabel">SENSAÇÃO</div>
+                </div>
+                <div class="mvalue" id="feels">--°C</div>
               </div>
-              <div class="mVal" id="rain">—</div>
+
+              <div class="metric">
+                <div class="metric-left">
+                  <div class="micon" aria-hidden="true">
+                    <!-- rain -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 13a4 4 0 0 0-8 0c0 3 4 7 4 7s4-4 4-7z"/>
+                    </svg>
+                  </div>
+                  <div class="mlabel">CHUVA</div>
+                </div>
+                <div class="mvalue" id="rain">-- mm</div>
+              </div>
             </div>
           </div>
+
+          <!-- RIGHT -->
+          <div class="right">
+            <div class="forecastList" id="forecastList"></div>
+          </div>
+
         </div>
-
-        <div class="forecast" id="forecast"></div>
       </div>
-    </section>
-
-    <!-- ✅ Logo discreta, sem badge -->
-    <div class="brand" aria-hidden="true">
-      <img src="assets/logo.png" alt="">
     </div>
   </div>
 
   <script>
-    /* ===== Clock (sem segundos) ===== */
-    const clockEl = document.getElementById("clock");
-    const lastUpdateEl = document.getElementById("lastUpdate");
-    function pad2(n){ return String(n).padStart(2,"0"); }
-    function tickClock(){
-      const d = new Date();
-      clockEl.textContent = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-      lastUpdateEl.textContent = `Atualizado • ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-    }
-    tickClock();
-    setInterval(tickClock, 1000);
+    // ====== CONFIG BÁSICA ======
+    // Troque para sua cidade fixa se quiser (melhor para TV corporativa).
+    const CITY = { name: "Colatina - ES", lat: -19.538, lon: -40.626 };
 
-    /* ===== Location by IP (robusto / sem permissão) ===== */
-    const placeEl = document.getElementById("place");
+    // ====== ICONES (SVG inline) ======
+    function svgCloud(){ return `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 17.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 10.2 3.8 3.8 0 0 0 7 17.5h13z"/>
+      </svg>`; }
 
-    function fetchWithTimeout(url, timeoutMs = 4500){
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), timeoutMs);
-      return fetch(url, { cache:"no-store", signal: ctrl.signal }).finally(() => clearTimeout(t));
-    }
-    function normStr(v){ if(v==null) return null; const s=String(v).trim(); return s? s:null; }
-    function toNum(v){ const n=Number(v); return Number.isFinite(n)? n:null; }
+    function svgSun(){ return `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+      </svg>`; }
 
-    async function getIpLocationRobust(){
-      const providers = [
-        async () => {
-          const r = await fetchWithTimeout("https://ipwho.is/?lang=pt");
-          const d = await r.json();
-          if (!d || d.success === false) throw new Error("ipwho.is failed");
-          return { city:normStr(d.city), region:normStr(d.region_code||d.region), country:normStr(d.country_code), lat:toNum(d.latitude), lon:toNum(d.longitude) };
-        },
-        async () => {
-          const r = await fetchWithTimeout("https://ipapi.co/json/");
-          const d = await r.json();
-          return { city:normStr(d.city), region:normStr(d.region_code||d.region), country:normStr(d.country_code), lat:toNum(d.latitude), lon:toNum(d.longitude) };
-        }
-      ];
+    function svgRain(){ return `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 16.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 9.2 3.8 3.8 0 0 0 7 16.5h13z"/>
+        <path d="M8 19l-1 2"></path>
+        <path d="M12 19l-1 2"></path>
+        <path d="M16 19l-1 2"></path>
+      </svg>`; }
 
-      let lastErr=null;
-      for(const p of providers){
-        try{
-          const loc=await p();
-          if(loc.city || (loc.lat!=null && loc.lon!=null)) return loc;
-          lastErr=new Error("provider empty");
-        }catch(e){ lastErr=e; }
-      }
-      throw lastErr || new Error("all providers failed");
-    }
+    function svgStorm(){ return `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 16.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 9.2 3.8 3.8 0 0 0 7 16.5h9"/>
+        <path d="M13 14l-2 4h3l-2 4"></path>
+      </svg>`; }
 
-    function formatPlaceUpper(loc){
-      const city = loc.city ? loc.city.toUpperCase() : null;
-      const region = loc.region ? loc.region.toUpperCase() : null;
-      const country = loc.country ? loc.country.toUpperCase() : null;
+    function svgPartly(){ return `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="8" r="3"></circle>
+        <path d="M8 2v1M8 13v1M2 8h1M13 8h1M3.5 3.5l.7.7M11.8 11.8l.7.7M3.5 12.5l.7-.7M11.8 4.2l.7-.7"></path>
+        <path d="M20 17.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 8.3 10.1 3.8 3.8 0 0 0 9 17.5h11z"/>
+      </svg>`; }
 
-      if (city && region) return `${city} - ${region}`;
-      if (city && country) return `${city} - ${country}`;
-      if (city) return city;
-      return "LOCAL NÃO IDENTIFICADO";
+    // Mapeamento básico do Open-Meteo weathercode
+    function codeToIcon(code){
+      // https://open-meteo.com/en/docs
+      if (code === 0) return { icon: svgSun(), text: "Ensolarado" };
+      if (code === 1 || code === 2) return { icon: svgPartly(), text: "Parcialmente nublado" };
+      if (code === 3) return { icon: svgCloud(), text: "Nublado" };
+      if ([45,48].includes(code)) return { icon: svgCloud(), text: "Neblina" };
+      if ([51,53,55,61,63,65,80,81,82].includes(code)) return { icon: svgRain(), text: "Chuva" };
+      if ([95,96,99].includes(code)) return { icon: svgStorm(), text: "Tempestade" };
+      if ([71,73,75,77,85,86].includes(code)) return { icon: svgCloud(), text: "Neve" };
+      return { icon: svgCloud(), text: "Tempo" };
     }
 
-    /* ===== Weather (Open-Meteo, sem key) ===== */
-    const wxIconEl = document.getElementById("wxIcon");
-    const tempNowEl = document.getElementById("tempNow");
-    const descNowEl = document.getElementById("descNow");
-    const feelsEl = document.getElementById("feels");
-    const windEl = document.getElementById("wind");
-    const humidityEl = document.getElementById("humidity");
-    const rainEl = document.getElementById("rain");
-    const forecastEl = document.getElementById("forecast");
-
-    const dowShort = ["DOM","SEG","TER","QUA","QUI","SEX","SÁB"];
-
-    function wxFromCode(code){
-      if (code === 0) return { icon:"wb_sunny", desc:"CÉU LIMPO", color:"rgba(255, 193, 7, .95)" };
-      if (code === 1 || code === 2) return { icon:"wb_cloudy", desc:"PARCIALMENTE NUBLADO", color:"rgba(120, 170, 210, .92)" };
-      if (code === 3) return { icon:"cloud", desc:"NUBLADO", color:"rgba(120, 170, 210, .90)" };
-      if (code === 45 || code === 48) return { icon:"blur_on", desc:"NEBLINA", color:"rgba(140, 160, 180, .88)" };
-      if (code === 51 || code === 53 || code === 55) return { icon:"grain", desc:"GAROA", color:"rgba(56, 189, 248, .92)" };
-      if (code === 61 || code === 63 || code === 65) return { icon:"umbrella", desc:"CHUVA", color:"rgba(56, 189, 248, .92)" };
-      if (code === 80 || code === 81 || code === 82) return { icon:"water_drop", desc:"PANCADAS", color:"rgba(56, 189, 248, .92)" };
-      if (code === 95 || code === 96 || code === 99) return { icon:"thunderstorm", desc:"TEMPESTADE", color:"rgba(96, 165, 250, .92)" };
-      if (code === 71 || code === 73 || code === 75 || code === 77 || code === 85 || code === 86) return { icon:"ac_unit", desc:"NEVE", color:"rgba(186, 230, 253, .92)" };
-      return { icon:"cloud", desc:"CLIMA", color:"rgba(120, 170, 210, .90)" };
+    function dowPT(dateStr){
+      const d = new Date(dateStr + "T12:00:00");
+      const map = ["DOM","SEG","TER","QUA","QUI","SEX","SÁB"];
+      return map[d.getDay()];
     }
 
-    function fmtDayLabel(isoDate){
-      const d = new Date(isoDate + "T12:00:00");
-      return dowShort[d.getDay()];
+    function fmtTimeHHMM(dt=new Date()){
+      const hh = String(dt.getHours()).padStart(2,"0");
+      const mm = String(dt.getMinutes()).padStart(2,"0");
+      return `${hh}:${mm}`;
     }
 
-    async function fetchWeather(lat, lon){
+    function setClock(){
+      const now = new Date();
+      document.getElementById("clock").textContent = fmtTimeHHMM(now);
+    }
+
+    async function loadWeather(){
+      document.getElementById("cityLabel").textContent = CITY.name;
+
+      // Open-Meteo: current + daily
       const url = new URL("https://api.open-meteo.com/v1/forecast");
-      url.searchParams.set("latitude", String(lat));
-      url.searchParams.set("longitude", String(lon));
-      url.searchParams.set("timezone", "auto");
-      url.searchParams.set("current", "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m");
+      url.searchParams.set("latitude", CITY.lat);
+      url.searchParams.set("longitude", CITY.lon);
+      url.searchParams.set("timezone", "America/Sao_Paulo");
+      url.searchParams.set("current", "temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m");
       url.searchParams.set("daily", "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max");
       url.searchParams.set("forecast_days", "5");
-      const r = await fetchWithTimeout(url.toString(), 6500);
-      return r.json();
-    }
 
-    function renderDaily(daily){
-      forecastEl.innerHTML = "";
-      const times = daily.time || [];
-      const code = daily.weather_code || [];
-      const tmax = daily.temperature_2m_max || [];
-      const tmin = daily.temperature_2m_min || [];
-      const pop  = daily.precipitation_probability_max || [];
+      const res = await fetch(url.toString(), { cache: "no-store" });
+      if(!res.ok) throw new Error("Falha ao carregar clima");
+      const data = await res.json();
 
-      for (let i=0;i<times.length;i++){
-        if (i === 0) continue; // pula hoje
-        const w = wxFromCode(code[i]);
+      const cur = data.current;
+      const nowCode = codeToIcon(cur.weather_code);
 
-        const el = document.createElement("div");
-        el.className = "day";
-        el.innerHTML = `
-          <div class="dow">${fmtDayLabel(times[i])}</div>
-          <div class="dIcon" title="${w.desc}">
-            <span class="material-icons-outlined" style="color:${w.color}">${w.icon}</span>
+      document.getElementById("tempNow").textContent = `${Math.round(cur.temperature_2m)}°`;
+      document.getElementById("descNow").textContent = nowCode.text.toUpperCase();
+      document.getElementById("nowIcon").innerHTML = nowCode.icon;
+
+      document.getElementById("wind").textContent = `${Math.round(cur.wind_speed_10m)} km/h`;
+      document.getElementById("humidity").textContent = `${Math.round(cur.relative_humidity_2m)}%`;
+      document.getElementById("feels").textContent = `${Math.round(cur.apparent_temperature)}°C`;
+      document.getElementById("rain").textContent = `${Number(cur.precipitation).toFixed(1)} mm`;
+
+      // Atualizado
+      const upd = fmtTimeHHMM(new Date());
+      document.getElementById("updated").textContent = `ATUALIZADO • ${upd}`;
+
+      // Próximos dias
+      const list = document.getElementById("forecastList");
+      list.innerHTML = "";
+
+      const times = data.daily.time;
+      for(let i=1; i<times.length; i++){ // pula o "hoje" para ficar como seu layout
+        const date = times[i];
+        const wcode = data.daily.weather_code[i];
+        const max = Math.round(data.daily.temperature_2m_max[i]);
+        const min = Math.round(data.daily.temperature_2m_min[i]);
+        const pop = data.daily.precipitation_probability_max[i];
+        const meta = codeToIcon(wcode);
+
+        const row = document.createElement("div");
+        row.className = "dayRow";
+        row.innerHTML = `
+          <div class="dow">${dowPT(date)}</div>
+          <div class="dicon" aria-hidden="true">${meta.icon}</div>
+          <div class="dtext">
+            <div class="dtitle">${meta.text.toUpperCase()}</div>
+            <div class="drain">CHUVA ${pop ?? 0}%</div>
           </div>
-          <div class="dmeta">${w.desc}${Number.isFinite(pop[i]) ? ` • CHUVA ${pop[i]}%` : ""}</div>
-          <div class="hiLo">${Math.round(tmax[i])}° <span class="lo">/ ${Math.round(tmin[i])}°</span></div>
+          <div class="dtemps">${max}° / ${min}°</div>
         `;
-        forecastEl.appendChild(el);
+        list.appendChild(row);
       }
     }
 
-    async function refresh(){
-      try{
-        placeEl.textContent = "Localizando…";
-        const loc = await getIpLocationRobust();
-        placeEl.textContent = formatPlaceUpper(loc);
+    // init
+    setClock();
+    setInterval(setClock, 1000 * 10);
 
-        if (loc.lat == null || loc.lon == null) throw new Error("Sem coordenadas");
+    loadWeather().catch(err=>{
+      document.getElementById("descNow").textContent = "SEM CONEXÃO";
+      console.error(err);
+    });
 
-        const data = await fetchWeather(loc.lat, loc.lon);
-        const cur = data.current || {};
-        const w = wxFromCode(cur.weather_code);
-
-        wxIconEl.textContent = w.icon;
-        wxIconEl.style.color = w.color;
-        descNowEl.textContent = w.desc;
-
-        const t = Number(cur.temperature_2m);
-        tempNowEl.textContent = Number.isFinite(t) ? `${Math.round(t)}°` : "--°";
-
-        const feels = Number(cur.apparent_temperature);
-        feelsEl.textContent = Number.isFinite(feels) ? `${Math.round(feels)}°C` : "—";
-
-        const wind = Number(cur.wind_speed_10m);
-        windEl.textContent = Number.isFinite(wind) ? `${Math.round(wind)} km/h` : "—";
-
-        const hum = Number(cur.relative_humidity_2m);
-        humidityEl.textContent = Number.isFinite(hum) ? `${Math.round(hum)}%` : "—";
-
-        const rain = Number(cur.precipitation);
-        rainEl.textContent = Number.isFinite(rain) ? `${rain.toFixed(1)} mm` : "—";
-
-        if (data.daily) renderDaily(data.daily);
-      }catch(e){
-        placeEl.textContent = "SEM CONEXÃO";
-        wxIconEl.textContent = "cloud_off";
-        wxIconEl.style.color = "rgba(120, 170, 210, .70)";
-        descNowEl.textContent = "NÃO FOI POSSÍVEL ATUALIZAR";
-        tempNowEl.textContent = "--°";
-        feelsEl.textContent = "—";
-        windEl.textContent = "—";
-        humidityEl.textContent = "—";
-        rainEl.textContent = "—";
-        forecastEl.innerHTML = "";
-        console.warn(e);
-      }
-    }
-
-    refresh();
-    setInterval(refresh, 20 * 60 * 1000);
+    // Atualiza clima a cada 20 min (bom para TV)
+    setInterval(()=>loadWeather().catch(()=>{}), 1000 * 60 * 20);
   </script>
 </body>
 </html>
