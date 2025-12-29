@@ -27,9 +27,15 @@
       --shadow: 0 18px 60px rgba(2,10,23,.18);
 
       --r: 18px;
-      --pad: clamp(14px, 2.0vw, 22px);
+      --pad: clamp(12px, 1.8vw, 22px);
 
       --header: linear-gradient(90deg, #0b2c5a, #1976b7);
+
+      /* Escalas responsivas */
+      --wxIcon: clamp(72px, 8.5vw, 120px);
+      --temp: clamp(74px, 10vw, 150px);
+      --title: clamp(20px, 2.4vw, 34px);
+      --clock: clamp(34px, 4.2vw, 58px);
     }
 
     *{ box-sizing:border-box; }
@@ -51,6 +57,7 @@
       grid-template-rows: auto 1fr;
       gap: 14px;
       padding: clamp(12px, 2vw, 22px);
+      position:relative;
     }
 
     header{
@@ -67,8 +74,6 @@
       opacity:0;
       transform: translateY(10px);
       animation: inTop 800ms cubic-bezier(.22,1,.36,1) forwards;
-      position:relative;
-      z-index: 2;
     }
     @keyframes inTop{ to{ opacity:1; transform: translateY(0);} }
 
@@ -90,7 +95,7 @@
 
     .titleBlock{ min-width:0; }
     .title{
-      font-size: clamp(22px, 2.6vw, 34px);
+      font-size: var(--title);
       font-weight: 900;
       letter-spacing: .08em;
       text-transform: uppercase;
@@ -100,7 +105,7 @@
     }
     .sub{
       margin-top: 6px;
-      font-size: 13px;
+      font-size: clamp(12px, 1.2vw, 13px);
       font-weight: 700;
       letter-spacing: .12em;
       text-transform: uppercase;
@@ -120,7 +125,7 @@
       align-items:flex-end;
     }
     .clock{
-      font-size: clamp(40px, 4.4vw, 58px);
+      font-size: var(--clock);
       font-weight: 900;
       letter-spacing: .06em;
       line-height: 1;
@@ -142,8 +147,11 @@
       opacity:0;
       transform: translateY(12px);
       animation: inPanel 900ms cubic-bezier(.22,1,.36,1) .06s forwards;
-      position:relative;
-      z-index: 2;
+
+      /* ocupa bem a tela sem sobrar "vazio" */
+      min-height: 0;
+      display:flex;
+      flex-direction:column;
     }
     @keyframes inPanel{ to{ opacity:1; transform: translateY(0);} }
 
@@ -166,28 +174,37 @@
     }
 
     .content{
-      padding: clamp(18px, 3.2vw, 34px);
+      padding: clamp(14px, 2.6vw, 32px);
       display:grid;
       grid-template-columns: 1.05fr .95fr;
-      gap: 22px;
+      gap: clamp(14px, 2.2vw, 22px);
       align-items:start;
+      min-height: 0;
+    }
+
+    /* Ajuste automático: se a tela for menor, vira 1 coluna */
+    @media (max-width: 980px){
+      body{ overflow:auto; }
+      .app{ height:auto; }
+      .panel{ min-height:auto; }
+      .content{ grid-template-columns: 1fr; }
     }
 
     .nowRow{
       display:flex;
       align-items:center;
-      gap: 18px;
+      gap: clamp(12px, 1.6vw, 18px);
       flex-wrap:wrap;
     }
 
     .wxIcon{
-      font-size: 110px;
+      font-size: var(--wxIcon);
       line-height: 1;
       transition: color 600ms ease;
     }
 
     .temp{
-      font-size: clamp(86px, 10.0vw, 150px);
+      font-size: var(--temp);
       font-weight: 200;
       line-height: .95;
       letter-spacing: .02em;
@@ -195,21 +212,28 @@
     }
     .desc{
       margin-top: 10px;
-      font-size: 14px;
+      font-size: clamp(12px, 1.2vw, 14px);
       font-weight: 900;
       letter-spacing: .14em;
       text-transform: uppercase;
       color: var(--dim);
     }
 
-    /* Métricas com ícones */
+    /* Métricas */
     .meta{
       margin-top: 16px;
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      max-width: 560px;
+      max-width: 640px;
     }
+    @media (max-width: 980px){
+      .meta{ grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px){
+      .meta{ grid-template-columns: 1fr; }
+    }
+
     .m{
       padding: 12px 14px;
       border-radius: 14px;
@@ -220,6 +244,7 @@
       justify-content:space-between;
       gap: 14px;
       white-space:nowrap;
+      min-width: 0;
     }
     .mLeft{
       display:flex;
@@ -254,22 +279,29 @@
       flex: 0 0 auto;
     }
 
-    /* Previsão com ícones */
+    /* Previsão */
     .forecast{
       display:grid;
       gap: 12px;
       align-content:start;
     }
+
     .day{
       display:grid;
-      grid-template-columns: 76px 52px 1fr 120px;
+      grid-template-columns: 70px 52px 1fr 118px;
       align-items:center;
       gap: 12px;
       padding: 12px 14px;
       border-radius: 14px;
       border: 1px solid var(--stroke2);
       background: var(--panel2);
+      min-width: 0;
     }
+    @media (max-width: 980px){
+      .day{ grid-template-columns: 70px 52px 1fr; grid-template-rows:auto auto; }
+      .hiLo{ grid-column: 1 / -1; text-align:left; }
+    }
+
     .dow{
       font-size: 13px;
       font-weight: 900;
@@ -277,6 +309,7 @@
       text-transform: uppercase;
       color: #0b1220;
     }
+
     .dIcon{
       width: 44px; height: 44px;
       border-radius: 14px;
@@ -307,25 +340,33 @@
     }
     .hiLo .lo{ color: var(--dim); font-weight:800; }
 
-    /* Logo discreta (sempre visível, por cima, fora do card) */
+    /* ✅ Logo sempre visível: badge discreto */
     .brand{
       position: fixed;
-      bottom: 14px;
       right: 16px;
-      opacity: .24;
+      bottom: 14px;
+      z-index: 10;
       pointer-events:none;
-      z-index: 6; /* ✅ acima do painel */
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.18));
+      opacity: .9;
     }
-    .brand img{ height: 22px; width:auto; display:block; }
+    .brandBadge{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.62);
+      border: 1px solid rgba(255,255,255,.55);
+      box-shadow: 0 12px 28px rgba(0,0,0,.14);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: .55; /* discreta */
+    }
+    .brandBadge img{ height: 18px; width:auto; display:block; }
 
     @media (max-width: 980px){
-      body{ overflow:auto; }
-      .app{ height:auto; }
-      .content{ grid-template-columns: 1fr; }
-      .day{ grid-template-columns: 76px 52px 1fr; grid-template-rows:auto auto; }
-      .hiLo{ grid-column: 1 / -1; text-align:left; }
-      .brand{ position: static; opacity:.35; padding: 0 16px 16px; }
+      .brand{ position: static; padding: 0 16px 16px; }
+      .brandBadge{ opacity:.6; width: fit-content; }
     }
   </style>
 </head>
@@ -352,7 +393,7 @@
     <section class="panel" aria-label="Painel de previsão">
       <div class="panelTop">
         <div class="panelInfo">Clima atual + próximos dias</div>
-        <div class="panelInfo" id="source">Fonte • Open-Meteo</div>
+        <div class="panelInfo">Fonte • Open-Meteo</div>
       </div>
 
       <div class="content">
@@ -376,7 +417,10 @@
 
             <div class="m">
               <div class="mLeft">
-                <div class="mIcon"><span class="material-icons-outlined">humidity_percentage</span></div>
+                <div class="mIcon">
+                  <!-- ✅ Corrigido: humidity_percentage falha em vários lugares -->
+                  <span class="material-icons-outlined">humidity_high</span>
+                </div>
                 <div class="mLabel">Umidade</div>
               </div>
               <div class="mVal" id="humidity">—</div>
@@ -403,10 +447,13 @@
         <div class="forecast" id="forecast"></div>
       </div>
     </section>
-  </div>
 
-  <div class="brand" aria-hidden="true">
-    <img src="assets/logo.png" alt="">
+    <!-- ✅ Logo discreta, visível em qualquer fundo -->
+    <div class="brand" aria-hidden="true">
+      <div class="brandBadge">
+        <img src="assets/logo.png" alt="">
+      </div>
+    </div>
   </div>
 
   <script>
@@ -470,7 +517,7 @@
       return "LOCAL NÃO IDENTIFICADO";
     }
 
-    /* ===== Weather (Open-Meteo, sem key) + ícone/cores suaves ===== */
+    /* ===== Weather (Open-Meteo, sem key) ===== */
     const wxIconEl = document.getElementById("wxIcon");
     const tempNowEl = document.getElementById("tempNow");
     const descNowEl = document.getElementById("descNow");
@@ -483,7 +530,6 @@
     const dowShort = ["DOM","SEG","TER","QUA","QUI","SEX","SÁB"];
 
     function wxFromCode(code){
-      // Material Icons Outlined + cor sutil
       if (code === 0) return { icon:"wb_sunny", desc:"CÉU LIMPO", color:"rgba(255, 193, 7, .95)" };
       if (code === 1 || code === 2) return { icon:"wb_cloudy", desc:"PARCIALMENTE NUBLADO", color:"rgba(120, 170, 210, .92)" };
       if (code === 3) return { icon:"cloud", desc:"NUBLADO", color:"rgba(120, 170, 210, .90)" };
