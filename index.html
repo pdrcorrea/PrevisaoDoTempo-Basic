@@ -30,9 +30,6 @@
       --pad: clamp(14px, 2.0vw, 22px);
 
       --header: linear-gradient(90deg, #0b2c5a, #1976b7);
-
-      /* cor dinâmica do ícone do clima */
-      --wxColor: #0f172a;
     }
 
     *{ box-sizing:border-box; }
@@ -70,6 +67,8 @@
       opacity:0;
       transform: translateY(10px);
       animation: inTop 800ms cubic-bezier(.22,1,.36,1) forwards;
+      position:relative;
+      z-index: 2;
     }
     @keyframes inTop{ to{ opacity:1; transform: translateY(0);} }
 
@@ -143,6 +142,8 @@
       opacity:0;
       transform: translateY(12px);
       animation: inPanel 900ms cubic-bezier(.22,1,.36,1) .06s forwards;
+      position:relative;
+      z-index: 2;
     }
     @keyframes inPanel{ to{ opacity:1; transform: translateY(0);} }
 
@@ -175,14 +176,13 @@
     .nowRow{
       display:flex;
       align-items:center;
-      gap: 20px;
+      gap: 18px;
       flex-wrap:wrap;
     }
 
     .wxIcon{
       font-size: 110px;
       line-height: 1;
-      color: var(--wxColor);
       transition: color 600ms ease;
     }
 
@@ -202,29 +202,59 @@
       color: var(--dim);
     }
 
+    /* Métricas com ícones */
     .meta{
       margin-top: 16px;
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      max-width: 520px;
+      max-width: 560px;
     }
     .m{
       padding: 12px 14px;
       border-radius: 14px;
       border: 1px solid var(--stroke2);
       background: var(--panel2);
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: .08em;
-      color: #0b1220;
       display:flex;
+      align-items:center;
       justify-content:space-between;
-      gap: 12px;
+      gap: 14px;
       white-space:nowrap;
     }
-    .m span{ color: var(--dim); font-weight:800; letter-spacing:.10em; text-transform:uppercase; }
+    .mLeft{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .mIcon{
+      width: 36px; height: 36px;
+      border-radius: 12px;
+      display:grid; place-items:center;
+      background: #ffffff;
+      border: 1px solid var(--stroke2);
+      color: #0b2c5a;
+      flex: 0 0 auto;
+    }
+    .mIcon .material-icons-outlined{ font-size: 20px; }
+    .mLabel{
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--dim);
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .mVal{
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: .06em;
+      color: #0b1220;
+      flex: 0 0 auto;
+    }
 
+    /* Previsão com ícones */
     .forecast{
       display:grid;
       gap: 12px;
@@ -232,9 +262,9 @@
     }
     .day{
       display:grid;
-      grid-template-columns: 92px 1fr 120px;
+      grid-template-columns: 76px 52px 1fr 120px;
       align-items:center;
-      gap: 10px;
+      gap: 12px;
       padding: 12px 14px;
       border-radius: 14px;
       border: 1px solid var(--stroke2);
@@ -247,6 +277,16 @@
       text-transform: uppercase;
       color: #0b1220;
     }
+    .dIcon{
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display:grid; place-items:center;
+      background: #ffffff;
+      border: 1px solid var(--stroke2);
+      color: #0b2c5a;
+    }
+    .dIcon .material-icons-outlined{ font-size: 22px; }
+
     .dmeta{
       font-size: 12px;
       font-weight: 900;
@@ -267,13 +307,15 @@
     }
     .hiLo .lo{ color: var(--dim); font-weight:800; }
 
+    /* Logo discreta (sempre visível, por cima, fora do card) */
     .brand{
       position: fixed;
       bottom: 14px;
       right: 16px;
-      opacity: .22;
+      opacity: .24;
       pointer-events:none;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.14));
+      z-index: 6; /* ✅ acima do painel */
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.18));
     }
     .brand img{ height: 22px; width:auto; display:block; }
 
@@ -281,6 +323,8 @@
       body{ overflow:auto; }
       .app{ height:auto; }
       .content{ grid-template-columns: 1fr; }
+      .day{ grid-template-columns: 76px 52px 1fr; grid-template-rows:auto auto; }
+      .hiLo{ grid-column: 1 / -1; text-align:left; }
       .brand{ position: static; opacity:.35; padding: 0 16px 16px; }
     }
   </style>
@@ -322,10 +366,37 @@
           </div>
 
           <div class="meta" aria-label="Métricas">
-            <div class="m"><span>Vento</span><div id="wind">—</div></div>
-            <div class="m"><span>Umidade</span><div id="humidity">—</div></div>
-            <div class="m"><span>Sensação</span><div id="feels">—</div></div>
-            <div class="m"><span>Chuva</span><div id="rain">—</div></div>
+            <div class="m">
+              <div class="mLeft">
+                <div class="mIcon"><span class="material-icons-outlined">air</span></div>
+                <div class="mLabel">Vento</div>
+              </div>
+              <div class="mVal" id="wind">—</div>
+            </div>
+
+            <div class="m">
+              <div class="mLeft">
+                <div class="mIcon"><span class="material-icons-outlined">humidity_percentage</span></div>
+                <div class="mLabel">Umidade</div>
+              </div>
+              <div class="mVal" id="humidity">—</div>
+            </div>
+
+            <div class="m">
+              <div class="mLeft">
+                <div class="mIcon"><span class="material-icons-outlined">device_thermostat</span></div>
+                <div class="mLabel">Sensação</div>
+              </div>
+              <div class="mVal" id="feels">—</div>
+            </div>
+
+            <div class="m">
+              <div class="mLeft">
+                <div class="mIcon"><span class="material-icons-outlined">water_drop</span></div>
+                <div class="mLabel">Chuva</div>
+              </div>
+              <div class="mVal" id="rain">—</div>
+            </div>
           </div>
         </div>
 
@@ -368,12 +439,12 @@
           const r = await fetchWithTimeout("https://ipwho.is/?lang=pt");
           const d = await r.json();
           if (!d || d.success === false) throw new Error("ipwho.is failed");
-          return { city:normStr(d.city), region:normStr(d.region_code||d.region), country:normStr(d.country_code), lat:toNum(d.latitude), lon:toNum(d.longitude), source:"ipwho.is" };
+          return { city:normStr(d.city), region:normStr(d.region_code||d.region), country:normStr(d.country_code), lat:toNum(d.latitude), lon:toNum(d.longitude) };
         },
         async () => {
           const r = await fetchWithTimeout("https://ipapi.co/json/");
           const d = await r.json();
-          return { city:normStr(d.city), region:normStr(d.region_code||d.region), country:normStr(d.country_code), lat:toNum(d.latitude), lon:toNum(d.longitude), source:"ipapi.co" };
+          return { city:normStr(d.city), region:normStr(d.region_code||d.region), country:normStr(d.country_code), lat:toNum(d.latitude), lon:toNum(d.longitude) };
         }
       ];
 
@@ -458,6 +529,9 @@
         el.className = "day";
         el.innerHTML = `
           <div class="dow">${fmtDayLabel(times[i])}</div>
+          <div class="dIcon" title="${w.desc}">
+            <span class="material-icons-outlined" style="color:${w.color}">${w.icon}</span>
+          </div>
           <div class="dmeta">${w.desc}${Number.isFinite(pop[i]) ? ` • CHUVA ${pop[i]}%` : ""}</div>
           <div class="hiLo">${Math.round(tmax[i])}° <span class="lo">/ ${Math.round(tmin[i])}°</span></div>
         `;
