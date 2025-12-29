@@ -3,389 +3,259 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Painel • Previsão do Tempo</title>
-
+  <title>PontoView • Clima</title>
   <style>
     :root{
-      /* Identidade (mantém o visual do seu painel) */
-      --bg: #0b1b2b;
-      --panel: #ffffff;
-      --muted: #6b7788;
-      --line: #e7eef7;
+      --bgA:#1d4c7b; --bgB:#0b1b2b;
+      --card:#ffffff; --line:#e7eef7; --chip:#f3f6fb;
+      --muted:#6b7788; --ink:#0e1b2a;
+      --topA:#163d63; --topB:#2c6aa3;
+      --radius:22px; --shadow:0 10px 30px rgba(0,0,0,.25);
+      --t-title: clamp(20px, 1.4vw, 28px);
+      --t-sub:   clamp(12px, 0.9vw, 16px);
+      --t-clock: clamp(34px, 2.6vw, 54px);
+      --t-body:  clamp(14px, 1.05vw, 18px);
+      --pad: clamp(16px, 1.3vw, 22px);
+      --gap: clamp(14px, 1.2vw, 20px);
 
-      --topbarA:#163d63;
-      --topbarB:#2c6aa3;
-
-      --chip:#f3f7fd;
-
-      --ink:#0e1b2a;
-
-      /* === Escala tipográfica para TV (AQUI É O “SEGREDO”) ===
-         Ajuste fino: se ainda ficar pequeno, aumente um pouco os clamps. */
-      --t-xxl: clamp(100px, 6.2vw, 137px); /* temperatura */
-      --t-xl:  clamp(38px, 3.2vw, 58px);  /* hora */
-      --t-lg:  clamp(18px, 1.8vw, 26px);  /* títulos cards */
-      --t-md:  clamp(14px, 1.35vw, 20px); /* textos principais */
-      --t-sm:  clamp(12px, 1.05vw, 15px); /* textos menores */
-
-      /* Espaçamentos para TV */
-      --pad: clamp(18px, 1.6vw, 28px);
-      --gap: clamp(16px, 1.6vw, 26px);
-      --radius: 18px;
-
-      --shadow: 0 10px 30px rgba(0,0,0,.25);
+      /* Conteúdo (moderado — não gigante) */
+      --t-temp: clamp(72px, 6vw, 120px);
+      --t-desc: clamp(14px, 1.1vw, 18px);
+      --t-mval: clamp(18px, 1.35vw, 24px);
+      --t-day:  clamp(14px, 1.05vw, 18px);
     }
-
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 700px at 50% 0%, #1d4c7b 0%, var(--bg) 60%);
-      color: var(--ink);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--ink);
+      background: radial-gradient(1200px 700px at 50% 0%, var(--bgA) 0%, var(--bgB) 60%);
     }
-
-    .frame{
-      min-height:100%;
-      padding: clamp(16px, 1.4vw, 26px);
-      display:flex;
-      align-items:stretch;
-      justify-content:center;
-    }
-
-    .screen{
-      width: min(1920px, 100%);
-      background: rgba(255,255,255,.04);
-      border-radius: 24px;
-      padding: clamp(10px, 1.0vw, 16px);
-    }
-
+    .frame{min-height:100%; padding:clamp(14px,1.2vw,22px); display:flex; justify-content:center; align-items:stretch;}
     .card{
-      height: calc(100vh - clamp(32px, 2.8vw, 48px));
-      max-height: 980px;
-      background: var(--panel);
-      border-radius: 22px;
+      width:min(1920px,100%);
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
       overflow:hidden;
-      box-shadow: var(--shadow);
-      display:flex;
-      flex-direction:column;
+      display:flex; flex-direction:column;
     }
-
-    /* Topbar */
     .topbar{
-      background: linear-gradient(180deg, var(--topbarB), var(--topbarA));
+      background: linear-gradient(180deg, var(--topB), var(--topA));
       color:#fff;
-      padding: var(--pad);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: var(--gap);
+      padding:var(--pad);
+      display:flex; justify-content:space-between; align-items:center;
+      gap:var(--gap);
     }
-    .topbar-left{
-      display:flex; align-items:center; gap: var(--gap);
-      min-width: 40%;
+    .left{display:flex; align-items:center; gap:var(--gap); min-width:45%;}
+    .badge{
+      width:clamp(44px,3.2vw,60px); height:clamp(44px,3.2vw,60px);
+      border-radius:16px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.22);
+      display:grid; place-items:center; flex:0 0 auto;
     }
-    .iconBadge{
-      width: clamp(44px, 3.2vw, 64px);
-      height: clamp(44px, 3.2vw, 64px);
-      border-radius: 16px;
-      background: rgba(255,255,255,.10);
-      border: 1px solid rgba(255,255,255,.22);
-      display:grid; place-items:center;
-      flex: 0 0 auto;
+    .badge svg{width:60%; height:60%; opacity:.95}
+    .titles{display:flex; flex-direction:column; gap:6px; line-height:1.05; min-width:0;}
+    .titles h1{
+      margin:0; font-size:var(--t-title); font-weight:900;
+      letter-spacing:.08em; text-transform:uppercase;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    .iconBadge svg{
-      width: 60%;
-      height: 60%;
-      opacity: .95;
+    .titles .sub{
+      font-size:var(--t-sub); font-weight:800; letter-spacing:.12em;
+      text-transform:uppercase; opacity:.9;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    .titleWrap{
-      display:flex;
-      flex-direction:column;
-      gap: 6px;
-      line-height:1.05;
-    }
-    .title{
-      font-size: clamp(22px, 1.8vw, 34px);
-      font-weight: 800;
-      letter-spacing:.06em;
-      text-transform: uppercase;
-    }
-    .subtitle{
-      font-size: var(--t-sm);
-      opacity: .9;
-      font-weight: 700;
-      letter-spacing:.08em;
-      text-transform: uppercase;
-    }
-
-    .topbar-right{
-      text-align:right;
-      display:flex;
-      flex-direction:column;
-      gap: 8px;
-      min-width: 30%;
-    }
-    .clock{
-      font-size: var(--t-xl);
-      font-weight: 900;
-      letter-spacing:.02em;
-      line-height:1;
-    }
-    .updated{
-      font-size: var(--t-sm);
-      opacity:.9;
-      font-weight: 800;
-      letter-spacing:.06em;
-      text-transform: uppercase;
-    }
-
-    /* Sub header */
+    .right{text-align:right; display:flex; flex-direction:column; gap:6px; min-width:30%;}
+    .clockTop{font-size:var(--t-clock); font-weight:900; line-height:1;}
+    .updated{font-size:var(--t-sub); font-weight:800; letter-spacing:.10em; text-transform:uppercase; opacity:.9;}
     .subbar{
-      background: #f3f6fb;
-      border-top: 1px solid rgba(255,255,255,.18);
-      border-bottom: 1px solid var(--line);
-      padding: clamp(12px, 1vw, 18px) var(--pad);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: var(--gap);
-      font-weight: 900;
-      letter-spacing:.10em;
-      text-transform: uppercase;
-      font-size: var(--t-sm);
+      background:var(--chip);
+      border-bottom:1px solid var(--line);
+      padding:calc(var(--pad)*.6) var(--pad);
+      display:flex; justify-content:space-between; align-items:center;
+      gap:var(--gap);
+      font-size:var(--t-sub);
+      font-weight:900; letter-spacing:.12em; text-transform:uppercase;
       color:#1c2c41;
     }
-
-    /* Content */
-    .content{
-      padding: var(--pad);
+    main{flex:1 1 auto; padding:var(--pad);}
+    .grid-2{
       display:grid;
       grid-template-columns: 1.05fr 0.95fr;
       gap: var(--gap);
-      flex: 1 1 auto;
-      background: #fff;
+      align-items:start;
     }
+    @media (max-aspect-ratio: 4/3){ .grid-2{grid-template-columns:1fr;} }
 
-    /* Left side */
-    .left{
-      display:flex;
-      flex-direction:column;
-      gap: var(--gap);
-    }
-
+    /* Atual */
     .now{
       display:grid;
-      grid-template-columns: auto 1fr;
+      grid-template-columns:auto 1fr;
       gap: var(--gap);
       align-items:center;
-      padding: clamp(10px, .8vw, 14px);
+      padding: 8px;
     }
-
     .bigIcon{
-      width: clamp(84px, 6vw, 120px);
-      height: clamp(84px, 6vw, 120px);
-      display:grid;
-      place-items:center;
-    }
-    .bigIcon svg{
-      width:100%;
-      height:100%;
+      width: clamp(84px, 6vw, 110px);
+      height: clamp(84px, 6vw, 110px);
       color:#7ea7cf;
+      display:grid; place-items:center;
     }
-
-    .tempWrap{
-      display:flex;
-      flex-direction:column;
-      gap: 6px;
-    }
+    .bigIcon svg{width:100%; height:100%}
     .temp{
-      font-size: var(--t-xxl);
+      font-size: var(--t-temp);
       font-weight: 300;
       letter-spacing: -0.03em;
       line-height: 0.95;
     }
     .desc{
-      font-size: var(--t-md);
-      color:#2c3b4f;
+      font-size: var(--t-desc);
       font-weight: 900;
-      letter-spacing:.10em;
+      letter-spacing: .12em;
       text-transform: uppercase;
+      color:#2a3a50;
+      margin-top: 6px;
     }
 
-    /* Metrics */
+    /* Métricas */
     .metrics{
+      margin-top: var(--gap);
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap: var(--gap);
     }
     .metric{
-      background: #f6f9fe;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: clamp(16px, 1.2vw, 22px);
+      background:#f6f9fe;
+      border:1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap: 14px;
-      min-height: clamp(84px, 6vw, 108px); /* MAIS ALTO */
+      gap: 12px;
+      min-height: 78px;
     }
-    .metric-left{
-      display:flex;
-      align-items:center;
-      gap: 14px;
-      min-width: 0;
-    }
+    .mleft{display:flex; align-items:center; gap:12px; min-width:0;}
     .micon{
-      width: clamp(44px, 3.2vw, 60px);
-      height: clamp(44px, 3.2vw, 60px);
-      border-radius: 16px;
-      background:#ffffff;
-      border: 1px solid var(--line);
-      display:grid;
-      place-items:center;
-      flex: 0 0 auto;
+      width: 46px; height: 46px;
+      border-radius: 14px;
+      background:#fff;
+      border:1px solid var(--line);
+      display:grid; place-items:center;
+      flex:0 0 auto;
+      color:#0f2f57;
     }
-    .micon svg{ width: 56%; height: 56%; color:#0f2f57; }
+    .micon svg{width:56%; height:56%}
     .mlabel{
-      font-size: var(--t-sm);
+      font-size: 12px;
       font-weight: 900;
-      letter-spacing:.12em;
-      color:#3c4b60;
+      letter-spacing:.14em;
       text-transform: uppercase;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      color:#3c4b60;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
     .mvalue{
-      font-size: var(--t-lg); /* MAIOR */
+      font-size: var(--t-mval);
       font-weight: 900;
-      color:#0f1c2b;
-      letter-spacing:.01em;
       white-space:nowrap;
     }
 
-    /* Right side */
-    .right{
-      display:flex;
-      flex-direction:column;
-      gap: var(--gap);
-    }
-    .forecastList{
-      display:flex;
-      flex-direction:column;
-      gap: var(--gap);
-    }
+    /* Próximos dias */
+    .list{display:flex; flex-direction:column; gap: var(--gap);}
     .dayRow{
       background:#f6f9fe;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: clamp(18px, 1.3vw, 24px); /* MAIS PADDING */
+      border:1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
       display:grid;
       grid-template-columns: auto auto 1fr auto;
       align-items:center;
       gap: var(--gap);
-      min-height: clamp(92px, 6.5vw, 120px); /* MAIS ALTO */
+      min-height: 84px;
     }
     .dow{
-      font-size: var(--t-md);
+      width: 62px;
+      font-size: var(--t-day);
       font-weight: 900;
       letter-spacing:.14em;
-      color:#1a2a40;
       text-transform: uppercase;
-      width: clamp(52px, 4vw, 72px);
-      text-align:left;
+      color:#1a2a40;
     }
     .dicon{
-      width: clamp(54px, 4vw, 70px);
-      height: clamp(54px, 4vw, 70px);
-      border-radius: 18px;
+      width: 54px; height: 54px;
+      border-radius: 16px;
       background:#fff;
-      border: 1px solid var(--line);
-      display:grid;
-      place-items:center;
+      border:1px solid var(--line);
+      display:grid; place-items:center;
+      color:#7ea7cf;
     }
-    .dicon svg{ width: 64%; height: 64%; color:#7ea7cf; }
-    .dtext{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      gap: 6px;
-    }
+    .dicon svg{width:64%; height:64%}
+    .dtext{min-width:0; display:flex; flex-direction:column; gap:6px;}
     .dtitle{
-      font-size: var(--t-md); /* MAIOR */
+      font-size: var(--t-body);
       font-weight: 900;
       letter-spacing:.06em;
-      color:#23344a;
       text-transform: uppercase;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      color:#23344a;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
     .drain{
-      font-size: var(--t-sm);
+      font-size: 12px;
       font-weight: 900;
-      color:#3b4b62;
-      letter-spacing:.10em;
+      letter-spacing:.12em;
       text-transform: uppercase;
+      color:#3b4b62;
       opacity:.9;
     }
     .dtemps{
-      font-size: var(--t-lg); /* MAIOR */
+      font-size: var(--t-mval);
       font-weight: 900;
-      letter-spacing:.02em;
-      color:#0e1b2a;
       white-space:nowrap;
-    }
-
-    /* Responsivo para telas mais estreitas (vertical) */
-    @media (max-aspect-ratio: 4/3){
-      .content{ grid-template-columns: 1fr; }
-      .card{ max-height: none; height: auto; min-height: 100vh; }
     }
   </style>
 </head>
 
 <body>
   <div class="frame">
-    <div class="screen">
-      <div class="card">
+    <div class="card" id="panel"
+      data-title="PREVISÃO DO TEMPO"
+      data-subtitle="COLATINA - ES"
+      data-subleft="CLIMA ATUAL + PRÓXIMOS DIAS"
+      data-subright="FONTE • OPEN-METEO">
 
-        <!-- TOPBAR -->
-        <div class="topbar">
-          <div class="topbar-left">
-            <div class="iconBadge" aria-hidden="true">
-              <!-- cloud icon -->
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 17.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 10.2 3.8 3.8 0 0 0 7 17.5h13z"/>
-              </svg>
-            </div>
-            <div class="titleWrap">
-              <div class="title">PREVISÃO DO TEMPO</div>
-              <div class="subtitle" id="cityLabel">COLATINA - ES</div>
-            </div>
+      <header class="topbar">
+        <div class="left">
+          <div class="badge" aria-hidden="true">
+            <!-- nuvem -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 17.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 10.2 3.8 3.8 0 0 0 7 17.5h13z"/>
+            </svg>
           </div>
-
-          <div class="topbar-right">
-            <div class="clock" id="clock">--:--</div>
-            <div class="updated" id="updated">ATUALIZADO • --:--</div>
+          <div class="titles">
+            <h1 id="title"></h1>
+            <div class="sub" id="subtitle"></div>
           </div>
         </div>
-
-        <!-- SUBBAR -->
-        <div class="subbar">
-          <div>CLIMA ATUAL + PRÓXIMOS DIAS</div>
-          <div>FONTE • OPEN-METEO</div>
+        <div class="right">
+          <div class="clockTop" id="clockTop">--:--</div>
+          <div class="updated" id="updated">ATUALIZADO • --:--</div>
         </div>
+      </header>
 
-        <!-- CONTENT -->
-        <div class="content">
+      <div class="subbar">
+        <div id="subLeft"></div>
+        <div id="subRight"></div>
+      </div>
 
-          <!-- LEFT -->
-          <div class="left">
+      <main>
+        <div class="grid-2">
+          <section>
             <div class="now">
               <div class="bigIcon" id="nowIcon" aria-hidden="true"></div>
-              <div class="tempWrap">
+              <div>
                 <div class="temp" id="tempNow">--°</div>
                 <div class="desc" id="descNow">CARREGANDO...</div>
               </div>
@@ -393,9 +263,9 @@
 
             <div class="metrics">
               <div class="metric">
-                <div class="metric-left">
+                <div class="mleft">
                   <div class="micon" aria-hidden="true">
-                    <!-- wind -->
+                    <!-- vento -->
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M3 8h10a2 2 0 1 0-2-2"/>
                       <path d="M3 12h14a2 2 0 1 1-2 2"/>
@@ -408,9 +278,9 @@
               </div>
 
               <div class="metric">
-                <div class="metric-left">
+                <div class="mleft">
                   <div class="micon" aria-hidden="true">
-                    <!-- humidity -->
+                    <!-- umidade -->
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M12 2s6 7 6 12a6 6 0 0 1-12 0c0-5 6-12 6-12z"/>
                     </svg>
@@ -421,9 +291,9 @@
               </div>
 
               <div class="metric">
-                <div class="metric-left">
+                <div class="mleft">
                   <div class="micon" aria-hidden="true">
-                    <!-- thermometer -->
+                    <!-- sensação -->
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0z"/>
                     </svg>
@@ -434,9 +304,9 @@
               </div>
 
               <div class="metric">
-                <div class="metric-left">
+                <div class="mleft">
                   <div class="micon" aria-hidden="true">
-                    <!-- rain -->
+                    <!-- chuva -->
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M16 13a4 4 0 0 0-8 0c0 3 4 7 4 7s4-4 4-7z"/>
                     </svg>
@@ -446,35 +316,49 @@
                 <div class="mvalue" id="rain">-- mm</div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <!-- RIGHT -->
-          <div class="right">
-            <div class="forecastList" id="forecastList"></div>
-          </div>
-
+          <section>
+            <div class="list" id="forecastList"></div>
+          </section>
         </div>
-      </div>
+      </main>
     </div>
   </div>
 
   <script>
-    // ====== CONFIG BÁSICA ======
-    // Troque para sua cidade fixa se quiser (melhor para TV corporativa).
+    // ===== CONFIG =====
+    // Troque para sua cidade fixa (recomendado para TV)
     const CITY = { name: "Colatina - ES", lat: -19.538, lon: -40.626 };
 
-    // ====== ICONES (SVG inline) ======
+    // ===== HEADER DATASET =====
+    const panel = document.getElementById("panel");
+    document.getElementById("title").textContent = panel.dataset.title || "";
+    document.getElementById("subtitle").textContent = panel.dataset.subtitle || CITY.name;
+    document.getElementById("subLeft").textContent = panel.dataset.subleft || "";
+    document.getElementById("subRight").textContent = panel.dataset.subright || "";
+
+    function hhmm(d=new Date()){
+      return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+    }
+    function tickClock(){
+      const t = hhmm();
+      document.getElementById("clockTop").textContent = t;
+      document.getElementById("updated").textContent = `ATUALIZADO • ${t}`;
+    }
+    tickClock();
+    setInterval(tickClock, 1000*10);
+
+    // ===== ICONES =====
     function svgCloud(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 17.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 10.2 3.8 3.8 0 0 0 7 17.5h13z"/>
       </svg>`; }
-
     function svgSun(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="4"></circle>
         <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
       </svg>`; }
-
     function svgRain(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 16.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 9.2 3.8 3.8 0 0 0 7 16.5h13z"/>
@@ -482,13 +366,11 @@
         <path d="M12 19l-1 2"></path>
         <path d="M16 19l-1 2"></path>
       </svg>`; }
-
     function svgStorm(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 16.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 9.2 3.8 3.8 0 0 0 7 16.5h9"/>
         <path d="M13 14l-2 4h3l-2 4"></path>
       </svg>`; }
-
     function svgPartly(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="8" cy="8" r="3"></circle>
@@ -496,9 +378,7 @@
         <path d="M20 17.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 8.3 10.1 3.8 3.8 0 0 0 9 17.5h11z"/>
       </svg>`; }
 
-    // Mapeamento básico do Open-Meteo weathercode
-    function codeToIcon(code){
-      // https://open-meteo.com/en/docs
+    function codeToMeta(code){
       if (code === 0) return { icon: svgSun(), text: "Ensolarado" };
       if (code === 1 || code === 2) return { icon: svgPartly(), text: "Parcialmente nublado" };
       if (code === 3) return { icon: svgCloud(), text: "Nublado" };
@@ -508,28 +388,13 @@
       if ([71,73,75,77,85,86].includes(code)) return { icon: svgCloud(), text: "Neve" };
       return { icon: svgCloud(), text: "Tempo" };
     }
-
     function dowPT(dateStr){
       const d = new Date(dateStr + "T12:00:00");
       const map = ["DOM","SEG","TER","QUA","QUI","SEX","SÁB"];
       return map[d.getDay()];
     }
 
-    function fmtTimeHHMM(dt=new Date()){
-      const hh = String(dt.getHours()).padStart(2,"0");
-      const mm = String(dt.getMinutes()).padStart(2,"0");
-      return `${hh}:${mm}`;
-    }
-
-    function setClock(){
-      const now = new Date();
-      document.getElementById("clock").textContent = fmtTimeHHMM(now);
-    }
-
     async function loadWeather(){
-      document.getElementById("cityLabel").textContent = CITY.name;
-
-      // Open-Meteo: current + daily
       const url = new URL("https://api.open-meteo.com/v1/forecast");
       url.searchParams.set("latitude", CITY.lat);
       url.searchParams.set("longitude", CITY.lon);
@@ -538,38 +403,33 @@
       url.searchParams.set("daily", "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max");
       url.searchParams.set("forecast_days", "5");
 
-      const res = await fetch(url.toString(), { cache: "no-store" });
+      const res = await fetch(url.toString(), { cache:"no-store" });
       if(!res.ok) throw new Error("Falha ao carregar clima");
       const data = await res.json();
 
       const cur = data.current;
-      const nowCode = codeToIcon(cur.weather_code);
+      const now = codeToMeta(cur.weather_code);
 
       document.getElementById("tempNow").textContent = `${Math.round(cur.temperature_2m)}°`;
-      document.getElementById("descNow").textContent = nowCode.text.toUpperCase();
-      document.getElementById("nowIcon").innerHTML = nowCode.icon;
+      document.getElementById("descNow").textContent = now.text.toUpperCase();
+      document.getElementById("nowIcon").innerHTML = now.icon;
 
       document.getElementById("wind").textContent = `${Math.round(cur.wind_speed_10m)} km/h`;
       document.getElementById("humidity").textContent = `${Math.round(cur.relative_humidity_2m)}%`;
       document.getElementById("feels").textContent = `${Math.round(cur.apparent_temperature)}°C`;
       document.getElementById("rain").textContent = `${Number(cur.precipitation).toFixed(1)} mm`;
 
-      // Atualizado
-      const upd = fmtTimeHHMM(new Date());
-      document.getElementById("updated").textContent = `ATUALIZADO • ${upd}`;
-
-      // Próximos dias
+      // próximos dias (pula hoje)
       const list = document.getElementById("forecastList");
       list.innerHTML = "";
-
       const times = data.daily.time;
-      for(let i=1; i<times.length; i++){ // pula o "hoje" para ficar como seu layout
+
+      for(let i=1; i<times.length; i++){
         const date = times[i];
-        const wcode = data.daily.weather_code[i];
+        const meta = codeToMeta(data.daily.weather_code[i]);
         const max = Math.round(data.daily.temperature_2m_max[i]);
         const min = Math.round(data.daily.temperature_2m_min[i]);
-        const pop = data.daily.precipitation_probability_max[i];
-        const meta = codeToIcon(wcode);
+        const pop = data.daily.precipitation_probability_max[i] ?? 0;
 
         const row = document.createElement("div");
         row.className = "dayRow";
@@ -578,7 +438,7 @@
           <div class="dicon" aria-hidden="true">${meta.icon}</div>
           <div class="dtext">
             <div class="dtitle">${meta.text.toUpperCase()}</div>
-            <div class="drain">CHUVA ${pop ?? 0}%</div>
+            <div class="drain">CHUVA ${pop}%</div>
           </div>
           <div class="dtemps">${max}° / ${min}°</div>
         `;
@@ -586,17 +446,11 @@
       }
     }
 
-    // init
-    setClock();
-    setInterval(setClock, 1000 * 10);
-
     loadWeather().catch(err=>{
       document.getElementById("descNow").textContent = "SEM CONEXÃO";
       console.error(err);
     });
-
-    // Atualiza clima a cada 20 min (bom para TV)
-    setInterval(()=>loadWeather().catch(()=>{}), 1000 * 60 * 20);
+    setInterval(()=>loadWeather().catch(()=>{}), 1000*60*20);
   </script>
 </body>
 </html>
