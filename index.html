@@ -27,15 +27,29 @@
       --shadow: 0 18px 60px rgba(2,10,23,.18);
 
       --r: 18px;
-      --pad: clamp(12px, 1.8vw, 22px);
+      --pad: clamp(14px, 2.2vw, 26px);
 
       --header: linear-gradient(90deg, #0b2c5a, #1976b7);
 
-      /* Escalas responsivas */
-      --wxIcon: clamp(72px, 8.5vw, 120px);
-      --temp: clamp(74px, 10vw, 150px);
-      --title: clamp(20px, 2.4vw, 34px);
-      --clock: clamp(34px, 4.2vw, 58px);
+      /* === ESCALA REALMENTE RESPONSIVA (TV-friendly) ===
+         Baseia mais em altura (vh) que é o que define “tamanho percebido” em painéis.
+      */
+      --title: clamp(22px, 2.2vh, 42px);
+      --sub: clamp(12px, 1.25vh, 18px);
+
+      --clock: clamp(34px, 3.8vh, 70px);
+      --small: clamp(12px, 1.15vh, 16px);
+
+      --wxIcon: clamp(92px, 9.5vh, 170px);
+      --temp: clamp(96px, 11.8vh, 210px);
+
+      --desc: clamp(12px, 1.35vh, 20px);
+
+      --cardText: clamp(12px, 1.2vh, 16px);
+      --cardValue: clamp(14px, 1.4vh, 20px);
+
+      --dayText: clamp(12px, 1.2vh, 16px);
+      --dayHiLo: clamp(14px, 1.5vh, 20px);
     }
 
     *{ box-sizing:border-box; }
@@ -84,14 +98,17 @@
       min-width: 0;
     }
     .iconBox{
-      width: 46px; height: 46px;
-      border-radius: 14px;
+      width: clamp(44px, 5vh, 60px);
+      height: clamp(44px, 5vh, 60px);
+      border-radius: 16px;
       display:grid; place-items:center;
       background: rgba(255,255,255,.14);
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
       flex: 0 0 auto;
     }
-    .iconBox .material-icons-outlined{ font-size: 26px; }
+    .iconBox .material-icons-outlined{
+      font-size: clamp(22px, 2.6vh, 30px);
+    }
 
     .titleBlock{ min-width:0; }
     .title{
@@ -102,18 +119,20 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      line-height: 1.1;
     }
     .sub{
       margin-top: 6px;
-      font-size: clamp(12px, 1.2vw, 13px);
-      font-weight: 700;
+      font-size: var(--sub);
+      font-weight: 800;
       letter-spacing: .12em;
       text-transform: uppercase;
-      opacity: .88;
+      opacity: .9;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
       max-width: 70vw;
+      line-height: 1.2;
     }
 
     .h-right{
@@ -131,11 +150,11 @@
       line-height: 1;
     }
     .lastUpdate{
-      font-size: 12px;
-      font-weight: 800;
+      font-size: var(--small);
+      font-weight: 900;
       letter-spacing: .12em;
       text-transform: uppercase;
-      opacity: .85;
+      opacity: .9;
     }
 
     .panel{
@@ -148,7 +167,6 @@
       transform: translateY(12px);
       animation: inPanel 900ms cubic-bezier(.22,1,.36,1) .06s forwards;
 
-      /* ocupa bem a tela sem sobrar "vazio" */
       min-height: 0;
       display:flex;
       flex-direction:column;
@@ -166,34 +184,44 @@
       flex-wrap:wrap;
     }
     .panelInfo{
-      font-size: 12px;
+      font-size: var(--small);
       font-weight: 900;
       letter-spacing: .12em;
       text-transform: uppercase;
       color: #1f2a44;
     }
 
+    /* === Conteúdo ocupa a altura e “enche” a tela === */
     .content{
-      padding: clamp(14px, 2.6vw, 32px);
+      padding: clamp(14px, 2.8vw, 34px);
       display:grid;
       grid-template-columns: 1.05fr .95fr;
-      gap: clamp(14px, 2.2vw, 22px);
-      align-items:start;
+      gap: clamp(14px, 2.4vw, 28px);
+      align-items:stretch;
       min-height: 0;
+      flex: 1;
     }
 
-    /* Ajuste automático: se a tela for menor, vira 1 coluna */
+    /* Em telas menores vira 1 coluna */
     @media (max-width: 980px){
       body{ overflow:auto; }
       .app{ height:auto; }
-      .panel{ min-height:auto; }
       .content{ grid-template-columns: 1fr; }
+    }
+
+    /* Lado esquerdo (clima atual) centraliza melhor */
+    .left{
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      gap: clamp(12px, 2vh, 18px);
+      min-height: 0;
     }
 
     .nowRow{
       display:flex;
       align-items:center;
-      gap: clamp(12px, 1.6vw, 18px);
+      gap: clamp(14px, 2vw, 22px);
       flex-wrap:wrap;
     }
 
@@ -212,31 +240,28 @@
     }
     .desc{
       margin-top: 10px;
-      font-size: clamp(12px, 1.2vw, 14px);
+      font-size: var(--desc);
       font-weight: 900;
       letter-spacing: .14em;
       text-transform: uppercase;
       color: var(--dim);
     }
 
-    /* Métricas */
+    /* Métricas maiores e legíveis */
     .meta{
-      margin-top: 16px;
+      margin-top: clamp(8px, 1.8vh, 16px);
       display:grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      max-width: 640px;
-    }
-    @media (max-width: 980px){
-      .meta{ grid-template-columns: 1fr 1fr; }
+      gap: clamp(10px, 1.6vh, 14px);
+      max-width: 760px;
     }
     @media (max-width: 520px){
       .meta{ grid-template-columns: 1fr; }
     }
 
     .m{
-      padding: 12px 14px;
-      border-radius: 14px;
+      padding: clamp(12px, 1.8vh, 18px) clamp(12px, 1.8vh, 18px);
+      border-radius: 16px;
       border: 1px solid var(--stroke2);
       background: var(--panel2);
       display:flex;
@@ -249,21 +274,24 @@
     .mLeft{
       display:flex;
       align-items:center;
-      gap: 10px;
+      gap: 12px;
       min-width: 0;
     }
     .mIcon{
-      width: 36px; height: 36px;
-      border-radius: 12px;
+      width: clamp(36px, 4.2vh, 52px);
+      height: clamp(36px, 4.2vh, 52px);
+      border-radius: 16px;
       display:grid; place-items:center;
       background: #ffffff;
       border: 1px solid var(--stroke2);
       color: #0b2c5a;
       flex: 0 0 auto;
     }
-    .mIcon .material-icons-outlined{ font-size: 20px; }
+    .mIcon .material-icons-outlined{
+      font-size: clamp(18px, 2.3vh, 26px);
+    }
     .mLabel{
-      font-size: 12px;
+      font-size: var(--cardText);
       font-weight: 900;
       letter-spacing: .12em;
       text-transform: uppercase;
@@ -272,56 +300,59 @@
       text-overflow:ellipsis;
     }
     .mVal{
-      font-size: 14px;
+      font-size: var(--cardValue);
       font-weight: 900;
       letter-spacing: .06em;
       color: #0b1220;
       flex: 0 0 auto;
     }
 
-    /* Previsão */
+    /* Previsão (lado direito) ocupa melhor e aumenta tudo */
     .forecast{
       display:grid;
-      gap: 12px;
+      gap: clamp(10px, 1.6vh, 14px);
       align-content:start;
+      min-height: 0;
     }
 
     .day{
       display:grid;
-      grid-template-columns: 70px 52px 1fr 118px;
+      grid-template-columns: clamp(62px, 6vh, 84px) clamp(54px, 6vh, 72px) 1fr clamp(100px, 9vh, 140px);
       align-items:center;
       gap: 12px;
-      padding: 12px 14px;
-      border-radius: 14px;
+      padding: clamp(12px, 1.8vh, 18px) clamp(12px, 1.8vh, 18px);
+      border-radius: 16px;
       border: 1px solid var(--stroke2);
       background: var(--panel2);
       min-width: 0;
     }
     @media (max-width: 980px){
-      .day{ grid-template-columns: 70px 52px 1fr; grid-template-rows:auto auto; }
+      .day{ grid-template-columns: clamp(62px, 6vh, 84px) clamp(54px, 6vh, 72px) 1fr; grid-template-rows:auto auto; }
       .hiLo{ grid-column: 1 / -1; text-align:left; }
     }
 
     .dow{
-      font-size: 13px;
+      font-size: var(--dayText);
       font-weight: 900;
       letter-spacing: .14em;
       text-transform: uppercase;
       color: #0b1220;
     }
-
     .dIcon{
-      width: 44px; height: 44px;
-      border-radius: 14px;
+      width: clamp(44px, 5vh, 64px);
+      height: clamp(44px, 5vh, 64px);
+      border-radius: 16px;
       display:grid; place-items:center;
       background: #ffffff;
       border: 1px solid var(--stroke2);
       color: #0b2c5a;
     }
-    .dIcon .material-icons-outlined{ font-size: 22px; }
+    .dIcon .material-icons-outlined{
+      font-size: clamp(20px, 2.6vh, 30px);
+    }
 
     .dmeta{
-      font-size: 12px;
+      font-size: var(--dayText);
       font-weight: 900;
       letter-spacing: .12em;
       text-transform: uppercase;
@@ -332,7 +363,7 @@
     }
     .hiLo{
       text-align:right;
-      font-size: 14px;
+      font-size: var(--dayHiLo);
       font-weight: 900;
       letter-spacing: .08em;
       color: #0b1220;
@@ -340,33 +371,27 @@
     }
     .hiLo .lo{ color: var(--dim); font-weight:800; }
 
-    /* ✅ Logo sempre visível: badge discreto */
+    /* === Logo discreta, SEM badge, mas sempre visível no branco ===
+       Usamos drop-shadow para dar “contorno” sem colocar placa/badge.
+    */
     .brand{
       position: fixed;
-      right: 16px;
+      right: 18px;
       bottom: 14px;
-      z-index: 10;
+      z-index: 20;
       pointer-events:none;
-      opacity: .9;
+      opacity: .26; /* discreta */
+      filter: drop-shadow(0 2px 0 rgba(15,23,42,.28))
+              drop-shadow(0 10px 16px rgba(0,0,0,.10));
     }
-    .brandBadge{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      padding: 8px 10px;
-      border-radius: 14px;
-      background: rgba(255,255,255,.62);
-      border: 1px solid rgba(255,255,255,.55);
-      box-shadow: 0 12px 28px rgba(0,0,0,.14);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      opacity: .55; /* discreta */
+    .brand img{
+      height: clamp(18px, 2.2vh, 28px);
+      width:auto;
+      display:block;
     }
-    .brandBadge img{ height: 18px; width:auto; display:block; }
 
     @media (max-width: 980px){
-      .brand{ position: static; padding: 0 16px 16px; }
-      .brandBadge{ opacity:.6; width: fit-content; }
+      .brand{ position: static; padding: 0 16px 16px; opacity:.35; }
     }
   </style>
 </head>
@@ -397,7 +422,7 @@
       </div>
 
       <div class="content">
-        <div>
+        <div class="left">
           <div class="nowRow">
             <span class="material-icons-outlined wxIcon" id="wxIcon">cloud</span>
             <div>
@@ -418,7 +443,7 @@
             <div class="m">
               <div class="mLeft">
                 <div class="mIcon">
-                  <!-- ✅ Corrigido: humidity_percentage falha em vários lugares -->
+                  <!-- ✅ ícone compatível -->
                   <span class="material-icons-outlined">humidity_high</span>
                 </div>
                 <div class="mLabel">Umidade</div>
@@ -448,11 +473,9 @@
       </div>
     </section>
 
-    <!-- ✅ Logo discreta, visível em qualquer fundo -->
+    <!-- ✅ Logo discreta, sem badge -->
     <div class="brand" aria-hidden="true">
-      <div class="brandBadge">
-        <img src="assets/logo.png" alt="">
-      </div>
+      <img src="assets/logo.png" alt="">
     </div>
   </div>
 
