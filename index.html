@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PontoView • Previsão do Tempo</title>
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg0:#081423;
+      --bg1:#0a2232;
+
+      --panel:#ffffff;
+      --panel2:#f5f7fb;
+
+      --text:#0f172a;
+      --dim:#475569;
+
+      --stroke:#d8e1ee;
+      --stroke2:#e6edf7;
+
+      --shadow: 0 18px 60px rgba(2,10,23,.18);
+
+      --r: 18px;
+      --pad: clamp(14px, 2.0vw, 22px);
+
+      --header: linear-gradient(90deg, #0b2c5a, #1976b7);
+
+      /* cor dinâmica do ícone do clima */
+      --wxColor: #0f172a;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      overflow:hidden;
+      background:
+        radial-gradient(1200px 900px at 25% 10%, rgba(87,184,231,.22) 0%, rgba(10,46,62,0) 60%),
+        radial-gradient(900px 700px at 75% 80%, rgba(52,198,208,.14) 0%, rgba(6,18,24,0) 65%),
+        radial-gradient(1400px 1100px at 50% 55%, var(--bg1) 0%, var(--bg0) 62%, #040a0f 100%);
+    }
+
+    .app{
+      height:100%;
+      display:grid;
+      grid-template-rows: auto 1fr;
+      gap: 14px;
+      padding: clamp(12px, 2vw, 22px);
+    }
+
+    header{
+      padding: 18px var(--pad);
+      border-radius: var(--r);
+      background: var(--header);
+      color: #fff;
+      box-shadow: var(--shadow);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 16px;
+
+      opacity:0;
+      transform: translateY(10px);
+      animation: inTop 800ms cubic-bezier(.22,1,.36,1) forwards;
+    }
+    @keyframes inTop{ to{ opacity:1; transform: translateY(0);} }
+
+    .h-left{
+      display:flex;
+      align-items:center;
+      gap: 16px;
+      min-width: 0;
+    }
+    .iconBox{
+      width: 46px; height: 46px;
+      border-radius: 14px;
+      display:grid; place-items:center;
+      background: rgba(255,255,255,.14);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+      flex: 0 0 auto;
+    }
+    .iconBox .material-icons-outlined{ font-size: 26px; }
+
+    .titleBlock{ min-width:0; }
+    .title{
+      font-size: clamp(22px, 2.6vw, 34px);
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .sub{
+      margin-top: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      opacity: .88;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 70vw;
+    }
+
+    .h-right{
+      text-align:right;
+      white-space:nowrap;
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+      align-items:flex-end;
+    }
+    .clock{
+      font-size: clamp(40px, 4.4vw, 58px);
+      font-weight: 900;
+      letter-spacing: .06em;
+      line-height: 1;
+    }
+    .lastUpdate{
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      opacity: .85;
+    }
+
+    .panel{
+      border-radius: var(--r);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+
+      opacity:0;
+      transform: translateY(12px);
+      animation: inPanel 900ms cubic-bezier(.22,1,.36,1) .06s forwards;
+    }
+    @keyframes inPanel{ to{ opacity:1; transform: translateY(0);} }
+
+    .panelTop{
+      padding: 12px var(--pad);
+      background: #f3f7ff;
+      border-bottom: 1px solid var(--stroke2);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap:wrap;
+    }
+    .panelInfo{
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #1f2a44;
+    }
+
+    .content{
+      padding: clamp(18px, 3.2vw, 34px);
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 22px;
+      align-items:start;
+    }
+
+    .nowRow{
+      display:flex;
+      align-items:center;
+      gap: 20px;
+      flex-wrap:wrap;
+    }
+
+    .wxIcon{
+      font-size: 110px;
+      line-height: 1;
+      color: var(--wxColor);
+      transition: color 600ms ease;
+    }
+
+    .temp{
+      font-size: clamp(86px, 10.0vw, 150px);
+      font-weight: 200;
+      line-height: .95;
+      letter-spacing: .02em;
+      color: #0b1220;
+    }
+    .desc{
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    .meta{
+      margin-top: 16px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      max-width: 520px;
+    }
+    .m{
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke2);
+      background: var(--panel2);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      color: #0b1220;
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      white-space:nowrap;
+    }
+    .m span{ color: var(--dim); font-weight:800; letter-spacing:.10em; text-transform:uppercase; }
+
+    .forecast{
+      display:grid;
+      gap: 12px;
+      align-content:start;
+    }
+    .day{
+      display:grid;
+      grid-template-columns: 92px 1fr 120px;
+      align-items:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke2);
+      background: var(--panel2);
+    }
+    .dow{
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #0b1220;
+    }
+    .dmeta{
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--dim);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .hiLo{
+      text-align:right;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      color: #0b1220;
+      white-space:nowrap;
+    }
+    .hiLo .lo{ color: var(--dim); font-weight:800; }
+
+    .brand{
+      position: fixed;
+      bottom: 14px;
+      right: 16px;
+      opacity: .22;
+      pointer-events:none;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.14));
+    }
+    .brand img{ height: 22px; width:auto; display:block; }
+
+    @media (max-width: 980px){
+      body{ overflow:auto; }
+      .app{ height:auto; }
+      .content{ grid-template-columns: 1fr; }
+      .brand{ position: static; opacity:.35; padding: 0 16px 16px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header>
+      <div class="h-left">
+        <div class="iconBox" aria-hidden="true">
+          <span class="material-icons-outlined">cloud</span>
+        </div>
+        <div class="titleBlock">
+          <div class="title">Previsão do Tempo</div>
+          <div class="sub" id="place">Localizando…</div>
+        </div>
+      </div>
+
+      <div class="h-right">
+        <div class="clock" id="clock">--:--</div>
+        <div class="lastUpdate" id="lastUpdate">Atualizado • —</div>
+      </div>
+    </header>
+
+    <section class="panel" aria-label="Painel de previsão">
+      <div class="panelTop">
+        <div class="panelInfo">Clima atual + próximos dias</div>
+        <div class="panelInfo" id="source">Fonte • Open-Meteo</div>
+      </div>
+
+      <div class="content">
+        <div>
+          <div class="nowRow">
+            <span class="material-icons-outlined wxIcon" id="wxIcon">cloud</span>
+            <div>
+              <div class="temp" id="tempNow">--°</div>
+              <div class="desc" id="descNow">—</div>
+            </div>
+          </div>
+
+          <div class="meta" aria-label="Métricas">
+            <div class="m"><span>Vento</span><div id="wind">—</div></div>
+            <div class="m"><span>Umidade</span><div id="humidity">—</div></div>
+            <div class="m"><span>Sensação</span><div id="feels">—</div></div>
+            <div class="m"><span>Chuva</span><div id="rain">—</div></div>
+          </div>
+        </div>
+
+        <div class="forecast" id="forecast"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="brand" aria-hidden="true">
+    <img src="assets/logo.png" alt="">
+  </div>
+
+  <script>
+    /* ===== Clock (sem segundos) ===== */
+    const clockEl = document.getElementById("clock");
+    const lastUpdateEl = document.getElementById("lastUpdate");
+    function pad2(n){ return String(n).padStart(2,"0"); }
+    function tickClock(){
+      const d = new Date();
+      clockEl.textContent = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+      lastUpdateEl.textContent = `Atualizado • ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    }
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    /* ===== Location by IP (robusto / sem permissão) ===== */
+    const placeEl = document.getElementById("place");
+
+    function fetchWithTimeout(url, timeoutMs = 4500){
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), timeoutMs);
+      return fetch(url, { cache:"no-store", signal: ctrl.signal }).finally(() => clearTimeout(t));
+    }
+    function normStr(v){ if(v==null) return null; const s=String(v).trim(); return s? s:null; }
+    function toNum(v){ const n=Number(v); return Number.isFinite(n)? n:null; }
+
+    async function getIpLocationRobust(){
+      const providers = [
+        async () => {
+          const r = await fetchWithTimeout("https://ipwho.is/?lang=pt");
+          const d = await r.json();
+          if (!d || d.success === false) throw new Error("ipwho.is failed");
+          return { city:normStr(d.city), region:normStr(d.region_code||d.region), country:normStr(d.country_code), lat:toNum(d.latitude), lon:toNum(d.longitude), source:"ipwho.is" };
+        },
+        async () => {
+          const r = await fetchWithTimeout("https://ipapi.co/json/");
+          const d = await r.json();
+          return { city:normStr(d.city), region:normStr(d.region_code||d.region), country:normStr(d.country_code), lat:toNum(d.latitude), lon:toNum(d.longitude), source:"ipapi.co" };
+        }
+      ];
+
+      let lastErr=null;
+      for(const p of providers){
+        try{
+          const loc=await p();
+          if(loc.city || (loc.lat!=null && loc.lon!=null)) return loc;
+          lastErr=new Error("provider empty");
+        }catch(e){ lastErr=e; }
+      }
+      throw lastErr || new Error("all providers failed");
+    }
+
+    function formatPlaceUpper(loc){
+      const city = loc.city ? loc.city.toUpperCase() : null;
+      const region = loc.region ? loc.region.toUpperCase() : null;
+      const country = loc.country ? loc.country.toUpperCase() : null;
+
+      if (city && region) return `${city} - ${region}`;
+      if (city && country) return `${city} - ${country}`;
+      if (city) return city;
+      return "LOCAL NÃO IDENTIFICADO";
+    }
+
+    /* ===== Weather (Open-Meteo, sem key) + ícone/cores suaves ===== */
+    const wxIconEl = document.getElementById("wxIcon");
+    const tempNowEl = document.getElementById("tempNow");
+    const descNowEl = document.getElementById("descNow");
+    const feelsEl = document.getElementById("feels");
+    const windEl = document.getElementById("wind");
+    const humidityEl = document.getElementById("humidity");
+    const rainEl = document.getElementById("rain");
+    const forecastEl = document.getElementById("forecast");
+
+    const dowShort = ["DOM","SEG","TER","QUA","QUI","SEX","SÁB"];
+
+    function wxFromCode(code){
+      // Material Icons Outlined + cor sutil
+      if (code === 0) return { icon:"wb_sunny", desc:"CÉU LIMPO", color:"rgba(255, 193, 7, .95)" };
+      if (code === 1 || code === 2) return { icon:"wb_cloudy", desc:"PARCIALMENTE NUBLADO", color:"rgba(120, 170, 210, .92)" };
+      if (code === 3) return { icon:"cloud", desc:"NUBLADO", color:"rgba(120, 170, 210, .90)" };
+      if (code === 45 || code === 48) return { icon:"blur_on", desc:"NEBLINA", color:"rgba(140, 160, 180, .88)" };
+      if (code === 51 || code === 53 || code === 55) return { icon:"grain", desc:"GAROA", color:"rgba(56, 189, 248, .92)" };
+      if (code === 61 || code === 63 || code === 65) return { icon:"umbrella", desc:"CHUVA", color:"rgba(56, 189, 248, .92)" };
+      if (code === 80 || code === 81 || code === 82) return { icon:"water_drop", desc:"PANCADAS", color:"rgba(56, 189, 248, .92)" };
+      if (code === 95 || code === 96 || code === 99) return { icon:"thunderstorm", desc:"TEMPESTADE", color:"rgba(96, 165, 250, .92)" };
+      if (code === 71 || code === 73 || code === 75 || code === 77 || code === 85 || code === 86) return { icon:"ac_unit", desc:"NEVE", color:"rgba(186, 230, 253, .92)" };
+      return { icon:"cloud", desc:"CLIMA", color:"rgba(120, 170, 210, .90)" };
+    }
+
+    function fmtDayLabel(isoDate){
+      const d = new Date(isoDate + "T12:00:00");
+      return dowShort[d.getDay()];
+    }
+
+    async function fetchWeather(lat, lon){
+      const url = new URL("https://api.open-meteo.com/v1/forecast");
+      url.searchParams.set("latitude", String(lat));
+      url.searchParams.set("longitude", String(lon));
+      url.searchParams.set("timezone", "auto");
+      url.searchParams.set("current", "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m");
+      url.searchParams.set("daily", "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max");
+      url.searchParams.set("forecast_days", "5");
+      const r = await fetchWithTimeout(url.toString(), 6500);
+      return r.json();
+    }
+
+    function renderDaily(daily){
+      forecastEl.innerHTML = "";
+      const times = daily.time || [];
+      const code = daily.weather_code || [];
+      const tmax = daily.temperature_2m_max || [];
+      const tmin = daily.temperature_2m_min || [];
+      const pop  = daily.precipitation_probability_max || [];
+
+      for (let i=0;i<times.length;i++){
+        if (i === 0) continue; // pula hoje
+        const w = wxFromCode(code[i]);
+
+        const el = document.createElement("div");
+        el.className = "day";
+        el.innerHTML = `
+          <div class="dow">${fmtDayLabel(times[i])}</div>
+          <div class="dmeta">${w.desc}${Number.isFinite(pop[i]) ? ` • CHUVA ${pop[i]}%` : ""}</div>
+          <div class="hiLo">${Math.round(tmax[i])}° <span class="lo">/ ${Math.round(tmin[i])}°</span></div>
+        `;
+        forecastEl.appendChild(el);
+      }
+    }
+
+    async function refresh(){
+      try{
+        placeEl.textContent = "Localizando…";
+        const loc = await getIpLocationRobust();
+        placeEl.textContent = formatPlaceUpper(loc);
+
+        if (loc.lat == null || loc.lon == null) throw new Error("Sem coordenadas");
+
+        const data = await fetchWeather(loc.lat, loc.lon);
+        const cur = data.current || {};
+        const w = wxFromCode(cur.weather_code);
+
+        wxIconEl.textContent = w.icon;
+        wxIconEl.style.color = w.color;
+        descNowEl.textContent = w.desc;
+
+        const t = Number(cur.temperature_2m);
+        tempNowEl.textContent = Number.isFinite(t) ? `${Math.round(t)}°` : "--°";
+
+        const feels = Number(cur.apparent_temperature);
+        feelsEl.textContent = Number.isFinite(feels) ? `${Math.round(feels)}°C` : "—";
+
+        const wind = Number(cur.wind_speed_10m);
+        windEl.textContent = Number.isFinite(wind) ? `${Math.round(wind)} km/h` : "—";
+
+        const hum = Number(cur.relative_humidity_2m);
+        humidityEl.textContent = Number.isFinite(hum) ? `${Math.round(hum)}%` : "—";
+
+        const rain = Number(cur.precipitation);
+        rainEl.textContent = Number.isFinite(rain) ? `${rain.toFixed(1)} mm` : "—";
+
+        if (data.daily) renderDaily(data.daily);
+      }catch(e){
+        placeEl.textContent = "SEM CONEXÃO";
+        wxIconEl.textContent = "cloud_off";
+        wxIconEl.style.color = "rgba(120, 170, 210, .70)";
+        descNowEl.textContent = "NÃO FOI POSSÍVEL ATUALIZAR";
+        tempNowEl.textContent = "--°";
+        feelsEl.textContent = "—";
+        windEl.textContent = "—";
+        humidityEl.textContent = "—";
+        rainEl.textContent = "—";
+        forecastEl.innerHTML = "";
+        console.warn(e);
+      }
+    }
+
+    refresh();
+    setInterval(refresh, 20 * 60 * 1000);
+  </script>
+</body>
+</html>
