@@ -15,19 +15,22 @@
       --muted:#6b7788;
       --ink:#0e1b2a;
 
-      --topA:#163d63; --topB:#2c6aa3;
+      /* Header mais “ônibus” */
+      --topA:#0b2a44;   /* base */
+      --topB:#2c6aa3;   /* topo */
+      --topC:#0f3d63;   /* meio */
 
       --radius:22px;
-      --shadow:0 10px 30px rgba(0,0,0,.25);
+      --shadow:0 12px 36px rgba(0,0,0,.28);
 
-      /* Tipos (padrão) */
-      --t-title: clamp(20px, 1.4vw, 28px);
-      --t-sub:   clamp(12px, 0.9vw, 16px);
-      --t-clock: clamp(34px, 2.6vw, 54px);
+      /* Tipos */
+      --t-title: clamp(20px, 1.55vw, 34px);
+      --t-sub:   clamp(12px, 0.95vw, 16px);
+      --t-clock: clamp(34px, 3.05vw, 64px);
       --t-body:  clamp(14px, 1.05vw, 18px);
 
       /* Destaque clima atual */
-      --t-temp:  clamp(96px, 7.2vw, 160px);
+      --t-temp:  clamp(96px, 7.2vw, 170px);
       --t-desc:  clamp(14px, 1.15vw, 18px);
 
       /* Próximos dias (compacto) */
@@ -37,7 +40,7 @@
       /* Cards/valores */
       --t-mval:  clamp(18px, 1.35vw, 24px);
 
-      --pad: clamp(16px, 1.3vw, 22px);
+      --pad: clamp(16px, 1.4vw, 26px);
       --gap: clamp(14px, 1.2vw, 20px);
 
       --panelSoft:#f6f9fe;
@@ -49,63 +52,120 @@
       --cold:#2b6cb0;
       --nice:#1f7a4f;
       --hot:#c05621;
+
+      /* Footer */
+      --footerH: clamp(46px, 5.4vh, 72px);
+
+      /* Safe padding (mais próximo do padrão do painel de ônibus) */
+      --safe: clamp(16px, 2.2vw, 32px);
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
+
     body{
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--ink);
-      background: radial-gradient(1200px 700px at 50% 0%, var(--bgA) 0%, var(--bgB) 60%);
+      background:
+        radial-gradient(1200px 700px at 50% 0%, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 55%),
+        radial-gradient(1200px 700px at 50% 0%, var(--bgA) 0%, var(--bgB) 60%);
+      overflow:hidden;
     }
 
+    /* FULLSCREEN COM SAFE PADDING */
     .frame{
-      min-height:100%;
-      padding:clamp(14px,1.2vw,22px);
+      width:100vw;
+      height:100vh;
+      padding: var(--safe);
       display:flex;
-      justify-content:center;
-      align-items:stretch;
     }
 
     .card{
-      width:min(1920px,100%);
+      width:100%;
+      height:100%;
       background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       overflow:hidden;
       display:flex;
       flex-direction:column;
     }
 
-    /* Topbar integrada */
+    /* ===== TOPBAR (padrão “ônibus”) ===== */
     .topbar{
-      background: linear-gradient(180deg, var(--topB), var(--topA));
+      position:relative;
+      background: linear-gradient(180deg, var(--topB) 0%, var(--topC) 42%, var(--topA) 100%);
       color:#fff;
-      padding:var(--pad);
+      padding: calc(var(--pad) * 1.05);
       display:flex;
       justify-content:space-between;
       align-items:center;
       gap:var(--gap);
+      flex:0 0 auto;
+      min-width:0;
+      border-bottom: 1px solid rgba(255,255,255,.12);
     }
-    .leftTop{display:flex; align-items:center; gap:var(--gap); min-width:45%;}
+
+    /* brilho no topo + vinheta sutil (igual “premium”) */
+    .topbar::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(900px 120px at 50% 0%, rgba(255,255,255,.22), rgba(255,255,255,0) 65%),
+        linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,0) 42%);
+      opacity:.95;
+    }
+
+    /* borda interna suave */
+    .topbar::after{
+      content:"";
+      position:absolute;
+      inset:10px;
+      border-radius: calc(var(--radius) - 10px);
+      border: 1px solid rgba(255,255,255,.10);
+      pointer-events:none;
+      opacity:.45;
+    }
+
+    .leftTop{
+      position:relative;
+      z-index:1;
+      display:flex;
+      align-items:center;
+      gap:var(--gap);
+      min-width:0;
+      flex:1 1 auto;
+    }
+
+    /* badge estilo “glass” do painel de ônibus */
     .badge{
-      width:clamp(44px,3.2vw,60px);
-      height:clamp(44px,3.2vw,60px);
-      border-radius:16px;
-      background:rgba(255,255,255,.10);
+      width:clamp(46px,3.4vw,64px);
+      height:clamp(46px,3.4vw,64px);
+      border-radius: 16px;
+      background: rgba(255,255,255,.10);
       border:1px solid rgba(255,255,255,.22);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
       display:grid;
       place-items:center;
       flex:0 0 auto;
     }
     .badge svg{width:60%; height:60%; opacity:.95}
-    .titles{display:flex; flex-direction:column; gap:6px; line-height:1.05; min-width:0;}
+
+    .titles{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      line-height:1.05;
+      min-width:0;
+    }
     .titles h1{
       margin:0;
       font-size:var(--t-title);
       font-weight:900;
-      letter-spacing:.08em;
+      letter-spacing:.04em; /* menos “espalhado” como no ônibus */
       text-transform:uppercase;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
@@ -114,18 +174,39 @@
       font-weight:800;
       letter-spacing:.12em;
       text-transform:uppercase;
-      opacity:.9;
+      opacity:.92;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    .rightTop{text-align:right; display:flex; flex-direction:column; gap:6px; min-width:30%;}
-    .clockTop{font-size:var(--t-clock); font-weight:900; line-height:1;}
-    .updated{font-size:var(--t-sub); font-weight:800; letter-spacing:.10em; text-transform:uppercase; opacity:.9;}
+
+    .rightTop{
+      position:relative;
+      z-index:1;
+      text-align:right;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:max-content;
+      padding-left: 10px;
+    }
+    .clockTop{
+      font-size:var(--t-clock);
+      font-weight:900;
+      line-height:1;
+      letter-spacing:.02em;
+    }
+    .updated{
+      font-size:var(--t-sub);
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      opacity:.92;
+    }
 
     /* Subbar */
     .subbar{
       background:var(--chip);
       border-bottom:1px solid var(--line);
-      padding:calc(var(--pad)*.6) var(--pad);
+      padding:calc(var(--pad)*.62) var(--pad);
       display:flex;
       justify-content:space-between;
       align-items:center;
@@ -135,17 +216,26 @@
       letter-spacing:.12em;
       text-transform:uppercase;
       color:#1c2c41;
+      flex:0 0 auto;
+      min-width:0;
     }
+    .subbar > div{min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 
-    main{flex:1 1 auto; padding:var(--pad);}
+    main{
+      flex:1 1 auto;
+      padding:var(--pad);
+      min-height:0;
+      display:flex;
+    }
 
     /* Layout */
     .layout{
+      width:100%;
       display:grid;
       grid-template-columns: 1.22fr 0.78fr;
       gap: var(--gap);
       align-items: stretch;
-      min-height: 520px;
+      min-height: 0;
     }
     @media (max-aspect-ratio: 4/3){
       .layout{grid-template-columns:1fr;}
@@ -160,37 +250,26 @@
       flex-direction:column;
       justify-content:center;
       gap: 18px;
+      min-height:0;
     }
-
-    .heroTop{
-      display:flex;
-      gap: var(--gap);
-      align-items:center;
-    }
-
+    .heroTop{display:flex; gap: var(--gap); align-items:center; min-width:0;}
     .heroIcon{
-      width: clamp(140px, 9.6vw, 210px);
-      height: clamp(140px, 9.6vw, 210px);
+      width: clamp(140px, 9.6vw, 220px);
+      height: clamp(140px, 9.6vw, 220px);
       color:#7ea7cf;
       display:grid;
       place-items:center;
       flex:0 0 auto;
       position:relative;
     }
-
     .heroIcon svg{width:100%; height:100%}
-
-    .heroText{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      gap: 10px;
-    }
+    .heroText{min-width:0; display:flex; flex-direction:column; gap: 10px;}
     .heroTemp{
       font-size: var(--t-temp);
       font-weight: 260;
       letter-spacing:-0.03em;
       line-height: 0.95;
+      white-space:nowrap;
     }
     .heroDesc{
       font-size: var(--t-desc);
@@ -198,13 +277,9 @@
       letter-spacing: .14em;
       text-transform: uppercase;
       color:#2a3a50;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-
-    .finePrint{
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 700;
-    }
+    .finePrint{font-size: 12px; color: var(--muted); font-weight: 700;}
 
     /* ===== DIREITA: SIDE SLOT ===== */
     .side{
@@ -214,6 +289,7 @@
       overflow:hidden;
       display:flex;
       flex-direction:column;
+      min-height:0;
     }
     .sideHeader{
       padding: 14px 16px;
@@ -223,6 +299,7 @@
       align-items:center;
       justify-content:space-between;
       gap: 12px;
+      flex:0 0 auto;
     }
     .sideHeader .label{
       font-size: 12px;
@@ -231,20 +308,15 @@
       text-transform: uppercase;
       color:#3b4b62;
       white-space:nowrap;
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .toggleDots{display:flex; gap:8px; align-items:center;}
-    .dot{
-      width:10px; height:10px; border-radius:999px;
-      background:#c9d7ea;
-      transition: all var(--anim) var(--ease);
-    }
+    .dot{width:10px; height:10px; border-radius:999px; background:#c9d7ea; transition: all var(--anim) var(--ease);}
     .dot.active{background:#2d76b9; width:22px;}
 
-    .slot{
-      position:relative;
-      flex:1 1 auto;
-      padding: 16px;
-    }
+    .slot{position:relative; flex:1 1 auto; padding: 16px; min-height:0;}
     .view{
       position:absolute;
       inset: 16px;
@@ -255,15 +327,12 @@
       display:flex;
       flex-direction:column;
       gap: 12px;
+      min-height:0;
     }
-    .view.active{
-      opacity:1;
-      transform: translateY(0);
-      pointer-events:auto;
-    }
+    .view.active{opacity:1; transform: translateY(0); pointer-events:auto;}
 
-    /* View A: próximos dias compacto (SEM interação) */
-    .forecastCompact{display:flex; flex-direction:column; gap: 12px;}
+    /* View A */
+    .forecastCompact{display:flex; flex-direction:column; gap: 12px; min-height:0;}
     .fRow{
       background: var(--panelSoft);
       border: 1px solid var(--line);
@@ -274,14 +343,9 @@
       align-items:center;
       gap: 12px;
       user-select:none;
+      min-width:0;
     }
-    .fDow{
-      font-size: var(--t-day);
-      font-weight: 900;
-      letter-spacing:.14em;
-      text-transform: uppercase;
-      color:#1a2a40;
-    }
+    .fDow{font-size: var(--t-day); font-weight: 900; letter-spacing:.14em; text-transform: uppercase; color:#1a2a40;}
     .fIcon{
       width:46px; height:46px;
       border-radius: 14px;
@@ -307,15 +371,11 @@
       text-transform: uppercase;
       color:#3b4b62;
       opacity:.9;
-    }
-    .fMinMax{
-      font-size: var(--t-minmax);
-      font-weight: 900;
       white-space:nowrap;
-      color:#0e1b2a;
     }
+    .fMinMax{font-size: var(--t-minmax); font-weight: 900; white-space:nowrap; color:#0e1b2a;}
 
-    /* View B: detalhes do DIA DE HOJE + métricas */
+    /* View B */
     .panelBlock{
       background: var(--panelSoft);
       border: 1px solid var(--line);
@@ -324,20 +384,10 @@
       display:flex;
       flex-direction:column;
       gap: 12px;
+      min-height:0;
     }
-
-    .ddTop{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-    }
-    .ddLeft{
-      display:flex;
-      align-items:center;
-      gap: 12px;
-      min-width:0;
-    }
+    .ddTop{display:flex; align-items:center; justify-content:space-between; gap: 12px; min-width:0;}
+    .ddLeft{display:flex; align-items:center; gap: 12px; min-width:0;}
     .ddIcon{
       width:64px; height:64px;
       border-radius: 18px;
@@ -348,15 +398,8 @@
       flex:0 0 auto;
     }
     .ddIcon svg{width:70%; height:70%}
-
     .ddTitle{min-width:0; display:flex; flex-direction:column; gap: 6px;}
-    .ddDow{
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing:.14em;
-      text-transform: uppercase;
-      color:#1a2a40;
-    }
+    .ddDow{font-size: 12px; font-weight: 900; letter-spacing:.14em; text-transform: uppercase; color:#1a2a40; white-space:nowrap;}
     .ddCond{
       font-size: var(--t-body);
       font-weight: 900;
@@ -365,18 +408,9 @@
       color:#23344a;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    .ddTemps{
-      font-size: clamp(22px, 1.8vw, 30px);
-      font-weight: 900;
-      white-space:nowrap;
-      color:#0e1b2a;
-    }
+    .ddTemps{font-size: clamp(22px, 1.8vw, 30px); font-weight: 900; white-space:nowrap; color:#0e1b2a;}
 
-    .metricsSide{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
+    .metricsSide{display:grid; grid-template-columns: 1fr 1fr; gap: 12px;}
     .mCard{
       background:#fff;
       border:1px solid var(--line);
@@ -387,23 +421,12 @@
       justify-content:space-between;
       gap: 10px;
       min-height: 64px;
+      min-width:0;
     }
-    .mLabel{
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing:.12em;
-      text-transform: uppercase;
-      color:#3b4b62;
-      white-space:nowrap;
-    }
-    .mVal{
-      font-size: var(--t-mval);
-      font-weight: 900;
-      white-space:nowrap;
-      color:#0e1b2a;
-    }
+    .mLabel{font-size: 11px; font-weight: 900; letter-spacing:.12em; text-transform: uppercase; color:#3b4b62; white-space:nowrap;}
+    .mVal{font-size: var(--t-mval); font-weight: 900; white-space:nowrap; color:#0e1b2a;}
 
-    /* Sensação térmica: termômetro com pulso (ÚNICA animação) */
+    /* Sensação térmica */
     .feelWrap{
       display:flex;
       align-items:center;
@@ -413,13 +436,9 @@
       border:1px solid var(--line);
       border-radius: 16px;
       padding: 12px;
-    }
-    .feelLeft{
-      display:flex;
-      align-items:center;
-      gap: 12px;
       min-width:0;
     }
+    .feelLeft{display:flex; align-items:center; gap: 12px; min-width:0;}
     .thermo{
       width: 46px;
       height: 46px;
@@ -431,6 +450,7 @@
       position:relative;
       overflow:hidden;
       color: var(--nice);
+      flex:0 0 auto;
     }
     .thermo::after{
       content:"";
@@ -446,20 +466,8 @@
       50%{opacity:.18; transform:scale(1.08)}
     }
     .thermo svg{width:56%; height:56%; position:relative; z-index:1;}
-    .feelText{
-      display:flex;
-      flex-direction:column;
-      gap: 4px;
-      min-width:0;
-    }
-    .feelState{
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing:.14em;
-      text-transform: uppercase;
-      color:#3b4b62;
-      white-space:nowrap;
-    }
+    .feelText{display:flex; flex-direction:column; gap: 4px; min-width:0;}
+    .feelState{font-size: 11px; font-weight: 900; letter-spacing:.14em; text-transform: uppercase; color:#3b4b62; white-space:nowrap;}
     .feelHint{
       font-size: 12px;
       color: var(--muted);
@@ -467,17 +475,36 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      max-width: 220px;
+      max-width: 280px;
     }
-    .feelVal{
-      font-size: var(--t-mval);
-      font-weight: 900;
-      white-space:nowrap;
-    }
+    .feelVal{font-size: var(--t-mval); font-weight: 900; white-space:nowrap;}
 
     .feel-cold .thermo{ color: var(--cold); }
     .feel-nice .thermo{ color: var(--nice); }
     .feel-hot  .thermo{ color: var(--hot); }
+
+    /* Footer padrão */
+    .pvFooter{
+      flex:0 0 auto;
+      height: var(--footerH);
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      padding: 10px 16px;
+      border-top:1px solid var(--line);
+      background: transparent;
+      gap: 12px;
+    }
+    .pvFooterBrand{display:flex; align-items:center; gap:10px; opacity:.88;}
+    .pvFooterBrand img{height: clamp(16px, 2.4vh, 22px); width:auto; display:block;}
+    .pvFooterBrand .pvSmall{
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      color:#3b4b62;
+      white-space:nowrap;
+    }
   </style>
 </head>
 
@@ -515,7 +542,6 @@
       <main>
         <div class="layout">
 
-          <!-- ESQUERDA: HERO -->
           <section class="nowHero">
             <div class="heroTop">
               <div class="heroIcon" id="nowIcon" aria-hidden="true"></div>
@@ -527,7 +553,6 @@
             <div class="finePrint" id="finePrint">—</div>
           </section>
 
-          <!-- DIREITA: alternância -->
           <aside class="side">
             <div class="sideHeader">
               <div class="label" id="sideLabel">PRÓXIMOS DIAS</div>
@@ -538,12 +563,10 @@
             </div>
 
             <div class="slot">
-              <!-- View A: próximos dias -->
               <div class="view active" id="viewA">
                 <div class="forecastCompact" id="forecastList"></div>
               </div>
 
-              <!-- View B: detalhes do HOJE + métricas -->
               <div class="view" id="viewB">
                 <div class="panelBlock">
                   <div class="ddTop">
@@ -598,6 +621,13 @@
 
         </div>
       </main>
+
+      <footer class="pvFooter" aria-label="PontoView">
+        <div class="pvFooterBrand">
+          <span class="pvSmall">PontoView</span>
+          <img src="./assets/logo-pontoview.png" alt="Logo PontoView" />
+        </div>
+      </footer>
     </div>
   </div>
 
@@ -699,12 +729,12 @@
       dotA.classList.remove("active");
       sideLabel.textContent = "HOJE";
     }
-
     setInterval(()=>{ showingA ? showB() : showA(); }, ROTATE_MS);
 
     // ========= ESTADO / RENDER =========
     let dailyData = null;
     const selectedIndex = 0; // HOJE (fixo)
+    let currentFeels = null;
 
     function renderForecastList(){
       const list = document.getElementById("forecastList");
@@ -713,7 +743,6 @@
 
       const { time, weather_code, temperature_2m_max, temperature_2m_min, precipitation_probability_max } = dailyData;
 
-      // Mostra amanhã + próximos 3 (total 4 linhas)
       const start = 1;
       const end = Math.min(time.length, 5);
 
@@ -744,8 +773,6 @@
       return { cls:"feel-hot", label:"CALOR", hint:"Hidrate-se e evite sol forte." };
     }
 
-    let currentFeels = null;
-
     function renderTodayDetails(){
       if(!dailyData) return;
 
@@ -761,8 +788,6 @@
       document.getElementById("ddCond").textContent = meta.text.toUpperCase();
       document.getElementById("ddTemps").textContent = `${max}° / ${min}°`;
       document.getElementById("ddPop").textContent = `${pop}%`;
-
-      // Mostra "HOJE • SEG" etc.
       document.getElementById("ddDow").textContent = `HOJE • ${dowPT(date)}`;
 
       if (typeof currentFeels === "number"){
@@ -770,7 +795,6 @@
         const wrap = document.getElementById("feelWrap");
         wrap.classList.remove("feel-cold","feel-nice","feel-hot");
         wrap.classList.add(st.cls);
-
         document.getElementById("feelState").textContent = `SENSAÇÃO • ${st.label}`;
         document.getElementById("feelHint").textContent = st.hint;
       }
@@ -789,7 +813,6 @@
       if(!res.ok) throw new Error("Falha ao carregar clima");
       const data = await res.json();
 
-      // atual (clima agora)
       const cur = data.current;
       const now = codeToMeta(cur.weather_code);
 
@@ -797,33 +820,25 @@
       document.getElementById("descNow").textContent = now.text.toUpperCase();
       document.getElementById("nowIcon").innerHTML = now.icon;
 
-      // métricas (para o painel HOJE)
       document.getElementById("wind").textContent = `${Math.round(cur.wind_speed_10m)} km/h`;
       document.getElementById("humidity").textContent = `${Math.round(cur.relative_humidity_2m)}%`;
       document.getElementById("rain").textContent = `${Number(cur.precipitation).toFixed(1)} mm`;
       document.getElementById("feels").textContent = `${Math.round(cur.apparent_temperature)}°C`;
       currentFeels = Math.round(cur.apparent_temperature);
 
-      // footer
-      document.getElementById("finePrint").textContent =
-        `Local: ${CITY.name}`;
+      document.getElementById("finePrint").textContent = `Local: ${CITY.name}`;
 
-      // diários
       dailyData = data.daily;
-
       renderForecastList();
       renderTodayDetails();
     }
 
-    // init
     showA();
-
     loadWeather().catch(err=>{
       document.getElementById("descNow").textContent = "SEM CONEXÃO";
       document.getElementById("finePrint").textContent = "Sem conexão com a internet.";
       console.error(err);
     });
-
     setInterval(()=>loadWeather().catch(()=>{}), 1000*60*20);
   </script>
 </body>
