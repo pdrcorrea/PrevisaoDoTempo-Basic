@@ -554,6 +554,32 @@
       color:#0e1b2a;
       min-width: 44px;
     }
+.pill{
+  position: relative;
+  padding: 10px 12px 8px; /* um pouco mais alto pra caber o label */
+  min-width: 52px;
+}
+
+.pillTag{
+  position:absolute;
+  top:5px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  opacity: .55;
+  line-height: 1;
+}
+
+.pillTemp{
+  display:block;
+  margin-top: 10px; /* empurra o número pra baixo do label */
+  font-size: 12px;
+  font-weight: 900;
+}
+
 
     /* Detalhes de hoje */
     .detailCard{
@@ -1039,9 +1065,17 @@
           </div>
 
           <div class="fTemps">
-            <span class="pill">${max}°</span>
-            <span class="pill" style="opacity:.75">${min}°</span>
-          </div>
+  <span class="pill">
+    <span class="pillTag">MÁX</span>
+    <span class="pillTemp">${max}°</span>
+  </span>
+
+  <span class="pill" style="opacity:.75">
+    <span class="pillTag">MÍN</span>
+    <span class="pillTemp">${min}°</span>
+  </span>
+</div>
+
         `;
         list.appendChild(row);
       }
