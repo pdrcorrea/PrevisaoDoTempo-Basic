@@ -9,7 +9,6 @@
 
   <style>
     :root{
-      /* ===== PONTO VIEW THEME (padrão) ===== */
       --bg0:#081423;
       --bg1:#0a2232;
 
@@ -62,7 +61,6 @@
       overflow:hidden;
     }
 
-    /* ===== SAFE FRAME ===== */
     .pvFrame{
       width:100vw;
       height:100vh;
@@ -70,7 +68,6 @@
       display:flex;
     }
 
-    /* ===== PANEL ===== */
     .pvCard{
       width:100%;
       height:100%;
@@ -88,7 +85,7 @@
     }
     @keyframes pvIn{to{opacity:1; transform:translateY(0)}}
 
-    /* ===== HEADER (padrão) ===== */
+    /* ===== HEADER ===== */
     .pvHeader{
       position:relative;
       background: linear-gradient(180deg, var(--topB) 0%, var(--topC) 42%, var(--topA) 100%);
@@ -124,7 +121,6 @@
     }
 
     .pvLeft, .pvRight{position:relative; z-index:1;}
-
     .pvLeft{
       display:flex;
       align-items:center;
@@ -187,7 +183,7 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* ===== SUBBAR (HOJE / PRÓXIMOS DIAS) ===== */
+    /* ===== SUBBAR ===== */
     .pvSubbar{
       background:var(--chip);
       border-bottom:1px solid var(--line);
@@ -219,7 +215,6 @@
       min-width:0;
       white-space:nowrap;
     }
-
     .sourceTag{
       font-size: 11px;
       font-weight: 900;
@@ -235,7 +230,7 @@
       box-shadow: 0 8px 18px rgba(0,0,0,.04);
     }
 
-    /* ALERT bem sinalizado */
+    /* ALERT */
     .alertPill{
       display:none;
       align-items:center;
@@ -273,7 +268,7 @@
       50%{box-shadow: 0 14px 30px rgba(245,158,11,.26), 0 0 0 6px rgba(245,158,11,.08)}
     }
 
-    /* ===== MAIN (HOJE / PRÓXIMOS) ===== */
+    /* ===== MAIN ===== */
     .pvMain{
       flex:1 1 auto;
       min-height:0;
@@ -281,7 +276,6 @@
       display:flex;
       overflow:hidden;
     }
-
     .layout{
       width:100%;
       display:grid;
@@ -375,12 +369,21 @@
       background:#fff;
       flex:0 0 auto;
     }
+
+    /* agora com 6 cards (sensação + max/min + vento + umidade + chuva + prob) */
     .metricsRow{
       display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       align-items:stretch;
     }
+    @media (max-width: 1100px){
+      .metricsRow{grid-template-columns: repeat(2, 1fr);}
+    }
+    @media (max-width: 680px){
+      .metricsRow{grid-template-columns: 1fr;}
+    }
+
     .mCard{
       background:#f1f3f5;
       border:1px solid #eceff3;
@@ -450,7 +453,6 @@
       overflow:hidden;
       text-overflow:ellipsis;
     }
-
     .nextBody{
       flex:1 1 auto;
       min-height:0;
@@ -459,7 +461,6 @@
       background:#fff;
       display:flex;
     }
-
     .forecastList{
       width:100%;
       display:flex;
@@ -503,7 +504,6 @@
       flex:0 0 auto;
     }
     .fIcon svg{width:70%; height:70%}
-
     .fMid{min-width:0; display:flex; flex-direction:column; gap:6px;}
     .fBadge{
       display:inline-flex;
@@ -533,7 +533,6 @@
       opacity:.92;
       white-space:nowrap;
     }
-
     .fTemps{
       display:flex;
       align-items:center;
@@ -576,7 +575,7 @@
       font-weight: 900;
     }
 
-    /* ===== FOOTER (padrão) ===== */
+    /* ===== FOOTER ===== */
     .pvFooter{
       flex:0 0 auto;
       height: var(--footerH);
@@ -620,16 +619,7 @@
       display:block;
     }
 
-    /* ===== Responsividade vertical ===== */
-    @media (max-aspect-ratio: 3/4){
-      .layout{grid-template-columns:1fr;}
-      .metricsRow{grid-template-columns:1fr;}
-      .todayWrap{grid-template-columns: 1fr; justify-items:center; text-align:center;}
-      .tempBlock{display:flex; flex-direction:column; align-items:center;}
-      .todayCenter{padding-top: 12px;}
-    }
-
-    /* ===== ÍCONE HOJE animado (leve) ===== */
+    /* ===== ÍCONE HOJE animado ===== */
     .animFloat{
       animation: floaty 2.8s var(--ease) infinite;
       transform-origin: 50% 50%;
@@ -658,7 +648,6 @@
 <body>
   <div class="pvFrame">
     <div class="pvCard" id="panel" data-title="PREVISÃO DO TEMPO" data-subtitle="LOCAL • ES">
-      <!-- HEADER -->
       <header class="pvHeader">
         <div class="pvLeft">
           <div class="pvBadge" aria-hidden="true" id="hdrIcon"></div>
@@ -672,7 +661,6 @@
         </div>
       </header>
 
-      <!-- SUBBAR (sem AGORA) -->
       <div class="pvSubbar">
         <div class="pvSubLeft" id="subLeft">HOJE • PRÓXIMOS DIAS</div>
         <div class="pvSubRight">
@@ -686,10 +674,8 @@
         </div>
       </div>
 
-      <!-- MAIN -->
       <main class="pvMain">
         <div class="layout">
-          <!-- HOJE -->
           <section class="todayCard">
             <div class="todayHead">
               <div class="city" id="cityName">—</div>
@@ -707,6 +693,14 @@
 
             <div class="todayBottom">
               <div class="metricsRow">
+                <div class="mCard">
+                  <div class="mLeft">
+                    <div class="mIcon" aria-hidden="true" id="icFeel"></div>
+                    <div class="mLabel">SENSAÇÃO</div>
+                  </div>
+                  <div class="mVal" id="feels">--°</div>
+                </div>
+
                 <div class="mCard">
                   <div class="mLeft">
                     <div class="mIcon" aria-hidden="true" id="icMax"></div>
@@ -730,16 +724,30 @@
                   </div>
                   <div class="mVal" id="humidity">--%</div>
                 </div>
+
+                <div class="mCard">
+                  <div class="mLeft">
+                    <div class="mIcon" aria-hidden="true" id="icRain"></div>
+                    <div class="mLabel">CHUVA</div>
+                  </div>
+                  <div class="mVal" id="rainMm">-- mm</div>
+                </div>
+
+                <div class="mCard">
+                  <div class="mLeft">
+                    <div class="mIcon" aria-hidden="true" id="icPop"></div>
+                    <div class="mLabel">PROB.</div>
+                  </div>
+                  <div class="mVal" id="popPct">--%</div>
+                </div>
               </div>
             </div>
           </section>
 
-          <!-- PRÓXIMOS DIAS -->
           <aside class="nextCard">
             <div class="nextHeader">
               <div class="label">PRÓXIMOS DIAS</div>
             </div>
-
             <div class="nextBody">
               <div class="forecastList" id="forecastList"></div>
             </div>
@@ -747,7 +755,6 @@
         </div>
       </main>
 
-      <!-- FOOTER -->
       <footer class="pvFooter" aria-label="Rodapé PontoView">
         <div class="pvFooterLeft">
           <div class="pvFooterUpdate" id="footUpdated">ATUALIZADO • —</div>
@@ -842,9 +849,12 @@
       </svg>`; }
 
     document.getElementById("hdrIcon").innerHTML = svgCloud();
+    document.getElementById("icFeel").innerHTML = svgThermo();
     document.getElementById("icMax").innerHTML = svgMaxMin();
     document.getElementById("icWind").innerHTML = svgWind();
     document.getElementById("icHum").innerHTML = svgDrop();
+    document.getElementById("icRain").innerHTML = svgRain();
+    document.getElementById("icPop").innerHTML = svgDrop();
 
     function codeToMeta(code){
       if (code === 0) return { icon: svgSun(), text: "Ensolarado", kind:"sun" };
@@ -853,8 +863,31 @@
       if ([45,48].includes(code)) return { icon: svgCloud(), text: "Neblina", kind:"cloud" };
       if ([51,53,55,61,63,65,80,81,82].includes(code)) return { icon: svgRain(), text: "Chuva", kind:"rain" };
       if ([95,96,99].includes(code)) return { icon: svgStorm(), text: "Tempestade", kind:"storm" };
-      if ([71,73,75,77,85,86].includes(code)) return { icon: svgCloud(), text: "Neve", kind:"cloud" };
       return { icon: svgCloud(), text: "Tempo", kind:"cloud" };
+    }
+
+    function buildAnimatedTodayIcon(kind){
+      if (kind === "rain"){
+        return `
+          <svg class="animFloat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 16.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 9.2 3.8 3.8 0 0 0 7 16.5h13z"/>
+            <path class="animRainDrop" d="M8 19l-1 2"></path>
+            <path class="animRainDrop" style="animation-delay:.2s" d="M12 19l-1 2"></path>
+            <path class="animRainDrop" style="animation-delay:.4s" d="M16 19l-1 2"></path>
+          </svg>
+        `;
+      }
+      if (kind === "storm"){
+        return `
+          <svg class="animFloat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 16.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 9.2 3.8 3.8 0 0 0 7 16.5h9"/>
+            <path class="animLightning" d="M13 14l-2 4h3l-2 4"></path>
+          </svg>
+        `;
+      }
+      if (kind === "sun") return `<div class="animFloat">${svgSun()}</div>`;
+      if (kind === "partly") return `<div class="animFloat">${svgPartly()}</div>`;
+      return `<div class="animFloat">${svgCloud()}</div>`;
     }
 
     function dowPT(dateStr){
@@ -886,7 +919,7 @@
       }
     }
 
-    /* ===== Auto-scroll lento (só quando precisar) ===== */
+    /* ===== Auto-scroll lento (quando precisar) ===== */
     let autoScrollTimer = null;
     function startAutoScrollIfNeeded(){
       const list = document.getElementById("forecastList");
@@ -926,30 +959,6 @@
       }, 250);
     }
 
-    function buildAnimatedTodayIcon(kind){
-      if (kind === "rain"){
-        return `
-          <svg class="animFloat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 16.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 9.2 3.8 3.8 0 0 0 7 16.5h13z"/>
-            <path class="animRainDrop" d="M8 19l-1 2"></path>
-            <path class="animRainDrop" style="animation-delay:.2s" d="M12 19l-1 2"></path>
-            <path class="animRainDrop" style="animation-delay:.4s" d="M16 19l-1 2"></path>
-          </svg>
-        `;
-      }
-      if (kind === "storm"){
-        return `
-          <svg class="animFloat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 16.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 9.2 3.8 3.8 0 0 0 7 16.5h9"/>
-            <path class="animLightning" d="M13 14l-2 4h3l-2 4"></path>
-          </svg>
-        `;
-      }
-      if (kind === "sun") return `<div class="animFloat">${svgSun()}</div>`;
-      if (kind === "partly") return `<div class="animFloat">${svgPartly()}</div>`;
-      return `<div class="animFloat">${svgCloud()}</div>`;
-    }
-
     let dailyData = null;
 
     function renderForecastList(){
@@ -959,7 +968,7 @@
 
       const { time, weather_code, temperature_2m_max, temperature_2m_min, precipitation_probability_max, precipitation_sum } = dailyData;
 
-      const start = 1; /* amanhã */
+      const start = 1; // amanhã
       const end = Math.min(time.length, 6);
 
       for(let i=start; i<end; i++){
@@ -973,22 +982,16 @@
         row.className = "fRow";
         row.innerHTML = `
           <div class="fDow">${dowPT(time[i])}</div>
-
-          <div class="fIcon" aria-hidden="true">
-            ${meta.icon}
-          </div>
-
+          <div class="fIcon" aria-hidden="true">${meta.icon}</div>
           <div class="fMid">
             <div class="fBadge">${meta.text}</div>
             <div class="fSub">${Math.round(mm*10)/10} mm • ${pop}%</div>
           </div>
-
           <div class="fTemps">
             <span class="pill">
               <span class="pillTag">MÁX</span>
               <span class="pillTemp">${max}°</span>
             </span>
-
             <span class="pill" style="opacity:.75">
               <span class="pillTag">MÍN</span>
               <span class="pillTemp">${min}°</span>
@@ -1006,7 +1009,11 @@
       url.searchParams.set("latitude", CITY.lat);
       url.searchParams.set("longitude", CITY.lon);
       url.searchParams.set("timezone", TZ);
-      url.searchParams.set("current", "temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m");
+
+      // inclui apparent_temperature (sensação)
+      url.searchParams.set("current", "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m");
+
+      // detalhes do dia (hoje) via daily
       url.searchParams.set("daily", "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum");
       url.searchParams.set("forecast_days", "6");
 
@@ -1018,23 +1025,32 @@
       document.getElementById("footUpdated").textContent = `ATUALIZADO • ${ddmm_hhmm()}`;
 
       const cur = data.current;
-      const todayMeta = codeToMeta(cur.weather_code);
+      const meta = codeToMeta(cur.weather_code);
 
       setAlert(cur.weather_code);
 
       document.getElementById("tempToday").innerHTML = `${Math.round(cur.temperature_2m)}<small>°C</small>`;
-      document.getElementById("descToday").textContent = todayMeta.text.toUpperCase();
-      document.getElementById("todayIcon").innerHTML = buildAnimatedTodayIcon(todayMeta.kind);
+      document.getElementById("descToday").textContent = meta.text.toUpperCase();
+      document.getElementById("todayIcon").innerHTML = buildAnimatedTodayIcon(meta.kind);
 
+      // sensação
+      document.getElementById("feels").textContent = `${Math.round(cur.apparent_temperature)}°`;
+
+      // vento / umidade
+      document.getElementById("wind").textContent = `${Math.round(cur.wind_speed_10m)} km/h`;
+      document.getElementById("humidity").textContent = `${Math.round(cur.relative_humidity_2m)}%`;
+
+      // daily hoje (idx 0): max/min + chuva(mm) + prob(%)
       dailyData = data.daily;
 
-      // hoje (idx 0) para máx/mín
       const max = Math.round(dailyData.temperature_2m_max[0]);
       const min = Math.round(dailyData.temperature_2m_min[0]);
       document.getElementById("maxMin").textContent = `${max}° / ${min}°`;
 
-      document.getElementById("wind").textContent = `${Math.round(cur.wind_speed_10m)} km/h`;
-      document.getElementById("humidity").textContent = `${Math.round(cur.relative_humidity_2m)}%`;
+      const mm = (dailyData.precipitation_sum?.[0] ?? 0);
+      const pop = (dailyData.precipitation_probability_max?.[0] ?? 0);
+      document.getElementById("rainMm").textContent = `${Math.round(mm*10)/10} mm`;
+      document.getElementById("popPct").textContent = `${Math.round(pop)}%`;
 
       renderForecastList();
     }
