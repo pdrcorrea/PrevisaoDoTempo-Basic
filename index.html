@@ -78,7 +78,6 @@
       display:flex;
       flex-direction:column;
       min-height:0;
-
       opacity:0;
       transform: translateY(12px);
       animation: pvIn 900ms cubic-bezier(.22,1,.36,1) forwards;
@@ -279,7 +278,7 @@
     .layout{
       width:100%;
       display:grid;
-      grid-template-columns: 1.12fr 0.88fr;
+      grid-template-columns: 1.15fr 0.85fr;
       gap: var(--gap);
       align-items: stretch;
       min-height:0;
@@ -288,7 +287,7 @@
       .layout{grid-template-columns:1fr;}
     }
 
-    /* ===== HOJE ===== */
+    /* ===== HOJE (ESQUERDA) ===== */
     .todayCard{
       border:1px solid var(--line);
       border-radius: 20px;
@@ -370,7 +369,6 @@
       flex:0 0 auto;
     }
 
-    /* agora com 6 cards (sensação + max/min + vento + umidade + chuva + prob) */
     .metricsRow{
       display:grid;
       grid-template-columns: repeat(3, 1fr);
@@ -422,17 +420,17 @@
       color:#0e1b2a;
     }
 
-    /* ===== PRÓXIMOS DIAS ===== */
-    .nextCard{
+    /* ===== DIREITA (ALTERNÂNCIA) ===== */
+    .side{
       border:1px solid var(--line);
       border-radius: 20px;
-      background: #fff;
+      background:#fff;
       overflow:hidden;
       display:flex;
       flex-direction:column;
       min-height:0;
     }
-    .nextHeader{
+    .sideHeader{
       padding: 14px 16px;
       background: var(--panelSoft);
       border-bottom: 1px solid var(--line);
@@ -442,7 +440,7 @@
       gap: 12px;
       flex:0 0 auto;
     }
-    .nextHeader .label{
+    .sideHeader .label{
       font-size: 12px;
       font-weight: 900;
       letter-spacing:.14em;
@@ -453,16 +451,40 @@
       overflow:hidden;
       text-overflow:ellipsis;
     }
-    .nextBody{
+    .toggleDots{display:flex; gap:8px; align-items:center;}
+    .tdot{width:10px; height:10px; border-radius:999px; background:#c9d7ea; transition: all 420ms var(--ease);}
+    .tdot.active{background:#2d76b9; width:22px;}
+
+    .slot{
+      position:relative;
       flex:1 1 auto;
-      min-height:0;
       padding: 16px;
-      overflow:hidden;
+      min-height:0;
       background:#fff;
-      display:flex;
+      overflow:hidden;
     }
+
+    /* transição discreta (fade + slide leve) */
+    .view{
+      position:absolute;
+      inset: 16px;
+      opacity:0;
+      transform: translateY(10px);
+      pointer-events:none;
+      transition: opacity var(--anim) var(--ease), transform var(--anim) var(--ease);
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      min-height:0;
+    }
+    .view.active{
+      opacity:1;
+      transform: translateY(0);
+      pointer-events:auto;
+    }
+
+    /* ===== Próximos dias ===== */
     .forecastList{
-      width:100%;
       display:flex;
       flex-direction:column;
       gap: 12px;
@@ -508,7 +530,6 @@
     .fBadge{
       display:inline-flex;
       align-items:center;
-      gap:8px;
       padding: 8px 12px;
       border-radius:999px;
       background:#fff;
@@ -575,6 +596,65 @@
       font-weight: 900;
     }
 
+    /* ===== Detalhes de HOJE (view B) ===== */
+    .detailCard{
+      border:1px solid #eef2f7;
+      border-radius: 16px;
+      padding: 14px;
+      background:#fff;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      min-height:0;
+    }
+    .bigMinMax{
+      display:flex;
+      gap: 18px;
+      align-items:flex-end;
+      justify-content:flex-start;
+      padding: 6px 2px 4px;
+      flex-wrap:wrap;
+    }
+    .mmBlock{display:flex; align-items:baseline; gap:10px;}
+    .mmNum{
+      font-size: clamp(46px, 3.6vw, 64px);
+      font-weight: 900;
+      letter-spacing:-0.02em;
+      line-height:1;
+      color:#0e1b2a;
+      white-space:nowrap;
+    }
+    .mmLbl{
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      color:#7a8697;
+      white-space:nowrap;
+    }
+    .detailPills{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .dPill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid #e7e9ee;
+      box-shadow: 0 8px 18px rgba(0,0,0,.04);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing:.08em;
+      text-transform: uppercase;
+      color:#23344a;
+      white-space:nowrap;
+    }
+    .dPill svg{width:16px;height:16px;opacity:.9}
+
     /* ===== FOOTER ===== */
     .pvFooter{
       flex:0 0 auto;
@@ -588,14 +668,6 @@
       gap: 12px;
       min-width:0;
     }
-    .pvFooterLeft{
-      display:flex;
-      align-items:center;
-      min-width:0;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
     .pvFooterUpdate{
       font-size: 11px;
       font-weight: 900;
@@ -603,20 +675,15 @@
       text-transform: uppercase;
       color:#3b4b62;
       opacity:.95;
-    }
-    .pvFooterRight{
-      display:flex;
-      align-items:center;
-      justify-content:flex-end;
-      gap:10px;
-      opacity:.92;
-      flex:0 0 auto;
-      margin-left:auto;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .pvLogo{
       height: clamp(16px, 2.4vh, 22px);
       width:auto;
       display:block;
+      opacity:.90;
     }
 
     /* ===== ÍCONE HOJE animado ===== */
@@ -676,6 +743,7 @@
 
       <main class="pvMain">
         <div class="layout">
+          <!-- ESQUERDA: HOJE -->
           <section class="todayCard">
             <div class="todayHead">
               <div class="city" id="cityName">—</div>
@@ -703,14 +771,6 @@
 
                 <div class="mCard">
                   <div class="mLeft">
-                    <div class="mIcon" aria-hidden="true" id="icMax"></div>
-                    <div class="mLabel">MÁX / MÍN</div>
-                  </div>
-                  <div class="mVal" id="maxMin">--° / --°</div>
-                </div>
-
-                <div class="mCard">
-                  <div class="mLeft">
                     <div class="mIcon" aria-hidden="true" id="icWind"></div>
                     <div class="mLabel">VENTO</div>
                   </div>
@@ -724,54 +784,68 @@
                   </div>
                   <div class="mVal" id="humidity">--%</div>
                 </div>
-
-                <div class="mCard">
-                  <div class="mLeft">
-                    <div class="mIcon" aria-hidden="true" id="icRain"></div>
-                    <div class="mLabel">CHUVA</div>
-                  </div>
-                  <div class="mVal" id="rainMm">-- mm</div>
-                </div>
-
-                <div class="mCard">
-                  <div class="mLeft">
-                    <div class="mIcon" aria-hidden="true" id="icPop"></div>
-                    <div class="mLabel">PROB.</div>
-                  </div>
-                  <div class="mVal" id="popPct">--%</div>
-                </div>
               </div>
             </div>
           </section>
 
-          <aside class="nextCard">
-            <div class="nextHeader">
-              <div class="label">PRÓXIMOS DIAS</div>
+          <!-- DIREITA: Alterna -->
+          <aside class="side">
+            <div class="sideHeader">
+              <div class="label" id="sideLabel">PRÓXIMOS DIAS</div>
+              <div class="toggleDots" aria-hidden="true">
+                <div class="tdot active" id="dotA"></div>
+                <div class="tdot" id="dotB"></div>
+              </div>
             </div>
-            <div class="nextBody">
-              <div class="forecastList" id="forecastList"></div>
+
+            <div class="slot">
+              <!-- View A: Próximos dias -->
+              <div class="view active" id="viewA">
+                <div class="forecastList" id="forecastList"></div>
+              </div>
+
+              <!-- View B: Detalhes hoje -->
+              <div class="view" id="viewB">
+                <div class="detailCard">
+                  <div class="bigMinMax">
+                    <div class="mmBlock">
+                      <div class="mmNum" id="tMax">--°</div>
+                      <div class="mmLbl">máx</div>
+                    </div>
+                    <div class="mmBlock">
+                      <div class="mmNum" id="tMin">--°</div>
+                      <div class="mmLbl">mín</div>
+                    </div>
+                  </div>
+
+                  <div class="detailPills">
+                    <div class="dPill" id="pillRain"><span id="rainMm">-- mm</span></div>
+                    <div class="dPill" id="pillPop"><span id="popPct">--% chuva</span></div>
+                    <div class="dPill" id="pillCond"><span id="condTxt">—</span></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </aside>
+
         </div>
       </main>
 
       <footer class="pvFooter" aria-label="Rodapé PontoView">
-        <div class="pvFooterLeft">
-          <div class="pvFooterUpdate" id="footUpdated">ATUALIZADO • —</div>
-        </div>
-        <div class="pvFooterRight" aria-label="PontoView">
-          <img class="pvLogo" src="./assets/logo-pontoview.png" alt="Logo PontoView" />
-        </div>
+        <div class="pvFooterUpdate" id="footUpdated">ATUALIZADO • —</div>
+        <img class="pvLogo" src="./assets/logo-pontoview.png" alt="Logo PontoView" />
       </footer>
     </div>
   </div>
 
   <script>
     const FALLBACK_CITY = { name: "Vitória - ES", lat: -20.3155, lon: -40.3128, state: "ES" };
+    const ROTATE_MS = 11000;          // alterna a view da direita
     const WEATHER_REFRESH_MIN = 25;
     const TZ = "America/Sao_Paulo";
 
     let CITY = { ...FALLBACK_CITY };
+    let dailyData = null;
 
     function pad2(n){ return String(n).padStart(2,"0"); }
     function hhmm(d=new Date()){ return pad2(d.getHours())+":"+pad2(d.getMinutes()); }
@@ -785,9 +859,7 @@
     document.getElementById("title").textContent = panel.dataset.title || "PREVISÃO DO TEMPO";
     document.getElementById("subtitle").textContent = panel.dataset.subtitle || "LOCAL • ES";
 
-    function tickClock(){
-      document.getElementById("pvClock").textContent = hhmm();
-    }
+    function tickClock(){ document.getElementById("pvClock").textContent = hhmm(); }
     tickClock();
     setInterval(tickClock, 1000);
 
@@ -840,21 +912,11 @@
         <path d="M12 9v4"/>
         <path d="M12 17h.01"/>
       </svg>`; }
-    function svgMaxMin(){ return `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M8 7l4-4 4 4"></path>
-        <path d="M12 3v10"></path>
-        <path d="M16 17l-4 4-4-4"></path>
-        <path d="M12 21V11"></path>
-      </svg>`; }
 
     document.getElementById("hdrIcon").innerHTML = svgCloud();
     document.getElementById("icFeel").innerHTML = svgThermo();
-    document.getElementById("icMax").innerHTML = svgMaxMin();
     document.getElementById("icWind").innerHTML = svgWind();
     document.getElementById("icHum").innerHTML = svgDrop();
-    document.getElementById("icRain").innerHTML = svgRain();
-    document.getElementById("icPop").innerHTML = svgDrop();
 
     function codeToMeta(code){
       if (code === 0) return { icon: svgSun(), text: "Ensolarado", kind:"sun" };
@@ -896,6 +958,7 @@
       return map[d.getDay()];
     }
 
+    /* ===== ALERTA ===== */
     function getAlertFor(code){
       if ([95,96,99].includes(code)) return { show:true, label:"ALERTA • TEMPESTADE" };
       if ([65,82].includes(code)) return { show:true, label:"ALERTA • CHUVA FORTE" };
@@ -919,7 +982,7 @@
       }
     }
 
-    /* ===== Auto-scroll lento (quando precisar) ===== */
+    /* ===== AUTO-SCROLL (loop) ===== */
     let autoScrollTimer = null;
     function startAutoScrollIfNeeded(){
       const list = document.getElementById("forecastList");
@@ -959,8 +1022,35 @@
       }, 250);
     }
 
-    let dailyData = null;
+    /* ===== Alternância de views (direita) ===== */
+    const viewA = document.getElementById("viewA");
+    const viewB = document.getElementById("viewB");
+    const dotA = document.getElementById("dotA");
+    const dotB = document.getElementById("dotB");
+    const sideLabel = document.getElementById("sideLabel");
 
+    let showingA = true;
+
+    function showA(){
+      showingA = true;
+      viewA.classList.add("active");
+      viewB.classList.remove("active");
+      dotA.classList.add("active");
+      dotB.classList.remove("active");
+      sideLabel.textContent = "PRÓXIMOS DIAS";
+      startAutoScrollIfNeeded();
+    }
+    function showB(){
+      showingA = false;
+      viewB.classList.add("active");
+      viewA.classList.remove("active");
+      dotB.classList.add("active");
+      dotA.classList.remove("active");
+      sideLabel.textContent = "DETALHES • HOJE";
+    }
+    setInterval(()=>{ showingA ? showB() : showA(); }, ROTATE_MS);
+
+    /* ===== RENDER ===== */
     function renderForecastList(){
       const list = document.getElementById("forecastList");
       list.innerHTML = "";
@@ -968,7 +1058,7 @@
 
       const { time, weather_code, temperature_2m_max, temperature_2m_min, precipitation_probability_max, precipitation_sum } = dailyData;
 
-      const start = 1; // amanhã
+      const start = 1;
       const end = Math.min(time.length, 6);
 
       for(let i=start; i<end; i++){
@@ -1001,7 +1091,28 @@
         list.appendChild(row);
       }
 
-      startAutoScrollIfNeeded();
+      // se estiver na view A, inicia auto-scroll
+      if (showingA) startAutoScrollIfNeeded();
+    }
+
+    function renderTodayDetails(){
+      if(!dailyData) return;
+
+      const { weather_code, temperature_2m_max, temperature_2m_min, precipitation_probability_max, precipitation_sum } = dailyData;
+
+      const idx = 0;
+      const meta = codeToMeta(weather_code[idx]);
+      const pop = precipitation_probability_max?.[idx] ?? 0;
+      const mm = (precipitation_sum?.[idx] ?? 0);
+      const max = Math.round(temperature_2m_max[idx]);
+      const min = Math.round(temperature_2m_min[idx]);
+
+      document.getElementById("tMax").textContent = `${max}°`;
+      document.getElementById("tMin").textContent = `${min}°`;
+
+      document.getElementById("pillCond").innerHTML = `${meta.icon}<span id="condTxt">${meta.text.toUpperCase()}</span>`;
+      document.getElementById("pillRain").innerHTML = `${svgRain()}<span id="rainMm">${Math.round(mm*10)/10} mm</span>`;
+      document.getElementById("pillPop").innerHTML = `${svgDrop()}<span id="popPct">${Math.round(pop)}% chuva</span>`;
     }
 
     async function loadWeather(){
@@ -1009,11 +1120,7 @@
       url.searchParams.set("latitude", CITY.lat);
       url.searchParams.set("longitude", CITY.lon);
       url.searchParams.set("timezone", TZ);
-
-      // inclui apparent_temperature (sensação)
       url.searchParams.set("current", "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m");
-
-      // detalhes do dia (hoje) via daily
       url.searchParams.set("daily", "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum");
       url.searchParams.set("forecast_days", "6");
 
@@ -1033,26 +1140,13 @@
       document.getElementById("descToday").textContent = meta.text.toUpperCase();
       document.getElementById("todayIcon").innerHTML = buildAnimatedTodayIcon(meta.kind);
 
-      // sensação
       document.getElementById("feels").textContent = `${Math.round(cur.apparent_temperature)}°`;
-
-      // vento / umidade
       document.getElementById("wind").textContent = `${Math.round(cur.wind_speed_10m)} km/h`;
       document.getElementById("humidity").textContent = `${Math.round(cur.relative_humidity_2m)}%`;
 
-      // daily hoje (idx 0): max/min + chuva(mm) + prob(%)
       dailyData = data.daily;
-
-      const max = Math.round(dailyData.temperature_2m_max[0]);
-      const min = Math.round(dailyData.temperature_2m_min[0]);
-      document.getElementById("maxMin").textContent = `${max}° / ${min}°`;
-
-      const mm = (dailyData.precipitation_sum?.[0] ?? 0);
-      const pop = (dailyData.precipitation_probability_max?.[0] ?? 0);
-      document.getElementById("rainMm").textContent = `${Math.round(mm*10)/10} mm`;
-      document.getElementById("popPct").textContent = `${Math.round(pop)}%`;
-
       renderForecastList();
+      renderTodayDetails();
     }
 
     async function resolveCityByIP(){
@@ -1073,17 +1167,17 @@
       document.getElementById("subtitle").textContent = sub;
     }
 
+    // boot
+    showA();
     (async ()=>{
-      try{
-        await resolveCityByIP();
-      }catch(e){
+      try{ await resolveCityByIP(); }
+      catch(e){
         CITY = { ...FALLBACK_CITY };
         document.getElementById("subtitle").textContent = "LOCAL • ES";
       }
 
-      try{
-        await loadWeather();
-      }catch(err){
+      try{ await loadWeather(); }
+      catch(err){
         document.getElementById("descToday").textContent = "SEM CONEXÃO";
         document.getElementById("cityName").textContent = CITY.name || "—";
         document.getElementById("footUpdated").textContent = "ATUALIZADO • —";
