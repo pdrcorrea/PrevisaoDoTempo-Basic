@@ -6,26 +6,24 @@
   <title>PontoView • Previsão do Tempo</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800;900&display=swap" rel="stylesheet"/>
-  <!-- IMPORTANTE: versão no CSS pra evitar cache em TV/WebView -->
-  <link rel="stylesheet" href="./pv-base.css?v=3">
+  <!-- BASE ÚNICA (cache-bust para players/webviews) -->
+  <link rel="stylesheet" href="./pv-base.css?v=4">
 
   <style>
-    /* (Opcional) Aqui fica só o CSS específico do painel, se quiser.
-       Você pode deixar vazio se já tiver tudo no arquivo do painel. */
-
-    /* ===== ALERT forte (mantive do seu HTML) ===== */
     :root{
+      --panelSoft:#f6f9fe;
+
+      --anim: 520ms;
+      --ease: cubic-bezier(.2,.8,.2,1);
+
+      /* ALERT forte */
       --warnBg:#fff0c2;
       --warnInk:#5a3a00;
       --warnLine:#f2c66a;
       --warnHot:#f59e0b;
-
-      --panelSoft:#f6f9fe;
-      --anim: 520ms;
-      --ease: cubic-bezier(.2,.8,.2,1);
     }
 
-    /* seus componentes específicos do painel (mantidos) */
+    /* ===== SUBBAR extras (mantido) ===== */
     .sourceTag{
       font-size: 11px;
       font-weight: 900;
@@ -41,6 +39,7 @@
       box-shadow: 0 8px 18px rgba(0,0,0,.04);
     }
 
+    /* ALERT */
     .alertPill{
       display:none;
       align-items:center;
@@ -78,11 +77,27 @@
       50%{box-shadow: 0 14px 30px rgba(245,158,11,.26), 0 0 0 6px rgba(245,158,11,.08)}
     }
 
-    /* ===== Layout do seu painel (mantido) ===== */
-    .pvMain{ flex:1 1 auto; min-height:0; padding:var(--pad); display:flex; overflow:hidden; }
-    .layout{ width:100%; display:grid; grid-template-columns: 1.15fr 0.85fr; gap: var(--gap); align-items: stretch; min-height:0; }
-    @media (max-aspect-ratio: 4/3){ .layout{grid-template-columns:1fr;} }
+    /* ===== MAIN (mantido) ===== */
+    .pvMain{
+      flex:1 1 auto;
+      min-height:0;
+      padding:var(--pad);
+      display:flex;
+      overflow:hidden;
+    }
+    .layout{
+      width:100%;
+      display:grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: var(--gap);
+      align-items: stretch;
+      min-height:0;
+    }
+    @media (max-aspect-ratio: 4/3){
+      .layout{grid-template-columns:1fr;}
+    }
 
+    /* ===== HOJE (ESQUERDA) ===== */
     .todayCard{
       border:1px solid var(--line);
       border-radius: 20px;
@@ -92,73 +107,385 @@
       flex-direction:column;
       min-height:0;
     }
-    .todayHead{ padding: 18px 18px 10px; display:flex; align-items:flex-start; justify-content:space-between; gap: 12px; min-width:0; flex:0 0 auto; }
-    .city{ font-size: 18px; font-weight: 900; letter-spacing:.08em; text-transform:uppercase; color:#1a2a40; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .todayHead{
+      padding: 18px 18px 10px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      min-width:0;
+      flex:0 0 auto;
+    }
+    .city{
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#1a2a40;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
 
-    .todayCenter{ padding: 8px 18px 0; flex:1 1 auto; min-height:0; display:flex; align-items:center; justify-content:center; }
-    .todayWrap{ width:100%; max-width: 780px; display:grid; grid-template-columns: clamp(90px, 9vw, 150px) 1fr; align-items:center; gap: clamp(14px, 1.6vw, 22px); }
-    .todayIcon{ width: clamp(90px, 9vw, 150px); height: clamp(90px, 9vw, 150px); display:grid; place-items:center; color:#0f3d63; opacity:.95; }
+    .todayCenter{
+      padding: 8px 18px 0;
+      flex:1 1 auto;
+      min-height:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .todayWrap{
+      width:100%;
+      max-width: 780px;
+      display:grid;
+      grid-template-columns: clamp(90px, 9vw, 150px) 1fr;
+      align-items:center;
+      gap: clamp(14px, 1.6vw, 22px);
+    }
+    .todayIcon{
+      width: clamp(90px, 9vw, 150px);
+      height: clamp(90px, 9vw, 150px);
+      display:grid;
+      place-items:center;
+      color:#0f3d63;
+      opacity:.95;
+    }
     .todayIcon svg{width:100%; height:100%}
 
-    .tempBig{ font-size: clamp(78px, 7.2vw, 150px); font-weight: 900; letter-spacing:-0.03em; line-height: .92; white-space:nowrap; }
+    .tempBlock{min-width:0}
+    .tempBig{
+      font-size: clamp(78px, 7.2vw, 150px);
+      font-weight: 900;
+      letter-spacing:-0.03em;
+      line-height: .92;
+      white-space:nowrap;
+    }
     .tempBig small{font-size:.42em; font-weight: 900; opacity:.92}
-    .condLine{ margin-top: 10px; font-size: 14px; font-weight: 900; letter-spacing:.14em; text-transform:uppercase; color:#2a3a50; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .condLine{
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:#2a3a50;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
 
-    .todayBottom{ padding: 14px 18px 16px; border-top:1px solid var(--line); background:#fff; flex:0 0 auto; }
-    .metricsRow{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items:stretch; }
-    @media (max-width: 1100px){ .metricsRow{grid-template-columns: repeat(2, 1fr);} }
-    @media (max-width: 680px){ .metricsRow{grid-template-columns: 1fr;} }
+    .todayBottom{
+      padding: 14px 18px 16px;
+      border-top:1px solid var(--line);
+      background:#fff;
+      flex:0 0 auto;
+    }
 
-    .mCard{ background:#f1f3f5; border:1px solid #eceff3; border-radius: 14px; padding: 12px 12px; display:flex; align-items:center; justify-content:space-between; gap: 10px; min-width:0; }
+    .metricsRow{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      align-items:stretch;
+    }
+    @media (max-width: 1100px){
+      .metricsRow{grid-template-columns: repeat(2, 1fr);}
+    }
+    @media (max-width: 680px){
+      .metricsRow{grid-template-columns: 1fr;}
+    }
+
+    .mCard{
+      background:#f1f3f5;
+      border:1px solid #eceff3;
+      border-radius: 14px;
+      padding: 12px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      min-width:0;
+    }
     .mLeft{display:flex; align-items:center; gap:10px; min-width:0;}
-    .mIcon{ width:34px; height:34px; border-radius: 12px; background:#fff; border:1px solid #e7e9ee; display:grid; place-items:center; color:#1a2a40; opacity:.9; flex:0 0 auto; }
+    .mIcon{
+      width:34px; height:34px;
+      border-radius: 12px;
+      background:#fff;
+      border:1px solid #e7e9ee;
+      display:grid; place-items:center;
+      color:#1a2a40;
+      opacity:.9;
+      flex:0 0 auto;
+    }
     .mIcon svg{width:62%; height:62%}
-    .mLabel{ font-size: 11px; font-weight: 900; letter-spacing:.14em; text-transform:uppercase; color:#3b4b62; white-space:nowrap; }
-    .mVal{ font-size: 18px; font-weight: 900; white-space:nowrap; color:#0e1b2a; }
+    .mLabel{
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:#3b4b62;
+      white-space:nowrap;
+    }
+    .mVal{
+      font-size: 18px;
+      font-weight: 900;
+      white-space:nowrap;
+      color:#0e1b2a;
+    }
 
-    .side{ border:1px solid var(--line); border-radius: 20px; background:#fff; overflow:hidden; display:flex; flex-direction:column; min-height:0; }
-    .sideHeader{ padding: 14px 16px; background: var(--panelSoft); border-bottom: 1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap: 12px; flex:0 0 auto; }
-    .sideHeader .label{ font-size: 12px; font-weight: 900; letter-spacing:.14em; text-transform: uppercase; color:#3b4b62; white-space:nowrap; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+    /* ===== DIREITA (ALTERNÂNCIA) ===== */
+    .side{
+      border:1px solid var(--line);
+      border-radius: 20px;
+      background:#fff;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+    }
+    .sideHeader{
+      padding: 14px 16px;
+      background: var(--panelSoft);
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      flex:0 0 auto;
+    }
+    .sideHeader .label{
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing:.14em;
+      text-transform: uppercase;
+      color:#3b4b62;
+      white-space:nowrap;
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
     .toggleDots{display:flex; gap:8px; align-items:center;}
     .tdot{width:10px; height:10px; border-radius:999px; background:#c9d7ea; transition: all 420ms var(--ease);}
     .tdot.active{background:#2d76b9; width:22px;}
 
-    .slot{ position:relative; flex:1 1 auto; padding: 16px; min-height:0; background:#fff; overflow:hidden; }
-    .view{ position:absolute; inset: 16px; opacity:0; transform: translateY(10px); pointer-events:none; transition: opacity var(--anim) var(--ease), transform var(--anim) var(--ease); display:flex; flex-direction:column; gap: 12px; min-height:0; }
-    .view.active{ opacity:1; transform: translateY(0); pointer-events:auto; }
+    .slot{
+      position:relative;
+      flex:1 1 auto;
+      padding: 16px;
+      min-height:0;
+      background:#fff;
+      overflow:hidden;
+    }
+    .view{
+      position:absolute;
+      inset: 16px;
+      opacity:0;
+      transform: translateY(10px);
+      pointer-events:none;
+      transition: opacity var(--anim) var(--ease), transform var(--anim) var(--ease);
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      min-height:0;
+    }
+    .view.active{
+      opacity:1;
+      transform: translateY(0);
+      pointer-events:auto;
+    }
 
-    .forecastList{ display:flex; flex-direction:column; gap: 12px; min-height:0; overflow:auto; overscroll-behavior: contain; scrollbar-width: none; }
+    /* ===== Próximos dias ===== */
+    .forecastList{
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      min-height:0;
+      overflow:auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+    }
     .forecastList::-webkit-scrollbar{ width:0; height:0; }
 
-    .fRow{ background:#f1f3f5; border:1px solid #eceff3; border-radius: 14px; padding: 12px; display:grid; grid-template-columns: 56px 44px 1fr auto; align-items:center; gap: 12px; min-width:0; }
-    .fDow{ font-size: 14px; font-weight: 900; letter-spacing:.14em; text-transform: uppercase; color:#1a2a40; white-space:nowrap; }
-    .fIcon{ width:44px; height:44px; border-radius: 14px; background:#fff; border:1px solid #e7e9ee; display:grid; place-items:center; color:#0f3d63; opacity:.95; flex:0 0 auto; }
+    .fRow{
+      background:#f1f3f5;
+      border:1px solid #eceff3;
+      border-radius: 14px;
+      padding: 12px;
+      display:grid;
+      grid-template-columns: 56px 44px 1fr auto;
+      align-items:center;
+      gap: 12px;
+      min-width:0;
+    }
+    .fDow{
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing:.14em;
+      text-transform: uppercase;
+      color:#1a2a40;
+      white-space:nowrap;
+    }
+    .fIcon{
+      width:44px; height:44px;
+      border-radius: 14px;
+      background:#fff;
+      border:1px solid #e7e9ee;
+      display:grid;
+      place-items:center;
+      color:#0f3d63;
+      opacity:.95;
+      flex:0 0 auto;
+    }
     .fIcon svg{width:70%; height:70%}
     .fMid{min-width:0; display:flex; flex-direction:column; gap:6px;}
-    .fBadge{ display:inline-flex; align-items:center; padding: 8px 12px; border-radius:999px; background:#fff; border:1px solid #e7e9ee; width: fit-content; max-width: 100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size: 12px; font-weight: 900; letter-spacing:.08em; text-transform: uppercase; color:#23344a; }
-    .fSub{ font-size: 11px; font-weight: 900; letter-spacing:.12em; text-transform: uppercase; color:#3b4b62; opacity:.92; white-space:nowrap; }
-    .fTemps{ display:flex; align-items:center; justify-content:flex-end; gap:10px; white-space:nowrap; font-weight: 900; }
+    .fBadge{
+      display:inline-flex;
+      align-items:center;
+      padding: 8px 12px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid #e7e9ee;
+      width: fit-content;
+      max-width: 100%;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing:.08em;
+      text-transform: uppercase;
+      color:#23344a;
+    }
+    .fSub{
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      color:#3b4b62;
+      opacity:.92;
+      white-space:nowrap;
+    }
+    .fTemps{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:10px;
+      white-space:nowrap;
+      font-weight: 900;
+    }
+    .pill{
+      position: relative;
+      padding: 10px 12px 8px;
+      min-width: 52px;
+      border-radius: 999px;
+      background:#fff;
+      border:1px solid #e7e9ee;
+      font-size: 12px;
+      font-weight: 900;
+      color:#0e1b2a;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .pillTag{
+      position:absolute;
+      top:5px;
+      left:50%;
+      transform:translateX(-50%);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      opacity: .55;
+      line-height: 1;
+      pointer-events:none;
+    }
+    .pillTemp{
+      display:block;
+      margin-top: 10px;
+      font-size: 12px;
+      font-weight: 900;
+    }
 
-    .pill{ position: relative; padding: 10px 12px 8px; min-width: 52px; border-radius: 999px; background:#fff; border:1px solid #e7e9ee; font-size: 12px; font-weight: 900; color:#0e1b2a; display:inline-flex; align-items:center; justify-content:center; }
-    .pillTag{ position:absolute; top:5px; left:50%; transform:translateX(-50%); font-size: 9px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; opacity: .55; line-height: 1; pointer-events:none; }
-    .pillTemp{ display:block; margin-top: 10px; font-size: 12px; font-weight: 900; }
-
-    .detailCard{ border:1px solid #eef2f7; border-radius: 16px; padding: 14px; background:#fff; display:flex; flex-direction:column; gap: 12px; min-height:0; }
-    .bigMinMax{ display:flex; gap: 18px; align-items:flex-end; justify-content:flex-start; padding: 6px 2px 4px; flex-wrap:wrap; }
+    /* ===== Detalhes de HOJE (view B) ===== */
+    .detailCard{
+      border:1px solid #eef2f7;
+      border-radius: 16px;
+      padding: 14px;
+      background:#fff;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      min-height:0;
+    }
+    .bigMinMax{
+      display:flex;
+      gap: 18px;
+      align-items:flex-end;
+      justify-content:flex-start;
+      padding: 6px 2px 4px;
+      flex-wrap:wrap;
+    }
     .mmBlock{display:flex; align-items:baseline; gap:10px;}
-    .mmNum{ font-size: clamp(46px, 3.6vw, 64px); font-weight: 900; letter-spacing:-0.02em; line-height:1; color:#0e1b2a; white-space:nowrap; }
-    .mmLbl{ font-size: 12px; font-weight: 900; letter-spacing:.12em; text-transform: uppercase; color:#7a8697; white-space:nowrap; }
-    .detailPills{ display:flex; gap:10px; flex-wrap:wrap; }
-    .dPill{ display:inline-flex; align-items:center; gap:10px; padding:10px 12px; border-radius:999px; background:#fff; border:1px solid #e7e9ee; box-shadow: 0 8px 18px rgba(0,0,0,.04); font-size: 12px; font-weight: 900; letter-spacing:.08em; text-transform: uppercase; color:#23344a; white-space:nowrap; }
+    .mmNum{
+      font-size: clamp(46px, 3.6vw, 64px);
+      font-weight: 900;
+      letter-spacing:-0.02em;
+      line-height:1;
+      color:#0e1b2a;
+      white-space:nowrap;
+    }
+    .mmLbl{
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      color:#7a8697;
+      white-space:nowrap;
+    }
+    .detailPills{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .dPill{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid #e7e9ee;
+      box-shadow: 0 8px 18px rgba(0,0,0,.04);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing:.08em;
+      text-transform: uppercase;
+      color:#23344a;
+      white-space:nowrap;
+    }
     .dPill svg{width:16px;height:16px;opacity:.9}
 
-    /* ===== ÍCONE HOJE animado (mantido) ===== */
-    .animFloat{ animation: floaty 2.8s var(--ease) infinite; transform-origin: 50% 50%; }
-    @keyframes floaty{ 0%,100%{transform: translateY(0)} 50%{transform: translateY(-6px)} }
+    /* ===== ÍCONE HOJE animado ===== */
+    .animFloat{
+      animation: floaty 2.8s var(--ease) infinite;
+      transform-origin: 50% 50%;
+    }
+    @keyframes floaty{
+      0%,100%{transform: translateY(0)}
+      50%{transform: translateY(-6px)}
+    }
     .animRainDrop{animation: drop 1.2s linear infinite;}
-    @keyframes drop{ 0%{transform: translateY(-2px); opacity:.2} 35%{opacity:1} 100%{transform: translateY(10px); opacity:0} }
-    .animLightning{ animation: flash 1.1s var(--ease) infinite; transform-origin: 50% 50%; }
-    @keyframes flash{ 0%,60%,100%{opacity:1; transform: scale(1)} 30%{opacity:.2; transform: scale(.98)} }
+    @keyframes drop{
+      0%{transform: translateY(-2px); opacity:.2}
+      35%{opacity:1}
+      100%{transform: translateY(10px); opacity:0}
+    }
+    .animLightning{
+      animation: flash 1.1s var(--ease) infinite;
+      transform-origin: 50% 50%;
+    }
+    @keyframes flash{
+      0%,60%,100%{opacity:1; transform: scale(1)}
+      30%{opacity:.2; transform: scale(.98)}
+    }
   </style>
 </head>
 
@@ -194,7 +521,6 @@
 
       <main class="pvMain">
         <div class="layout">
-
           <!-- ESQUERDA: HOJE -->
           <section class="todayCard">
             <div class="todayHead">
@@ -294,10 +620,24 @@
   </div>
 
   <script>
-    const FALLBACK_CITY = { name: "Vitória - ES", lat: -20.3155, lon: -40.3128, state: "ES" };
+    /* =========================================================
+       CONFIG
+       ========================================================= */
+    const FALLBACK_CITY = { name: "Vitória • ES", lat: -20.3155, lon: -40.3128, state: "ES" };
     const ROTATE_MS = 11000;
     const WEATHER_REFRESH_MIN = 25;
     const TZ = "America/Sao_Paulo";
+
+    // Geoloc por IP sem permissão (Adeus Pendrive)
+    const GEO_TTL_HOURS = 72; // cache 3 dias pra evitar "pular"
+    const GEO_TIMEOUT_MS = 3500; // tempo curto por provedor
+
+    // (Opcional) Se quiser fixar manualmente por cliente (zero erro), preencha e pronto:
+    // const FIXED_CITY = { name:"São Paulo • SP", lat:-23.5505, lon:-46.6333, state:"SP" };
+    const FIXED_CITY = null;
+
+    // Sensação térmica: frio <= 19°C (como você pediu)
+    const FEEL_LIMITS = { cold: 19, coldExtreme: 12, hot: 32, hotExtreme: 36 };
 
     let CITY = { ...FALLBACK_CITY };
     let dailyData = null;
@@ -318,7 +658,9 @@
     tickClock();
     setInterval(tickClock, 1000);
 
-    /* ===== SVGs ===== */
+    /* =========================================================
+       SVGs
+       ========================================================= */
     function svgCloud(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 17.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 10.2 3.8 3.8 0 0 0 7 17.5h13z"/>
@@ -413,13 +755,14 @@
       return map[d.getDay()];
     }
 
-    /* ===== ALERTA ===== */
+    /* =========================================================
+       ALERTA
+       ========================================================= */
     function getAlertFor(code){
       if ([95,96,99].includes(code)) return { show:true, label:"ALERTA • TEMPESTADE" };
       if ([65,82].includes(code)) return { show:true, label:"ALERTA • CHUVA FORTE" };
       return { show:false, label:"" };
     }
-
     function setAlert(code){
       const a = getAlertFor(code);
       const top = document.getElementById("alertTop");
@@ -437,32 +780,197 @@
       }
     }
 
-    /* ===== SENSAÇÃO: classes no #icFeel (CSS anima o SVG) =====
-       Frio: <= 19°C
-       Extremo frio: <= 12°C
-       Calor: >= 32°C
-       Extremo calor: >= 36°C
-    */
-    const FEEL_LIMITS = { cold: 19, coldExtreme: 12, hot: 32, hotExtreme: 36 };
-
+    /* =========================================================
+       SENSAÇÃO: classes no #icFeel (CSS anima o SVG)
+       ========================================================= */
     function setFeelIconState(feelsLike){
       const el = document.getElementById("icFeel");
-      if(!el || !Number.isFinite(feelsLike)) return;
+      const v = Number(feelsLike);
+      if(!el || !Number.isFinite(v)) return;
 
       el.classList.remove("feel-hot","feel-cold","feel-hot-extreme","feel-cold-extreme");
 
-      if (feelsLike <= FEEL_LIMITS.cold){
+      if (v <= FEEL_LIMITS.cold){
         el.classList.add("feel-cold");
-        if (feelsLike <= FEEL_LIMITS.coldExtreme) el.classList.add("feel-cold-extreme");
+        if (v <= FEEL_LIMITS.coldExtreme) el.classList.add("feel-cold-extreme");
         return;
       }
-      if (feelsLike >= FEEL_LIMITS.hot){
+      if (v >= FEEL_LIMITS.hot){
         el.classList.add("feel-hot");
-        if (feelsLike >= FEEL_LIMITS.hotExtreme) el.classList.add("feel-hot-extreme");
+        if (v >= FEEL_LIMITS.hotExtreme) el.classList.add("feel-hot-extreme");
       }
     }
 
-    /* ===== AUTO-SCROLL (loop) ===== */
+    /* =========================================================
+       GEO por IP (SEM PERMISSÃO) + fallback múltiplo + cache
+       Adeus Pendrive: tende a ser a forma mais estável.
+       ========================================================= */
+    function setSubtitleFromState(state){
+      const sub = state ? `LOCAL • ${state}` : "LOCAL";
+      document.getElementById("subtitle").textContent = sub;
+    }
+
+    function loadGeoCache(){
+      try{
+        const raw = localStorage.getItem("pv_geo");
+        if(!raw) return null;
+        const obj = JSON.parse(raw);
+        if(!obj || !Number.isFinite(obj.lat) || !Number.isFinite(obj.lon)) return null;
+        const ageMs = Date.now() - (obj.ts || 0);
+        const ttlMs = GEO_TTL_HOURS * 3600 * 1000;
+        if(ageMs > ttlMs) return null;
+        return obj;
+      }catch(_){ return null; }
+    }
+    function saveGeoCache(payload){
+      try{ localStorage.setItem("pv_geo", JSON.stringify({ ...payload, ts: Date.now() })); }catch(_){}
+    }
+
+    function buildCityName(city, region){
+      const c = (city || "").trim();
+      const r = (region || "").trim();
+      if(c && r) return `${c} • ${r}`;
+      if(c) return c;
+      if(r) return `LOCAL • ${r}`;
+      return "LOCAL";
+    }
+
+    function withTimeout(promise, ms){
+      return new Promise((resolve, reject)=>{
+        const t = setTimeout(()=>reject(new Error("timeout")), ms);
+        promise.then(v=>{ clearTimeout(t); resolve(v); }).catch(e=>{ clearTimeout(t); reject(e); });
+      });
+    }
+
+    async function fetchIPGeoProviders(){
+      const providers = [
+        // ipapi.co
+        async ()=> {
+          const r = await fetch("https://ipapi.co/json/", { cache:"no-store" });
+          if(!r.ok) throw new Error("ipapi");
+          const j = await r.json();
+          return {
+            city: (j.city || "").trim(),
+            region: (j.region_code || j.region || "").trim(),
+            lat: Number(j.latitude),
+            lon: Number(j.longitude),
+            source: "ipapi"
+          };
+        },
+        // ipwho.is
+        async ()=> {
+          const r = await fetch("https://ipwho.is/", { cache:"no-store" });
+          if(!r.ok) throw new Error("ipwhois");
+          const j = await r.json();
+          if(j.success === false) throw new Error("ipwhois");
+          return {
+            city: (j.city || "").trim(),
+            region: (j.region_code || j.region || "").trim(),
+            lat: Number(j.latitude),
+            lon: Number(j.longitude),
+            source: "ipwhois"
+          };
+        },
+        // ip-api.com
+        async ()=> {
+          const r = await fetch("https://ip-api.com/json/?fields=status,city,region,regionName,lat,lon", { cache:"no-store" });
+          if(!r.ok) throw new Error("ip-api");
+          const j = await r.json();
+          if(j.status !== "success") throw new Error("ip-api");
+          return {
+            city: (j.city || "").trim(),
+            region: (j.region || j.regionName || "").trim(),
+            lat: Number(j.lat),
+            lon: Number(j.lon),
+            source: "ip-api"
+          };
+        }
+      ];
+
+      // roda em paralelo com timeout individual
+      const settled = await Promise.allSettled(
+        providers.map(fn => withTimeout(fn(), GEO_TIMEOUT_MS))
+      );
+
+      const good = settled
+        .filter(r => r.status === "fulfilled")
+        .map(r => r.value)
+        .filter(v => Number.isFinite(v.lat) && Number.isFinite(v.lon));
+
+      if(!good.length) throw new Error("no-geo");
+
+      // heurística: preferir o que traz cidade + UF
+      good.sort((a,b)=>{
+        const sa = (a.city?1:0) + (a.region?1:0);
+        const sb = (b.city?1:0) + (b.region?1:0);
+        return sb - sa;
+      });
+
+      return good[0];
+    }
+
+    function chooseBetter(oldGeo, newGeo){
+      if(!oldGeo) return newGeo;
+      const oldScore = (oldGeo.city?1:0) + (oldGeo.region?1:0);
+      const newScore = (newGeo.city?1:0) + (newGeo.region?1:0);
+
+      // se o novo tem menos info, mantém o antigo
+      if(newScore < oldScore) return oldGeo;
+
+      // se mudou muito e não melhorou info, mantém o antigo
+      const dx = (Number(oldGeo.lat) - Number(newGeo.lat));
+      const dy = (Number(oldGeo.lon) - Number(newGeo.lon));
+      const dist2 = dx*dx + dy*dy;
+      if(dist2 > 4 && newScore === oldScore) return oldGeo;
+
+      return newGeo;
+    }
+
+    async function resolveCityByIP(){
+      // 0) FIXO (se configurado)
+      if (FIXED_CITY && Number.isFinite(FIXED_CITY.lat) && Number.isFinite(FIXED_CITY.lon)){
+        CITY = { ...FIXED_CITY };
+        document.getElementById("subtitle").textContent = CITY.state ? `LOCAL • ${CITY.state}` : "LOCAL";
+        return;
+      }
+
+      // 1) cache primeiro (pra evitar "piscar" e reduzir erro)
+      const cached = loadGeoCache();
+      if(cached){
+        CITY = {
+          name: buildCityName(cached.city, cached.region),
+          lat: Number(cached.lat),
+          lon: Number(cached.lon),
+          state: (cached.region || "").trim()
+        };
+        setSubtitleFromState(CITY.state);
+      }
+
+      // 2) tenta atualizar via múltiplos provedores
+      try{
+        const g = await fetchIPGeoProviders();
+        const best = chooseBetter(cached, g);
+        saveGeoCache(best);
+
+        CITY = {
+          name: buildCityName(best.city, best.region),
+          lat: Number(best.lat),
+          lon: Number(best.lon),
+          state: (best.region || "").trim()
+        };
+        setSubtitleFromState(CITY.state);
+      }catch(_){
+        // 3) fallback final se não tinha cache
+        if(!cached){
+          CITY = { ...FALLBACK_CITY };
+          document.getElementById("subtitle").textContent = "LOCAL • ES";
+        }
+      }
+    }
+
+    /* =========================================================
+       AUTO-SCROLL (loop)
+       ========================================================= */
     let autoScrollTimer = null;
     function startAutoScrollIfNeeded(){
       const list = document.getElementById("forecastList");
@@ -502,7 +1010,9 @@
       }, 250);
     }
 
-    /* ===== Alternância de views (direita) ===== */
+    /* =========================================================
+       Alternância de views (direita)
+       ========================================================= */
     const viewA = document.getElementById("viewA");
     const viewB = document.getElementById("viewB");
     const dotA = document.getElementById("dotA");
@@ -530,7 +1040,9 @@
     }
     setInterval(()=>{ showingA ? showB() : showA(); }, ROTATE_MS);
 
-    /* ===== RENDER ===== */
+    /* =========================================================
+       RENDER
+       ========================================================= */
     function renderForecastList(){
       const list = document.getElementById("forecastList");
       list.innerHTML = "";
@@ -594,6 +1106,9 @@
       document.getElementById("pillPop").innerHTML = `${svgDrop()}<span id="popPct">${Math.round(pop)}% chuva</span>`;
     }
 
+    /* =========================================================
+       LOAD WEATHER (Open-Meteo)
+       ========================================================= */
     async function loadWeather(){
       const url = new URL("https://api.open-meteo.com/v1/forecast");
       url.searchParams.set("latitude", CITY.lat);
@@ -607,7 +1122,7 @@
       if(!res.ok) throw new Error("Falha ao carregar clima");
       const data = await res.json();
 
-      document.getElementById("cityName").textContent = CITY.name;
+      document.getElementById("cityName").textContent = CITY.name || "LOCAL";
       document.getElementById("footUpdated").textContent = `ATUALIZADO • ${ddmm_hhmm()}`;
 
       const cur = data.current;
@@ -630,32 +1145,15 @@
       renderTodayDetails();
     }
 
-    async function resolveCityByIP(){
-      const res = await fetch("https://ipapi.co/json/", { cache:"no-store" });
-      if(!res.ok) throw new Error("ipapi falhou");
-      const j = await res.json();
-
-      const lat = Number(j.latitude);
-      const lon = Number(j.longitude);
-      const city = (j.city || "").trim();
-      const region = (j.region_code || j.region || "").trim();
-
-      if (!Number.isFinite(lat) || !Number.isFinite(lon)) throw new Error("coords inválidas");
-      const name = city ? `${city}${region ? " • " + region : ""}` : (region || "LOCAL");
-
-      CITY = { name, lat, lon, state: region || "" };
-      const sub = (CITY.state === "ES") ? "LOCAL • ES" : "LOCAL";
-      document.getElementById("subtitle").textContent = sub;
-    }
-
-    // boot
+    /* =========================================================
+       BOOT
+       ========================================================= */
+    // start view
     showA();
+
     (async ()=>{
-      try{ await resolveCityByIP(); }
-      catch(e){
-        CITY = { ...FALLBACK_CITY };
-        document.getElementById("subtitle").textContent = "LOCAL • ES";
-      }
+      // resolve cidade (sem permissão)
+      await resolveCityByIP();
 
       try{ await loadWeather(); }
       catch(err){
