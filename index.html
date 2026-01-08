@@ -807,6 +807,134 @@
       .layout{ grid-template-columns: 1fr; }
       .side{ max-height: 42vh; }
     }
+
+/* =========================================================
+   PV • RESPONSIVO (telas menores) — cole NO FINAL do <style>
+   Mantém layout/JS, só recalibra escalas e respiros
+   ========================================================= */
+
+/* 1) Default: deixa a base um pouco mais "elástica" */
+:root{
+  --safe: clamp(10px, 1.6vw, 28px);
+  --pad:  clamp(12px, 1.15vw, 24px);
+  --gap:  clamp(10px, 1.0vw, 18px);
+
+  --t-title: clamp(18px, 1.35vw, 32px);
+  --t-sub:   clamp(11px, 0.85vw, 15px);
+  --t-clock: clamp(28px, 2.6vw, 58px);
+
+  --footerH: clamp(46px, 5.0vh, 72px);
+}
+
+/* 2) 1280×720 (e similares) — foco em não “estourar” */
+@media (max-width: 1280px), (max-height: 720px){
+  :root{
+    --safe: 12px;
+    --pad:  14px;
+    --gap:  12px;
+
+    --t-title: clamp(16px, 1.25vw, 26px);
+    --t-sub:   clamp(10px, 0.8vw, 13px);
+    --t-clock: clamp(26px, 2.5vw, 46px);
+
+    --footerH: 58px;
+  }
+
+  /* Header + Subbar mais compactos */
+  .pvHeader{
+    padding: calc(var(--pad) * .92);
+  }
+  .pvBadge{
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+  }
+  .pvSubbar{
+    padding: calc(var(--pad) * .50) var(--pad);
+  }
+  .sourceTag{ padding: 7px 10px; font-size: 10px; }
+
+  /* Área principal “segura” */
+  .pvMain{
+    padding: var(--pad);
+  }
+
+  /* HOJE: ícone/temperatura menores (mantém legível) */
+  .todayWrap{
+    grid-template-columns: clamp(78px, 8vw, 120px) 1fr;
+    gap: 14px;
+    max-width: 720px;
+  }
+  .todayIcon{
+    width: clamp(78px, 8vw, 120px);
+    height: clamp(78px, 8vw, 120px);
+  }
+  .tempBig{
+    font-size: clamp(58px, 6.0vw, 110px);
+    line-height: .92;
+  }
+  .condLine{
+    font-size: 12px;
+    letter-spacing: .12em;
+    margin-top: 8px;
+  }
+
+  /* Métricas: fonte e alturas menores */
+  .todayBottom{ padding: 12px 14px 14px; }
+  .metricsRow{ gap: 10px; }
+  .mCard{ padding: 10px 10px; border-radius: 14px; }
+  .mIcon{ width: 30px; height: 30px; border-radius: 11px; }
+  .mLabel{ font-size: 10px; letter-spacing: .12em; }
+  .mVal{ font-size: 16px; }
+
+  /* Direita: reduz paddings e garante que a lista não “invada” */
+  .sideHeader{ padding: 12px 14px; }
+  .slot{ padding: 14px; }
+  .view{ inset: 14px; }
+  .fRow{
+    padding: 10px;
+    gap: 10px;
+    grid-template-columns: 52px 40px 1fr auto;
+  }
+  .fDow{ font-size: 12px; }
+  .fIcon{ width: 40px; height: 40px; border-radius: 13px; }
+  .fBadge{ font-size: 11px; padding: 7px 10px; }
+  .fSub{ font-size: 10px; }
+  .pill{ padding: 9px 10px 7px; min-width: 50px; }
+  .pillTemp{ font-size: 12px; }
+
+  /* Footer mais compacto */
+  .pvFooter{ height: var(--footerH); padding: 8px var(--pad); }
+  .pvFooterUpdate{ font-size: 10px; }
+  .pvLogo{ height: 18px; }
+}
+
+/* 3) Quando a altura é curta (ex: TVs 720p com overscan)
+      Evita sobreposição: empilha colunas (layout 1 coluna) */
+@media (max-height: 680px){
+  .layout{ grid-template-columns: 1fr; }
+  .side{ max-height: 42vh; }
+  .todayCenter{ padding: 6px 14px 0; }
+}
+
+/* 4) 1024×768 (4:3) — normalmente já cai em 1 coluna pelo aspect-ratio,
+      mas reforça escalas para ficar equilibrado */
+@media (max-width: 1024px){
+  :root{
+    --safe: 10px;
+    --pad:  12px;
+    --gap:  10px;
+
+    --t-title: 20px;
+    --t-sub:   11px;
+    --t-clock: 40px;
+
+    --footerH: 56px;
+  }
+  .pvBadge{ width: 50px; height: 50px; }
+  .tempBig{ font-size: clamp(54px, 6.2vw, 96px); }
+}
+
   </style>
 </head>
 
