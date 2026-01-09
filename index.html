@@ -15,14 +15,13 @@
       --card:#ffffff;
       --line:#e7eef7;
       --chip:#f3f6fb;
-      --muted:#6b7788;
       --ink:#0e1b2a;
 
       --topA:#0b2a44;
       --topB:#2c6aa3;
       --topC:#0f3d63;
 
-      /* bordas um pouco maiores (como versão antiga) */
+      /* bordas maiores */
       --radiusOuter: 30px;
       --radius: 24px;
 
@@ -73,7 +72,6 @@
       overflow:hidden;
     }
 
-    /* moldura “shell” (igual sensação da versão antiga) */
     .pvFrame{
       width:100vw;
       height:100vh;
@@ -107,7 +105,6 @@
     }
     @keyframes pvIn{to{opacity:1; transform:translateY(0)}}
 
-    /* ===== HEADER ===== */
     .pvHeader{
       position:relative;
       background: linear-gradient(180deg, var(--topB) 0%, var(--topC) 42%, var(--topA) 100%);
@@ -205,7 +202,6 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* ===== SUBBAR ===== */
     .pvSubbar{
       background:var(--chip);
       border-bottom:1px solid var(--line);
@@ -252,7 +248,6 @@
       box-shadow: 0 8px 18px rgba(0,0,0,.04);
     }
 
-    /* ALERT */
     .alertPill{
       display:none;
       align-items:center;
@@ -290,7 +285,6 @@
       50%{box-shadow: 0 14px 30px rgba(245,158,11,.26), 0 0 0 6px rgba(245,158,11,.08)}
     }
 
-    /* ===== MAIN ===== */
     .pvMain{
       flex:1 1 auto;
       min-height:0;
@@ -310,7 +304,6 @@
       .layout{grid-template-columns:1fr;}
     }
 
-    /* ===== HOJE (ESQUERDA) ===== */
     .todayCard{
       border:1px solid var(--line);
       border-radius: 22px;
@@ -365,6 +358,29 @@
       opacity:.95;
     }
     .todayIcon svg{width:100%; height:100%}
+
+    .animFloat{
+      animation: floaty 2.8s var(--ease) infinite;
+      transform-origin: 50% 50%;
+    }
+    @keyframes floaty{
+      0%,100%{transform: translateY(0)}
+      50%{transform: translateY(-6px)}
+    }
+    .animRainDrop{animation: drop 1.2s linear infinite;}
+    @keyframes drop{
+      0%{transform: translateY(-2px); opacity:.2}
+      35%{opacity:1}
+      100%{transform: translateY(10px); opacity:0}
+    }
+    .animLightning{
+      animation: flash 1.1s var(--ease) infinite;
+      transform-origin: 50% 50%;
+    }
+    @keyframes flash{
+      0%,60%,100%{opacity:1; transform: scale(1)}
+      30%{opacity:.2; transform: scale(.98)}
+    }
 
     .tempBlock{min-width:0}
     .tempBig{
@@ -445,15 +461,7 @@
       color:#0e1b2a;
     }
 
-    /* ===== SENSAÇÃO TÉRMICA (ícone) ===== */
-    #icFeel.feel-normal{
-      background:#fff;
-      border-color:#e7e9ee;
-      color:#1a2a40;
-      opacity:.92;
-      animation:none;
-      box-shadow:none;
-    }
+    #icFeel.feel-normal{ background:#fff; border-color:#e7e9ee; color:#1a2a40; opacity:.92; animation:none; box-shadow:none; }
     #icFeel.feel-hot{
       background: var(--feelHotBg);
       border-color: var(--feelHotLine);
@@ -481,7 +489,6 @@
       100%{ box-shadow: 0 0 0 0 rgba(59,130,246,0); transform: scale(1); }
     }
 
-    /* ===== DIREITA (ALTERNÂNCIA) ===== */
     .side{
       border:1px solid var(--line);
       border-radius: 22px;
@@ -525,7 +532,6 @@
       overflow:hidden;
     }
 
-    /* transição discreta (fade + slide leve) */
     .view{
       position:absolute;
       inset: 16px;
@@ -544,7 +550,6 @@
       pointer-events:auto;
     }
 
-    /* ===== Próximos dias ===== */
     .forecastList{
       display:flex;
       flex-direction:column;
@@ -657,7 +662,6 @@
       font-weight: 900;
     }
 
-    /* ===== Detalhes de HOJE (view B) ===== */
     .detailCard{
       border:1px solid #eef2f7;
       border-radius: 18px;
@@ -716,7 +720,6 @@
     }
     .dPill svg{width:16px;height:16px;opacity:.9}
 
-    /* ===== FOOTER ===== */
     .pvFooter{
       flex:0 0 auto;
       height: var(--footerH);
@@ -747,33 +750,7 @@
       opacity:.90;
     }
 
-    /* ===== ÍCONE HOJE animado ===== */
-    .animFloat{
-      animation: floaty 2.8s var(--ease) infinite;
-      transform-origin: 50% 50%;
-    }
-    @keyframes floaty{
-      0%,100%{transform: translateY(0)}
-      50%{transform: translateY(-6px)}
-    }
-    .animRainDrop{animation: drop 1.2s linear infinite;}
-    @keyframes drop{
-      0%{transform: translateY(-2px); opacity:.2}
-      35%{opacity:1}
-      100%{transform: translateY(10px); opacity:0}
-    }
-    .animLightning{
-      animation: flash 1.1s var(--ease) infinite;
-      transform-origin: 50% 50%;
-    }
-    @keyframes flash{
-      0%,60%,100%{opacity:1; transform: scale(1)}
-      30%{opacity:.2; transform: scale(.98)}
-    }
-
-    /* =========================================================
-       RESPONSIVIDADE (4K -> 720p / horizontal+vertical / zoom alto)
-       ========================================================= */
+    /* ===== RESPONSIVO / ZOOM ALTO ===== */
     @media (max-width: 1100px), (max-height: 760px){
       :root{
         --pad: clamp(10px, 1.15vw, 18px);
@@ -789,14 +766,13 @@
     }
 
     @media (max-width: 920px), (max-height: 640px){
-      /* economiza espaço */
       #subSource{ display:none; }
       .todayIcon{ width: clamp(70px, 7vw, 115px); height: clamp(70px, 7vw, 115px); }
       .tempBig{ font-size: clamp(50px, 5.8vw, 102px); }
       .metricsRow{ grid-template-columns: repeat(2, 1fr); }
     }
 
-    /* ultracompacto: some com a lateral (evita “ruim no zoom 175%”) */
+    /* ultracompacto (ex.: zoom 175% / telas muito pequenas) */
     @media (max-width: 760px), (max-height: 560px){
       .layout{ grid-template-columns: 1fr !important; }
       .side{ display:none !important; }
@@ -806,7 +782,6 @@
       .pvLogo{ height: 16px; }
     }
 
-    /* Portrait: prioriza HOJE */
     @media (max-aspect-ratio: 4/5){
       .layout{ grid-template-columns: 1fr !important; }
       .side{ display:none !important; }
@@ -847,7 +822,6 @@
 
         <main class="pvMain">
           <div class="layout">
-            <!-- ESQUERDA: HOJE -->
             <section class="todayCard">
               <div class="todayHead">
                 <div class="city" id="cityName">—</div>
@@ -892,7 +866,6 @@
               </div>
             </section>
 
-            <!-- DIREITA: Alterna -->
             <aside class="side">
               <div class="sideHeader">
                 <div class="label" id="sideLabel">PRÓXIMOS DIAS</div>
@@ -903,12 +876,10 @@
               </div>
 
               <div class="slot">
-                <!-- View A: Próximos dias -->
                 <div class="view active" id="viewA">
                   <div class="forecastList" id="forecastList"></div>
                 </div>
 
-                <!-- View B: Detalhes hoje -->
                 <div class="view" id="viewB">
                   <div class="detailCard">
                     <div class="bigMinMax">
@@ -946,30 +917,34 @@
   <script>
     /* =========================================================
        CONFIG
-       - Para fixar manualmente (cidade/UF), edite DEFAULT_CITY/DEFAULT_UF.
-       - Se quiser passar por URL: ?city=Colatina&uf=ES
        ========================================================= */
+    // fallback (NUNCA Vitória)
     const DEFAULT_CITY = "Colatina";
     const DEFAULT_UF   = "ES";
+    const DEFAULT_LAT  = -19.5397;  // Colatina aprox
+    const DEFAULT_LON  = -40.6306;
 
-    const ROTATE_MS = 11000;             // alterna a view da direita
-    const WEATHER_REFRESH_MIN = 25;
+    // URL override: ?city=Colatina&uf=ES&lat=-19.53&lon=-40.63
+    // (se você quiser travar coordenada, é o método mais robusto em player)
     const TZ = "America/Sao_Paulo";
+    const ROTATE_MS = 11000;
+    const WEATHER_REFRESH_MIN = 25;
 
     // auto-scroll ping-pong suave
-    const SCROLL_PX_PER_SEC = 22;        // <<< AUMENTE/DIMINUA a velocidade aqui
-    const SCROLL_PAUSE_MS   = 900;       // <<< PAUSA no topo/fundo aqui
+    const SCROLL_PX_PER_SEC = 22;   // velocidade
+    const SCROLL_PAUSE_MS   = 900;  // pausa topo/fundo
 
-    // sensação térmica: frio <= 19°C (como você pediu)
+    // sensação térmica: frio <= 19°C
     const FEEL_COLD_MAX = 19;
-    const FEEL_HOT_MIN  = 30;            // ajuste se quiser
-    const FEEL_HOT_EXTREME = 35;         // ajuste se quiser
-    const FEEL_COLD_EXTREME = 13;        // ajuste se quiser
+    const FEEL_HOT_MIN  = 30;
 
-    let CITY = { name: `${DEFAULT_CITY} • ${DEFAULT_UF}`, city: DEFAULT_CITY, uf: DEFAULT_UF, lat: null, lon: null };
+    let CITY = { name: `${DEFAULT_CITY} • ${DEFAULT_UF}`, city: DEFAULT_CITY, uf: DEFAULT_UF, lat: DEFAULT_LAT, lon: DEFAULT_LON };
     let dailyData = null;
     let isDayNow = true;
 
+    /* =========================================================
+       Utils
+       ========================================================= */
     function pad2(n){ return String(n).padStart(2,"0"); }
     function hhmm(d=new Date()){ return pad2(d.getHours())+":"+pad2(d.getMinutes()); }
     function ddmm_hhmm(d=new Date()){
@@ -978,15 +953,21 @@
       return `${dd}/${mm}, ${hhmm(d)}`;
     }
 
-    const panel = document.getElementById("panel");
-    document.getElementById("title").textContent = panel.dataset.title || "PREVISÃO DO TEMPO";
-    document.getElementById("subtitle").textContent = panel.dataset.subtitle || "LOCAL • BR";
+    async function fetchJsonWithTimeout(url, ms=6500){
+      const ctl = new AbortController();
+      const t = setTimeout(()=>ctl.abort(), ms);
+      try{
+        const r = await fetch(url, { cache:"no-store", signal: ctl.signal });
+        if(!r.ok) throw new Error("HTTP " + r.status);
+        return await r.json();
+      } finally {
+        clearTimeout(t);
+      }
+    }
 
-    function tickClock(){ document.getElementById("pvClock").textContent = hhmm(); }
-    tickClock();
-    setInterval(tickClock, 1000);
-
-    /* ===== SVGs ===== */
+    /* =========================================================
+       SVGs
+       ========================================================= */
     function svgCloud(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M20 17.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 10.2 3.8 3.8 0 0 0 7 17.5h13z"/>
@@ -1040,13 +1021,7 @@
         <path d="M12 17h.01"/>
       </svg>`; }
 
-    document.getElementById("hdrIcon").innerHTML = svgCloud();
-    document.getElementById("icFeel").innerHTML = svgThermo();
-    document.getElementById("icWind").innerHTML = svgWind();
-    document.getElementById("icHum").innerHTML = svgDrop();
-
     function codeToMeta(code, isDay=true){
-      // 0 = céu limpo (dia: sol / noite: lua)
       if (code === 0) return { icon: isDay ? svgSun() : svgMoon(), text: isDay ? "Ensolarado" : "Céu limpo", kind: isDay ? "sun" : "moon" };
       if (code === 1 || code === 2) return { icon: svgPartly(), text: "Parcialmente nublado", kind:"partly" };
       if (code === 3) return { icon: svgCloud(), text: "Nublado", kind:"cloud" };
@@ -1087,13 +1062,30 @@
       return map[d.getDay()];
     }
 
-    /* ===== ALERTA ===== */
+    /* =========================================================
+       UI init
+       ========================================================= */
+    const panel = document.getElementById("panel");
+    document.getElementById("title").textContent = panel.dataset.title || "PREVISÃO DO TEMPO";
+    document.getElementById("subtitle").textContent = panel.dataset.subtitle || "LOCAL • BR";
+
+    document.getElementById("hdrIcon").innerHTML = svgCloud();
+    document.getElementById("icFeel").innerHTML = svgThermo();
+    document.getElementById("icWind").innerHTML = svgWind();
+    document.getElementById("icHum").innerHTML = svgDrop();
+
+    function tickClock(){ document.getElementById("pvClock").textContent = hhmm(); }
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    /* =========================================================
+       ALERTA
+       ========================================================= */
     function getAlertFor(code){
       if ([95,96,99].includes(code)) return { show:true, label:"ALERTA • TEMPESTADE" };
       if ([65,82].includes(code)) return { show:true, label:"ALERTA • CHUVA FORTE" };
       return { show:false, label:"" };
     }
-
     function setAlert(code){
       const a = getAlertFor(code);
       const top = document.getElementById("alertTop");
@@ -1111,21 +1103,21 @@
       }
     }
 
-    /* ===== sensação térmica (ícone colorido + pulso) ===== */
+    /* =========================================================
+       SENSAÇÃO TÉRMICA (ícone)
+       ========================================================= */
     function setFeelIconState(apparent){
       const el = document.getElementById("icFeel");
       el.classList.remove("feel-hot","feel-cold","feel-normal");
 
-      if (apparent >= FEEL_HOT_MIN){
-        el.classList.add("feel-hot");
-      } else if (apparent <= FEEL_COLD_MAX){
-        el.classList.add("feel-cold");
-      } else {
-        el.classList.add("feel-normal");
-      }
+      if (apparent >= FEEL_HOT_MIN) el.classList.add("feel-hot");
+      else if (apparent <= FEEL_COLD_MAX) el.classList.add("feel-cold");
+      else el.classList.add("feel-normal");
     }
 
-    /* ===== Alternância de views (direita) ===== */
+    /* =========================================================
+       Alternância lateral
+       ========================================================= */
     const viewA = document.getElementById("viewA");
     const viewB = document.getElementById("viewB");
     const dotA = document.getElementById("dotA");
@@ -1153,7 +1145,9 @@
     }
     setInterval(()=>{ showingA ? showB() : showA(); }, ROTATE_MS);
 
-    /* ===== AUTO-SCROLL ping-pong SUAVE (pause topo/fundo) ===== */
+    /* =========================================================
+       Auto-scroll ping-pong suave
+       ========================================================= */
     let rafId = null;
     let pauseUntil = 0;
     let dir = 1;
@@ -1211,7 +1205,9 @@
       }, 250);
     }
 
-    /* ===== RENDER ===== */
+    /* =========================================================
+       Render
+       ========================================================= */
     function renderForecastList(){
       const list = document.getElementById("forecastList");
       list.innerHTML = "";
@@ -1236,7 +1232,7 @@
           <div class="fIcon" aria-hidden="true">${meta.icon}</div>
           <div class="fMid">
             <div class="fBadge">${meta.text}</div>
-            <div class="fSub">${Math.round(mm*10)/10} mm • ${pop}%</div>
+            <div class="fSub">${Math.round(mm*10)/10} mm • ${Math.round(pop)}%</div>
           </div>
           <div class="fTemps">
             <span class="pill">
@@ -1275,9 +1271,10 @@
       document.getElementById("pillPop").innerHTML = `${svgDrop()}<span id="popPct">${Math.round(pop)}% chuva</span>`;
     }
 
+    /* =========================================================
+       Open-Meteo
+       ========================================================= */
     async function loadWeather(){
-      if (!Number.isFinite(CITY.lat) || !Number.isFinite(CITY.lon)) throw new Error("Sem coordenadas");
-
       const url = new URL("https://api.open-meteo.com/v1/forecast");
       url.searchParams.set("latitude", CITY.lat);
       url.searchParams.set("longitude", CITY.lon);
@@ -1286,17 +1283,15 @@
       url.searchParams.set("daily", "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum");
       url.searchParams.set("forecast_days", "6");
 
-      const res = await fetch(url.toString(), { cache:"no-store" });
-      if(!res.ok) throw new Error("Falha ao carregar clima");
-      const data = await res.json();
+      const data = await fetchJsonWithTimeout(url.toString(), 7500);
 
       const nice = (CITY.uf ? `${CITY.city} • ${CITY.uf}` : CITY.city).toUpperCase();
       document.getElementById("cityName").textContent = nice || "LOCAL";
-      document.getElementById("subtitle").textContent = (CITY.uf ? `${CITY.city} • ${CITY.uf}` : CITY.city).toUpperCase();
+      document.getElementById("subtitle").textContent = nice || "LOCAL";
       document.getElementById("footUpdated").textContent = `ATUALIZADO • ${ddmm_hhmm()}`;
 
       const cur = data.current;
-      isDayNow = (cur.is_day === 1);
+      isDayNow = (cur.is_day === 1); // <- isso resolve sol/ lua de verdade
 
       const meta = codeToMeta(cur.weather_code, isDayNow);
       setAlert(cur.weather_code);
@@ -1317,89 +1312,86 @@
       renderTodayDetails();
     }
 
-    async function geocodeCity(city, uf){
-      // Open-Meteo Geocoding (gratuito, sem chave)
-      const q = `${city}${uf ? ", " + uf : ""}, Brazil`;
-      const u = new URL("https://geocoding-api.open-meteo.com/v1/search");
-      u.searchParams.set("name", q);
-      u.searchParams.set("count", "5");
-      u.searchParams.set("language", "pt");
-      u.searchParams.set("format", "json");
-
-      const r = await fetch(u.toString(), { cache:"no-store" });
-      if(!r.ok) throw new Error("Geocoding falhou");
-      const j = await r.json();
-      const results = Array.isArray(j.results) ? j.results : [];
-      if (!results.length) throw new Error("Cidade não encontrada no geocoding");
-
-      // tenta achar melhor match pelo UF (admin1)
-      let best = results[0];
-      if (uf){
-        const hit = results.find(x => (x.admin1_code || x.admin1 || "").toUpperCase().includes(uf.toUpperCase()));
-        if (hit) best = hit;
-      }
-
-      return { lat: best.latitude, lon: best.longitude };
-    }
-
-    function parseCityFromURL(){
+    /* =========================================================
+       Localização (ipwho.is) — robusta
+       - Usa latitude/longitude direto do ipwho (menos uma chamada)
+       - Se falhar: usa URL ?lat&lon, se não: fallback Colatina
+       ========================================================= */
+    function parseFromURL(){
       const p = new URLSearchParams(location.search);
       const city = (p.get("city") || "").trim();
       const uf = (p.get("uf") || "").trim();
-      if (city) return { city, uf };
-      return null;
+      const lat = parseFloat((p.get("lat") || "").replace(",", "."));
+      const lon = parseFloat((p.get("lon") || "").replace(",", "."));
+
+      const out = {};
+      if (city) out.city = city;
+      if (uf) out.uf = uf.toUpperCase();
+      if (Number.isFinite(lat)) out.lat = lat;
+      if (Number.isFinite(lon)) out.lon = lon;
+      return out;
     }
 
     async function resolveCity(){
-      // 1) URL override (?city=...&uf=...)
-      const fromUrl = parseCityFromURL();
-      if (fromUrl){
-        CITY.city = fromUrl.city;
-        CITY.uf = (fromUrl.uf || "").toUpperCase();
-        CITY.name = `${CITY.city} • ${CITY.uf || "BR"}`;
-        const c = await geocodeCity(CITY.city, CITY.uf);
-        CITY.lat = c.lat; CITY.lon = c.lon;
+      // 1) URL tem prioridade
+      const u = parseFromURL();
+      if (u.city) CITY.city = u.city;
+      if (u.uf) CITY.uf = u.uf;
+      if (Number.isFinite(u.lat)) CITY.lat = u.lat;
+      if (Number.isFinite(u.lon)) CITY.lon = u.lon;
+
+      if (Number.isFinite(u.lat) && Number.isFinite(u.lon)){
+        CITY.name = `${CITY.city || DEFAULT_CITY} • ${CITY.uf || DEFAULT_UF}`;
         return;
       }
 
-      // 2) ipwho.is (mesma lógica do seu relógio — sem permissão do dispositivo)
+      // 2) ipwho.is (sem permissão do dispositivo)
       try{
-        const r = await fetch("https://ipwho.is/", { cache:"no-store" });
-        const d = await r.json();
+        const d = await fetchJsonWithTimeout("https://ipwho.is/", 6500);
+        if (d && d.success){
+          if (d.city) CITY.city = String(d.city).trim();
+          CITY.uf = String(d.region_code || CITY.uf || "").trim().toUpperCase();
 
-        if (d && d.success && d.city){
-          CITY.city = String(d.city).trim();
-          CITY.uf = String(d.region_code || "").trim().toUpperCase();
-          CITY.name = `${CITY.city} • ${CITY.uf || "BR"}`;
+          // usa coordenadas do ipwho (mais robusto)
+          const lat = Number(d.latitude);
+          const lon = Number(d.longitude);
+          if (Number.isFinite(lat) && Number.isFinite(lon)){
+            CITY.lat = lat;
+            CITY.lon = lon;
+          }
 
-          const c = await geocodeCity(CITY.city, CITY.uf);
-          CITY.lat = c.lat; CITY.lon = c.lon;
+          CITY.name = `${CITY.city || DEFAULT_CITY} • ${CITY.uf || DEFAULT_UF}`;
           return;
         }
-      } catch(e){ /* segue para default */ }
+      } catch(e){
+        // ignora e segue pro fallback
+      }
 
-      // 3) Default (NUNCA Vitória aqui)
-      CITY.city = DEFAULT_CITY;
-      CITY.uf = DEFAULT_UF;
+      // 3) fallback fixo (nada de Vitória)
+      CITY.city = CITY.city || DEFAULT_CITY;
+      CITY.uf = CITY.uf || DEFAULT_UF;
+      CITY.lat = Number.isFinite(CITY.lat) ? CITY.lat : DEFAULT_LAT;
+      CITY.lon = Number.isFinite(CITY.lon) ? CITY.lon : DEFAULT_LON;
       CITY.name = `${CITY.city} • ${CITY.uf}`;
-      const c = await geocodeCity(CITY.city, CITY.uf);
-      CITY.lat = c.lat; CITY.lon = c.lon;
     }
 
-    // boot
+    /* =========================================================
+       Boot
+       ========================================================= */
     showA();
+
     (async ()=>{
       try{
         await resolveCity();
         await loadWeather();
       } catch(err){
+        // mantém UI coerente mesmo offline
         document.getElementById("descToday").textContent = "SEM CONEXÃO";
         document.getElementById("cityName").textContent = (CITY.name || "LOCAL").toUpperCase();
         document.getElementById("subtitle").textContent = (CITY.name || "LOCAL").toUpperCase();
         document.getElementById("footUpdated").textContent = "ATUALIZADO • —";
         console.error(err);
       }
-
       setInterval(()=>loadWeather().catch(()=>{}), 1000 * 60 * WEATHER_REFRESH_MIN);
     })();
   </script>
