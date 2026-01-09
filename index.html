@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PontoView • Previsão do Tempo</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800;900&display=swap" rel="stylesheet"/>
 
   <style>
@@ -21,42 +22,30 @@
       --topB:#2c6aa3;
       --topC:#0f3d63;
 
-      --radius:22px;
+      /* ====== FLUID SCALE (4K -> 720p + vertical) ====== */
+      --safe: clamp(10px, 1.2vw, 34px);
+      --pad:  clamp(12px, 1.15vw, 28px);
+      --gap:  clamp(10px, 1.0vw, 22px);
+
+      --radius: clamp(18px, 1.2vw, 30px);      /* bordas maiores (estilo antigo) */
       --shadow:0 12px 36px rgba(0,0,0,.28);
 
-      --t-title: clamp(20px, 1.55vw, 34px);
-      --t-sub:   clamp(12px, 0.95vw, 16px);
-      --t-clock: clamp(34px, 3.05vw, 64px);
+      --t-title: clamp(18px, 1.4vw, 36px);
+      --t-sub:   clamp(11px, 0.9vw, 16px);
+      --t-clock: clamp(26px, 3.0vw, 68px);
 
-      --pad: clamp(16px, 1.4vw, 26px);
-      --gap: clamp(14px, 1.2vw, 20px);
+      --footerH: clamp(48px, 5.6vh, 84px);
 
       --panelSoft:#f6f9fe;
 
       --anim: 520ms;
       --ease: cubic-bezier(.2,.8,.2,1);
 
-      --footerH: clamp(52px, 6vh, 82px);
-      --safe: clamp(14px, 2.2vw, 32px);
-
       /* ALERT forte */
       --warnBg:#fff0c2;
       --warnInk:#5a3a00;
       --warnLine:#f2c66a;
       --warnHot:#f59e0b;
-
-      /* Sensação extrema */
-      --hotBg: rgba(245, 78, 0, .08);
-      --hotLine: rgba(245, 78, 0, .20);
-      --hotIconBg: rgba(245, 78, 0, .12);
-      --hotIconLine: rgba(245, 78, 0, .22);
-      --hotIconInk: #ea580c;
-
-      --coldBg: rgba(59, 130, 246, .08);
-      --coldLine: rgba(59, 130, 246, .22);
-      --coldIconBg: rgba(59, 130, 246, .12);
-      --coldIconLine: rgba(59, 130, 246, .24);
-      --coldIconInk: #2563eb;
     }
 
     *{box-sizing:border-box}
@@ -73,6 +62,7 @@
       overflow:hidden;
     }
 
+    /* ====== FRAME / CARD ====== */
     .pvFrame{
       width:100vw;
       height:100vh;
@@ -93,6 +83,10 @@
       opacity:0;
       transform: translateY(12px);
       animation: pvIn 900ms cubic-bezier(.22,1,.36,1) forwards;
+
+      /* container queries (ajuda no vertical/pequeno) */
+      container-type: inline-size;
+      container-name: pvpanel;
     }
     @keyframes pvIn{to{opacity:1; transform:translateY(0)}}
 
@@ -140,9 +134,9 @@
       flex:1 1 auto;
     }
     .pvBadge{
-      width:clamp(46px,3.4vw,64px);
-      height:clamp(46px,3.4vw,64px);
-      border-radius: 16px;
+      width:clamp(46px,3.4vw,68px);
+      height:clamp(46px,3.4vw,68px);
+      border-radius: 18px; /* maior */
       background: rgba(255,255,255,.10);
       border:1px solid rgba(255,255,255,.22);
       box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
@@ -227,14 +221,14 @@
       white-space:nowrap;
     }
     .sourceTag{
-      font-size: 11px;
+      font-size: clamp(10px, 0.8vw, 12px);
       font-weight: 900;
       letter-spacing:.12em;
       text-transform: uppercase;
       color:#3b4b62;
       opacity:.95;
       white-space:nowrap;
-      padding:8px 12px;
+      padding:clamp(6px,.7vw,8px) clamp(10px,1.0vw,12px);
       border-radius:999px;
       background:#fff;
       border:1px solid #e7e9ee;
@@ -246,12 +240,12 @@
       display:none;
       align-items:center;
       gap:10px;
-      padding:10px 14px;
+      padding:clamp(7px,.8vw,10px) clamp(10px,1.0vw,14px);
       border-radius:999px;
       background: var(--warnBg);
       border:2px solid var(--warnLine);
       color: var(--warnInk);
-      font-size: 12px;
+      font-size: clamp(10px, 0.85vw, 12px);
       font-weight: 900;
       letter-spacing:.10em;
       text-transform:uppercase;
@@ -295,14 +289,20 @@
       align-items: stretch;
       min-height:0;
     }
+
+    /* ====== FLUID: muda para 1 coluna automaticamente no vertical / estreito ====== */
     @media (max-aspect-ratio: 4/3){
+      .layout{grid-template-columns:1fr;}
+    }
+    /* container query: se o painel ficar estreito, também cai pra 1 coluna */
+    @container pvpanel (max-width: 760px){
       .layout{grid-template-columns:1fr;}
     }
 
     /* ===== HOJE (ESQUERDA) ===== */
     .todayCard{
       border:1px solid var(--line);
-      border-radius: 20px;
+      border-radius: 24px; /* maior */
       background:#fff;
       overflow:hidden;
       display:flex;
@@ -310,7 +310,7 @@
       min-height:0;
     }
     .todayHead{
-      padding: 18px 18px 10px;
+      padding: clamp(14px, 1.0vw, 18px) clamp(14px, 1.0vw, 18px) clamp(8px, .7vw, 10px);
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
@@ -319,7 +319,7 @@
       flex:0 0 auto;
     }
     .city{
-      font-size: 18px;
+      font-size: clamp(14px, 1.15vw, 18px);
       font-weight: 900;
       letter-spacing:.08em;
       text-transform:uppercase;
@@ -330,7 +330,7 @@
     }
 
     .todayCenter{
-      padding: 8px 18px 0;
+      padding: clamp(6px,.8vw,8px) clamp(14px, 1.0vw, 18px) 0;
       flex:1 1 auto;
       min-height:0;
       display:flex;
@@ -339,15 +339,15 @@
     }
     .todayWrap{
       width:100%;
-      max-width: 780px;
+      max-width: min(780px, 92%);
       display:grid;
-      grid-template-columns: clamp(90px, 9vw, 150px) 1fr;
+      grid-template-columns: clamp(80px, 8vw, 155px) 1fr;
       align-items:center;
-      gap: clamp(14px, 1.6vw, 22px);
+      gap: clamp(12px, 1.4vw, 22px);
     }
     .todayIcon{
-      width: clamp(90px, 9vw, 150px);
-      height: clamp(90px, 9vw, 150px);
+      width: clamp(80px, 8vw, 155px);
+      height: clamp(80px, 8vw, 155px);
       display:grid;
       place-items:center;
       color:#0f3d63;
@@ -357,7 +357,7 @@
 
     .tempBlock{min-width:0}
     .tempBig{
-      font-size: clamp(78px, 7.2vw, 150px);
+      font-size: clamp(52px, 6.6vw, 160px);
       font-weight: 900;
       letter-spacing:-0.03em;
       line-height: .92;
@@ -365,8 +365,8 @@
     }
     .tempBig small{font-size:.42em; font-weight: 900; opacity:.92}
     .condLine{
-      margin-top: 10px;
-      font-size: 14px;
+      margin-top: clamp(6px,.8vw,10px);
+      font-size: clamp(11px, 1.0vw, 14px);
       font-weight: 900;
       letter-spacing:.14em;
       text-transform:uppercase;
@@ -375,7 +375,7 @@
     }
 
     .todayBottom{
-      padding: 14px 18px 16px;
+      padding: clamp(10px, 1.0vw, 14px) clamp(14px, 1.0vw, 18px) clamp(12px, 1.1vw, 16px);
       border-top:1px solid var(--line);
       background:#fff;
       flex:0 0 auto;
@@ -384,120 +384,60 @@
     .metricsRow{
       display:grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      gap: clamp(8px, .9vw, 12px);
       align-items:stretch;
     }
-    @media (max-width: 1100px){
-      .metricsRow{grid-template-columns: repeat(2, 1fr);}
+    /* Em telas mais estreitas, vira 2 colunas, depois 1 */
+    @container pvpanel (max-width: 980px){
+      .metricsRow{ grid-template-columns: repeat(2, 1fr); }
     }
-    @media (max-width: 680px){
-      .metricsRow{grid-template-columns: 1fr;}
+    @container pvpanel (max-width: 560px){
+      .metricsRow{ grid-template-columns: 1fr; }
     }
 
     .mCard{
       background:#f1f3f5;
       border:1px solid #eceff3;
-      border-radius: 14px;
-      padding: 12px 12px;
+      border-radius: 16px; /* maior */
+      padding: clamp(9px, .9vw, 12px);
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap: 10px;
       min-width:0;
-      position:relative;
     }
     .mLeft{display:flex; align-items:center; gap:10px; min-width:0;}
     .mIcon{
-      width:34px; height:34px;
-      border-radius: 12px;
+      width:clamp(28px, 2.4vw, 34px);
+      height:clamp(28px, 2.4vw, 34px);
+      border-radius: 13px;
       background:#fff;
       border:1px solid #e7e9ee;
       display:grid; place-items:center;
       color:#1a2a40;
       opacity:.9;
       flex:0 0 auto;
-      position:relative;
-      overflow:hidden;
     }
     .mIcon svg{width:62%; height:62%}
-
     .mLabel{
-      font-size: 11px;
+      font-size: clamp(9px, .8vw, 11px);
       font-weight: 900;
       letter-spacing:.14em;
       text-transform:uppercase;
       color:#3b4b62;
       white-space:nowrap;
-      line-height:1.15;
     }
-    .mLabel small{
-      display:none;
-      margin-top:4px;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing:.02em;
-      text-transform:none;
-      color:#6b7788;
-      opacity:.95;
-    }
-
     .mVal{
-      font-size: 18px;
+      font-size: clamp(14px, 1.35vw, 18px);
       font-weight: 900;
       white-space:nowrap;
       color:#0e1b2a;
     }
 
-    /* ======= SENSAÇÃO EXTREMA (estilo do exemplo) ======= */
-    #feelCard.feelExtremeHot{
-      background: var(--hotBg);
-      border-color: var(--hotLine);
-    }
-    #feelCard.feelExtremeCold{
-      background: var(--coldBg);
-      border-color: var(--coldLine);
-    }
-
-    /* ícone colorido + pulso */
-    #icFeel.feel-hot-extreme{
-      background: var(--hotIconBg);
-      border-color: var(--hotIconLine);
-      color: var(--hotIconInk);
-      opacity:1;
-    }
-    #icFeel.feel-cold-extreme{
-      background: var(--coldIconBg);
-      border-color: var(--coldIconLine);
-      color: var(--coldIconInk);
-      opacity:1;
-    }
-
-    #icFeel.feel-hot-extreme::after,
-    #icFeel.feel-cold-extreme::after{
-      content:"";
-      position:absolute;
-      inset:-6px;
-      border-radius: 16px;
-      pointer-events:none;
-      box-shadow: 0 0 0 0 rgba(0,0,0,0);
-      animation: feelPulse 1.15s cubic-bezier(.2,.8,.2,1) infinite;
-    }
-    #icFeel.feel-hot-extreme::after{ box-shadow: 0 0 0 0 rgba(245,78,0,.35); }
-    #icFeel.feel-cold-extreme::after{ box-shadow: 0 0 0 0 rgba(59,130,246,.35); }
-
-    @keyframes feelPulse{
-      0%{ transform: scale(.98); opacity:.65; box-shadow: 0 0 0 0 currentColor; }
-      70%{ transform: scale(1.08); opacity:.05; box-shadow: 0 0 0 14px rgba(0,0,0,0); }
-      100%{ transform: scale(.98); opacity:0; box-shadow: 0 0 0 0 rgba(0,0,0,0); }
-    }
-
-    /* mostra a frase só quando extremo */
-    #feelCard.extremeOn .mLabel small{ display:block; }
-
-    /* ===== DIREITA (ALTERNÂNCIA) ===== */
+    /* ===== DIREITA ===== */
     .side{
       border:1px solid var(--line);
-      border-radius: 20px;
+      border-radius: 24px; /* maior */
       background:#fff;
       overflow:hidden;
       display:flex;
@@ -505,7 +445,7 @@
       min-height:0;
     }
     .sideHeader{
-      padding: 14px 16px;
+      padding: clamp(10px, .9vw, 14px) clamp(12px, 1.0vw, 16px);
       background: var(--panelSoft);
       border-bottom: 1px solid var(--line);
       display:flex;
@@ -515,7 +455,7 @@
       flex:0 0 auto;
     }
     .sideHeader .label{
-      font-size: 12px;
+      font-size: clamp(10px, .9vw, 12px);
       font-weight: 900;
       letter-spacing:.14em;
       text-transform: uppercase;
@@ -532,7 +472,7 @@
     .slot{
       position:relative;
       flex:1 1 auto;
-      padding: 16px;
+      padding: clamp(12px, 1.0vw, 16px);
       min-height:0;
       background:#fff;
       overflow:hidden;
@@ -540,7 +480,7 @@
 
     .view{
       position:absolute;
-      inset: 16px;
+      inset: clamp(12px, 1.0vw, 16px);
       opacity:0;
       transform: translateY(10px);
       pointer-events:none;
@@ -556,7 +496,7 @@
       pointer-events:auto;
     }
 
-    /* ===== Próximos dias ===== */
+    /* Próximos dias */
     .forecastList{
       display:flex;
       flex-direction:column;
@@ -571,16 +511,16 @@
     .fRow{
       background:#f1f3f5;
       border:1px solid #eceff3;
-      border-radius: 14px;
-      padding: 12px;
+      border-radius: 16px; /* maior */
+      padding: clamp(9px, .9vw, 12px);
       display:grid;
       grid-template-columns: 56px 44px 1fr auto;
       align-items:center;
-      gap: 12px;
+      gap: clamp(8px, .9vw, 12px);
       min-width:0;
     }
     .fDow{
-      font-size: 14px;
+      font-size: clamp(11px, 1.0vw, 14px);
       font-weight: 900;
       letter-spacing:.14em;
       text-transform: uppercase;
@@ -588,8 +528,9 @@
       white-space:nowrap;
     }
     .fIcon{
-      width:44px; height:44px;
-      border-radius: 14px;
+      width:clamp(38px, 3.2vw, 44px);
+      height:clamp(38px, 3.2vw, 44px);
+      border-radius: 16px;
       background:#fff;
       border:1px solid #e7e9ee;
       display:grid;
@@ -603,7 +544,7 @@
     .fBadge{
       display:inline-flex;
       align-items:center;
-      padding: 8px 12px;
+      padding: clamp(6px, .7vw, 8px) clamp(10px, 1.0vw, 12px);
       border-radius:999px;
       background:#fff;
       border:1px solid #e7e9ee;
@@ -612,14 +553,14 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      font-size: 12px;
+      font-size: clamp(10px, .9vw, 12px);
       font-weight: 900;
       letter-spacing:.08em;
       text-transform: uppercase;
       color:#23344a;
     }
     .fSub{
-      font-size: 11px;
+      font-size: clamp(9px, .85vw, 11px);
       font-weight: 900;
       letter-spacing:.12em;
       text-transform: uppercase;
@@ -637,12 +578,12 @@
     }
     .pill{
       position: relative;
-      padding: 10px 12px 8px;
-      min-width: 52px;
+      padding: clamp(8px, .85vw, 10px) clamp(10px, 1.0vw, 12px) clamp(6px, .7vw, 8px);
+      min-width: clamp(48px, 4.0vw, 56px);
       border-radius: 999px;
       background:#fff;
       border:1px solid #e7e9ee;
-      font-size: 12px;
+      font-size: clamp(10px, .9vw, 12px);
       font-weight: 900;
       color:#0e1b2a;
       display:inline-flex;
@@ -665,15 +606,15 @@
     .pillTemp{
       display:block;
       margin-top: 10px;
-      font-size: 12px;
+      font-size: clamp(10px, .95vw, 12px);
       font-weight: 900;
     }
 
-    /* ===== Detalhes de HOJE (view B) ===== */
+    /* Detalhes de HOJE (view B) */
     .detailCard{
       border:1px solid #eef2f7;
-      border-radius: 16px;
-      padding: 14px;
+      border-radius: 18px;
+      padding: clamp(10px, 1.0vw, 14px);
       background:#fff;
       display:flex;
       flex-direction:column;
@@ -690,7 +631,7 @@
     }
     .mmBlock{display:flex; align-items:baseline; gap:10px;}
     .mmNum{
-      font-size: clamp(46px, 3.6vw, 64px);
+      font-size: clamp(36px, 3.6vw, 72px);
       font-weight: 900;
       letter-spacing:-0.02em;
       line-height:1;
@@ -698,7 +639,7 @@
       white-space:nowrap;
     }
     .mmLbl{
-      font-size: 12px;
+      font-size: clamp(10px, .9vw, 12px);
       font-weight: 900;
       letter-spacing:.12em;
       text-transform: uppercase;
@@ -714,12 +655,12 @@
       display:inline-flex;
       align-items:center;
       gap:10px;
-      padding:10px 12px;
+      padding: clamp(8px, .85vw, 10px) clamp(10px, 1.0vw, 12px);
       border-radius:999px;
       background:#fff;
       border:1px solid #e7e9ee;
       box-shadow: 0 8px 18px rgba(0,0,0,.04);
-      font-size: 12px;
+      font-size: clamp(10px, .9vw, 12px);
       font-weight: 900;
       letter-spacing:.08em;
       text-transform: uppercase;
@@ -742,7 +683,7 @@
       min-width:0;
     }
     .pvFooterUpdate{
-      font-size: 11px;
+      font-size: clamp(10px, .85vw, 11px);
       font-weight: 900;
       letter-spacing:.12em;
       text-transform: uppercase;
@@ -763,7 +704,6 @@
     .animFloat{
       animation: floaty 2.8s var(--ease) infinite;
       transform-origin: 50% 50%;
-      will-change: transform;
     }
     @keyframes floaty{
       0%,100%{transform: translateY(0)}
@@ -784,157 +724,70 @@
       30%{opacity:.2; transform: scale(.98)}
     }
 
-    /* =========================
-       FIX 1280x720 (sem sobrepor)
-       ========================= */
-    @media (max-height: 740px){
+    /* ===== Sensação térmica: estilo “card” com cor e pulso (apenas icFeel) ===== */
+    #icFeel{ position:relative; overflow:hidden; }
+    #icFeel svg{ transition: transform 280ms var(--ease); }
+
+    /* normal: igual aos demais */
+    #icFeel.feel-ok{ color:#1a2a40; }
+
+    /* quente/frio: muda cor do ícone e pulse no fundo do badge do ícone */
+    #icFeel.feel-hot,
+    #icFeel.feel-hot-extreme{
+      color:#ef4444;
+    }
+    #icFeel.feel-cold,
+    #icFeel.feel-cold-extreme{
+      color:#3b82f6;
+    }
+
+    /* “pulso” só quando extremo */
+    #icFeel.feel-hot-extreme::after,
+    #icFeel.feel-cold-extreme::after{
+      content:"";
+      position:absolute;
+      inset:-30%;
+      border-radius:999px;
+      pointer-events:none;
+      opacity:0;
+      animation: pvFeelPulse 1.15s var(--ease) infinite;
+    }
+    #icFeel.feel-hot-extreme::after{
+      background: radial-gradient(circle at 45% 45%, rgba(239,68,68,.45) 0%, rgba(239,68,68,0) 60%);
+    }
+    #icFeel.feel-cold-extreme::after{
+      background: radial-gradient(circle at 45% 45%, rgba(59,130,246,.38) 0%, rgba(59,130,246,0) 60%);
+    }
+    @keyframes pvFeelPulse{
+      0%{ opacity:.0; transform: scale(.92); }
+      35%{ opacity:.9; transform: scale(1.05); }
+      75%{ opacity:.15; transform: scale(1.12); }
+      100%{ opacity:0; transform: scale(1.08); }
+    }
+
+    /* ====== HARD GUARDBANDS (4K -> 720p) ======
+       garante que em 720p o painel não “explode” */
+    @media (max-height: 720px){
       :root{
         --safe: 12px;
         --pad:  14px;
         --gap:  12px;
-        --footerH: 56px;
-
-        --t-title: clamp(18px, 1.4vw, 28px);
-        --t-sub:   clamp(11px, 0.85vw, 14px);
-        --t-clock: clamp(28px, 2.8vw, 48px);
+        --t-clock: clamp(24px, 2.6vw, 46px);
+        --footerH: 58px;
       }
-      .tempBig{ font-size: clamp(64px, 6.4vw, 120px); }
-      .mVal{ font-size: 16px; }
-      .mIcon{ width:32px; height:32px; }
-      .forecastList{ overflow:auto; }
+      .pvFooter{ padding: 8px var(--pad); }
     }
-    @media (max-width: 1280px) and (max-height: 740px){
-      .layout{ grid-template-columns: 1fr; }
-      .side{ max-height: 42vh; }
+    /* Vertical / portrait (ex: 1080x1920, 720x1280): prioriza legibilidade */
+    @media (orientation: portrait){
+      :root{
+        --safe: clamp(10px, 1.6vw, 22px);
+        --pad:  clamp(12px, 1.6vw, 22px);
+        --gap:  clamp(10px, 1.2vw, 18px);
+        --footerH: clamp(52px, 5.0vh, 72px);
+      }
+      .pvSubbar{ grid-template-columns: 1fr; }
+      .pvSubRight{ justify-self:start; flex-wrap:wrap; }
     }
-
-/* =========================================================
-   PV • RESPONSIVO (telas menores) — cole NO FINAL do <style>
-   Mantém layout/JS, só recalibra escalas e respiros
-   ========================================================= */
-
-/* 1) Default: deixa a base um pouco mais "elástica" */
-:root{
-  --safe: clamp(10px, 1.6vw, 28px);
-  --pad:  clamp(12px, 1.15vw, 24px);
-  --gap:  clamp(10px, 1.0vw, 18px);
-
-  --t-title: clamp(18px, 1.35vw, 32px);
-  --t-sub:   clamp(11px, 0.85vw, 15px);
-  --t-clock: clamp(28px, 2.6vw, 58px);
-
-  --footerH: clamp(46px, 5.0vh, 72px);
-}
-
-/* 2) 1280×720 (e similares) — foco em não “estourar” */
-@media (max-width: 1280px), (max-height: 720px){
-  :root{
-    --safe: 12px;
-    --pad:  14px;
-    --gap:  12px;
-
-    --t-title: clamp(16px, 1.25vw, 26px);
-    --t-sub:   clamp(10px, 0.8vw, 13px);
-    --t-clock: clamp(26px, 2.5vw, 46px);
-
-    --footerH: 58px;
-  }
-
-  /* Header + Subbar mais compactos */
-  .pvHeader{
-    padding: calc(var(--pad) * .92);
-  }
-  .pvBadge{
-    width: 52px;
-    height: 52px;
-    border-radius: 14px;
-  }
-  .pvSubbar{
-    padding: calc(var(--pad) * .50) var(--pad);
-  }
-  .sourceTag{ padding: 7px 10px; font-size: 10px; }
-
-  /* Área principal “segura” */
-  .pvMain{
-    padding: var(--pad);
-  }
-
-  /* HOJE: ícone/temperatura menores (mantém legível) */
-  .todayWrap{
-    grid-template-columns: clamp(78px, 8vw, 120px) 1fr;
-    gap: 14px;
-    max-width: 720px;
-  }
-  .todayIcon{
-    width: clamp(78px, 8vw, 120px);
-    height: clamp(78px, 8vw, 120px);
-  }
-  .tempBig{
-    font-size: clamp(58px, 6.0vw, 110px);
-    line-height: .92;
-  }
-  .condLine{
-    font-size: 12px;
-    letter-spacing: .12em;
-    margin-top: 8px;
-  }
-
-  /* Métricas: fonte e alturas menores */
-  .todayBottom{ padding: 12px 14px 14px; }
-  .metricsRow{ gap: 10px; }
-  .mCard{ padding: 10px 10px; border-radius: 14px; }
-  .mIcon{ width: 30px; height: 30px; border-radius: 11px; }
-  .mLabel{ font-size: 10px; letter-spacing: .12em; }
-  .mVal{ font-size: 16px; }
-
-  /* Direita: reduz paddings e garante que a lista não “invada” */
-  .sideHeader{ padding: 12px 14px; }
-  .slot{ padding: 14px; }
-  .view{ inset: 14px; }
-  .fRow{
-    padding: 10px;
-    gap: 10px;
-    grid-template-columns: 52px 40px 1fr auto;
-  }
-  .fDow{ font-size: 12px; }
-  .fIcon{ width: 40px; height: 40px; border-radius: 13px; }
-  .fBadge{ font-size: 11px; padding: 7px 10px; }
-  .fSub{ font-size: 10px; }
-  .pill{ padding: 9px 10px 7px; min-width: 50px; }
-  .pillTemp{ font-size: 12px; }
-
-  /* Footer mais compacto */
-  .pvFooter{ height: var(--footerH); padding: 8px var(--pad); }
-  .pvFooterUpdate{ font-size: 10px; }
-  .pvLogo{ height: 18px; }
-}
-
-/* 3) Quando a altura é curta (ex: TVs 720p com overscan)
-      Evita sobreposição: empilha colunas (layout 1 coluna) */
-@media (max-height: 680px){
-  .layout{ grid-template-columns: 1fr; }
-  .side{ max-height: 42vh; }
-  .todayCenter{ padding: 6px 14px 0; }
-}
-
-/* 4) 1024×768 (4:3) — normalmente já cai em 1 coluna pelo aspect-ratio,
-      mas reforça escalas para ficar equilibrado */
-@media (max-width: 1024px){
-  :root{
-    --safe: 10px;
-    --pad:  12px;
-    --gap:  10px;
-
-    --t-title: 20px;
-    --t-sub:   11px;
-    --t-clock: 40px;
-
-    --footerH: 56px;
-  }
-  .pvBadge{ width: 50px; height: 50px; }
-  .tempBig{ font-size: clamp(54px, 6.2vw, 96px); }
-}
-
   </style>
 </head>
 
@@ -987,11 +840,10 @@
 
             <div class="todayBottom">
               <div class="metricsRow">
-                <!-- (única alteração de markup) id para estilizar extremo -->
-                <div class="mCard" id="feelCard">
+                <div class="mCard">
                   <div class="mLeft">
                     <div class="mIcon" aria-hidden="true" id="icFeel"></div>
-                    <div class="mLabel" id="feelLabel">SENSAÇÃO<small id="feelHint">—</small></div>
+                    <div class="mLabel">SENSAÇÃO</div>
                   </div>
                   <div class="mVal" id="feels">--°</div>
                 </div>
@@ -1066,22 +918,19 @@
   </div>
 
   <script>
-    const FALLBACK_CITY = { name: "Vitória • ES", lat: -20.3155, lon: -40.3128, state: "ES" };
-    const ROTATE_MS = 11000;
+    const FALLBACK_CITY = { name: "Vitória - ES", lat: -20.3155, lon: -40.3128, state: "ES" };
+    const ROTATE_MS = 11000;          // alterna a view da direita
     const WEATHER_REFRESH_MIN = 25;
     const TZ = "America/Sao_Paulo";
 
-    // frio <= 19°C (como você definiu)
-    // extremos (ajuste se quiser): frio extremo <= 12; calor extremo >= 36
-    const FEEL_LIMITS = { cold: 19, coldExtreme: 12, hot: 32, hotExtreme: 36 };
-
-    // GEO: sem popup — só usa geolocation se já estiver GRANTED
-    const GEO_TTL_HOURS = 72;
-    const GEO_TIMEOUT_MS = 3500;
+    // sensação térmica: limites
+    const FEEL_COLD = 19;        // <= 19°C
+    const FEEL_HOT = 30;         // >= 30°C
+    const FEEL_EXTREME_COLD = 12;
+    const FEEL_EXTREME_HOT = 35;
 
     let CITY = { ...FALLBACK_CITY };
     let dailyData = null;
-    let dayNight = { isNight: false, sunrise: null, sunset: null };
 
     function pad2(n){ return String(n).padStart(2,"0"); }
     function hhmm(d=new Date()){ return pad2(d.getHours())+":"+pad2(d.getMinutes()); }
@@ -1111,7 +960,7 @@
       </svg>`; }
     function svgMoon(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 12.8A8.5 8.5 0 0 1 11.2 3a7 7 0 1 0 9.8 9.8z"/>
+        <path d="M21 14.5A8.5 8.5 0 0 1 9.5 3a6.8 6.8 0 1 0 11.5 11.5z"></path>
       </svg>`; }
     function svgRain(){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -1125,10 +974,13 @@
         <path d="M20 16.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 6.2 9.2 3.8 3.8 0 0 0 7 16.5h9"/>
         <path d="M13 14l-2 4h3l-2 4"></path>
       </svg>`; }
-    function svgPartly(){ return `
+    function svgPartly(isNight=false){ return `
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="8" cy="8" r="3"></circle>
-        <path d="M8 2v1M8 13v1M2 8h1M13 8h1M3.5 3.5l.7.7M11.8 11.8l.7.7M3.5 12.5l.7-.7M11.8 4.2l.7-.7"></path>
+        ${isNight
+          ? `<path d="M15.5 3.2A5.6 5.6 0 0 0 13 14.3a5.6 5.6 0 0 1 2.5-11.1z"></path>`
+          : `<circle cx="8" cy="8" r="3"></circle>
+             <path d="M8 2v1M8 13v1M2 8h1M13 8h1M3.5 3.5l.7.7M11.8 11.8l.7.7M3.5 12.5l.7-.7M11.8 4.2l.7-.7"></path>`
+        }
         <path d="M20 17.5a4.5 4.5 0 0 0-1.3-8.8A6 6 0 0 0 8.3 10.1 3.8 3.8 0 0 0 9 17.5h11z"/>
       </svg>`; }
     function svgWind(){ return `
@@ -1158,9 +1010,18 @@
     document.getElementById("icWind").innerHTML = svgWind();
     document.getElementById("icHum").innerHTML = svgDrop();
 
+    /* ===== Dia/noite (sem geolocalização do device) =====
+       Painéis (Adeus Pendrive) não pedem permissão.
+       Usa hora local do painel: 06:00–18:00 = dia */
+    function isNightNow(){
+      const h = new Date().getHours();
+      return (h < 6 || h >= 18);
+    }
+
     function codeToMeta(code){
-      if (code === 0) return { icon: svgSun(), text: "Ensolarado", kind:"sun" };
-      if (code === 1 || code === 2) return { icon: svgPartly(), text: "Parcialmente nublado", kind:"partly" };
+      const night = isNightNow();
+      if (code === 0) return { icon: night ? svgMoon() : svgSun(), text: night ? "Céu limpo" : "Ensolarado", kind: night ? "moon" : "sun" };
+      if (code === 1 || code === 2) return { icon: svgPartly(night), text: "Parcialmente nublado", kind:"partly" };
       if (code === 3) return { icon: svgCloud(), text: "Nublado", kind:"cloud" };
       if ([45,48].includes(code)) return { icon: svgCloud(), text: "Neblina", kind:"cloud" };
       if ([51,53,55,61,63,65,80,81,82].includes(code)) return { icon: svgRain(), text: "Chuva", kind:"rain" };
@@ -1187,9 +1048,9 @@
           </svg>
         `;
       }
-      if (kind === "moon") return `<div class="animFloat">${svgMoon()}</div>`;
       if (kind === "sun") return `<div class="animFloat">${svgSun()}</div>`;
-      if (kind === "partly") return `<div class="animFloat">${svgPartly()}</div>`;
+      if (kind === "moon") return `<div class="animFloat">${svgMoon()}</div>`;
+      if (kind === "partly") return `<div class="animFloat">${svgPartly(isNightNow())}</div>`;
       return `<div class="animFloat">${svgCloud()}</div>`;
     }
 
@@ -1222,110 +1083,123 @@
       }
     }
 
-    /* ===== Sol/Lua (não mostrar sol à noite) ===== */
-    function computeIsNight(sunriseISO, sunsetISO){
-      try{
-        if(!sunriseISO || !sunsetISO) return false;
-        const now = new Date();
-        const sr = new Date(sunriseISO);
-        const ss = new Date(sunsetISO);
-        return (now < sr || now > ss);
-      }catch(_){ return false; }
-    }
-
-    function applySunMoon(meta){
-      // regra pedida: se o clima for "sun" e for noite -> trocar por "moon"
-      if(meta.kind === "sun" && dayNight.isNight){
-        return { ...meta, icon: svgMoon(), text: "Céu limpo", kind: "moon" };
-      }
-      return meta;
-    }
-
-    /* ===== SENSAÇÃO (chip animado estilo exemplo) ===== */
-    function resetFeelUI(){
-      const ic = document.getElementById("icFeel");
-      const card = document.getElementById("feelCard");
-      const label = document.getElementById("feelLabel");
-      const hint = document.getElementById("feelHint");
-
-      ic.classList.remove("feel-hot-extreme","feel-cold-extreme");
-      card.classList.remove("feelExtremeHot","feelExtremeCold","extremeOn");
-
-      label.childNodes[0].nodeValue = "SENSAÇÃO"; // mantém padrão
-      hint.textContent = "—";
-    }
-
-    function setFeelExtreme(type){
-      const ic = document.getElementById("icFeel");
-      const card = document.getElementById("feelCard");
-      const label = document.getElementById("feelLabel");
-      const hint = document.getElementById("feelHint");
-
-      card.classList.add("extremeOn");
-
-      if(type === "hot"){
-        card.classList.add("feelExtremeHot");
-        ic.classList.add("feel-hot-extreme");
-        label.childNodes[0].nodeValue = "SENSAÇÃO • CALOR";
-        hint.textContent = "Hidrate-se e evite sol forte.";
-      } else {
-        card.classList.add("feelExtremeCold");
-        ic.classList.add("feel-cold-extreme");
-        label.childNodes[0].nodeValue = "SENSAÇÃO • FRIO";
-        hint.textContent = "Agasalhe-se e evite vento.";
-      }
-    }
-
-    function updateFeelsUI(feelsLike){
-      const v = Number(feelsLike);
-      if(!Number.isFinite(v)) return;
-
-      resetFeelUI();
-
-      // Só muda visual quando EXTREMO (como você pediu)
-      if (v >= FEEL_LIMITS.hotExtreme) setFeelExtreme("hot");
-      else if (v <= FEEL_LIMITS.coldExtreme) setFeelExtreme("cold");
-    }
-
     /* ===== AUTO-SCROLL (loop) ===== */
-    let autoScrollTimer = null;
-    function startAutoScrollIfNeeded(){
-      const list = document.getElementById("forecastList");
-      if (!list) return;
+    /* ===== AUTO-SCROLL (loop) — substitua a função inteira por esta ===== */
+let autoScrollRAF = null;
+let autoScrollPausedUntil = 0;
 
-      if (autoScrollTimer) {
-        clearInterval(autoScrollTimer);
-        autoScrollTimer = null;
+function stopAutoScroll(){
+  if (autoScrollRAF) cancelAnimationFrame(autoScrollRAF);
+  autoScrollRAF = null;
+  autoScrollPausedUntil = 0;
+}
+
+/* ===== AUTO-SCROLL (ping-pong suave + pausa topo/fim) ===== */
+let autoScrollRAF = null;
+
+function stopAutoScroll(){
+  if (autoScrollRAF) cancelAnimationFrame(autoScrollRAF);
+  autoScrollRAF = null;
+}
+
+function easeInOutCubic(t){
+  return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+}
+
+function animateScroll(el, to, durationMs){
+  return new Promise(resolve=>{
+    const start = el.scrollTop;
+    const delta = to - start;
+    const t0 = performance.now();
+
+    function step(ts){
+      const p = Math.min(1, (ts - t0) / durationMs);
+      el.scrollTop = start + delta * easeInOutCubic(p);
+      if (p < 1) autoScrollRAF = requestAnimationFrame(step);
+      else resolve();
+    }
+    autoScrollRAF = requestAnimationFrame(step);
+  });
+}
+
+async function startAutoScrollIfNeeded(){
+  const list = document.getElementById("forecastList");
+  if (!list) return;
+
+  stopAutoScroll();
+
+  // espera renderização do conteúdo
+  setTimeout(async ()=>{
+    const maxScroll = list.scrollHeight - list.clientHeight;
+    if (maxScroll <= 2){
+      list.scrollTop = 0;
+      return;
+    }
+
+    // ===== Ajuste aqui =====
+    const downMs = 9000;     // tempo para descer até o fim
+    const upMs   = 7000;     // tempo para subir ao topo
+    const pauseTopMs = 700;  // pausa no topo
+    const pauseEndMs = 900;  // pausa no fim
+
+    // loop infinito (ping-pong)
+    while (true){
+      // TOP pause
+      await new Promise(r => setTimeout(r, pauseTopMs));
+
+      // desce suave até o fim
+      await animateScroll(list, maxScroll, downMs);
+
+      // END pause
+      await new Promise(r => setTimeout(r, pauseEndMs));
+
+      // sobe suave até o topo
+      await animateScroll(list, 0, upMs);
+    }
+  }, 250);
+}
+
+    // parâmetros
+    const speedPxPerSec = 18;   // velocidade de rolagem (ajuste se quiser)
+    const pauseMs = 900;        // pausa no final (ajuste se quiser)
+
+    let lastTs = performance.now();
+
+    function loop(ts){
+      // pausa controlada
+      if (autoScrollPausedUntil && ts < autoScrollPausedUntil){
+        autoScrollRAF = requestAnimationFrame(loop);
+        return;
+      } else {
+        autoScrollPausedUntil = 0;
       }
 
-      setTimeout(()=>{
-        const needs = list.scrollHeight > (list.clientHeight + 2);
-        if (!needs) { list.scrollTop = 0; return; }
+      const dt = (ts - lastTs) / 1000;
+      lastTs = ts;
 
-        let direction = 1;
-        const speed = 0.35;
-        const pauseAtEndsMs = 900;
+      // avança
+      const step = speedPxPerSec * dt;
+      list.scrollTop += step;
 
-        autoScrollTimer = setInterval(()=>{
-          const maxScroll = list.scrollHeight - list.clientHeight;
-          if (maxScroll <= 0) { list.scrollTop = 0; return; }
+      // chegou no final -> pausa -> volta pro topo -> continua
+      const end = list.scrollHeight - list.clientHeight;
+      if (list.scrollTop >= end - 1){
+        list.scrollTop = end;
+        autoScrollPausedUntil = ts + pauseMs;
+        // volta pro topo depois da pausa
+        setTimeout(()=>{
+          list.scrollTop = 0;
+          lastTs = performance.now();
+        }, pauseMs);
+      }
 
-          list.scrollTop += direction * speed;
-
-          if (list.scrollTop >= maxScroll - 1){
-            list.scrollTop = maxScroll;
-            direction = -1;
-            clearInterval(autoScrollTimer);
-            autoScrollTimer = setTimeout(()=>startAutoScrollIfNeeded(), pauseAtEndsMs);
-          } else if (list.scrollTop <= 1 && direction === -1){
-            list.scrollTop = 0;
-            direction = 1;
-            clearInterval(autoScrollTimer);
-            autoScrollTimer = setTimeout(()=>startAutoScrollIfNeeded(), pauseAtEndsMs);
-          }
-        }, 18);
-      }, 250);
+      autoScrollRAF = requestAnimationFrame(loop);
     }
+
+    autoScrollRAF = requestAnimationFrame(loop);
+  }, 250);
+}
+
 
     /* ===== Alternância de views (direita) ===== */
     const viewA = document.getElementById("viewA");
@@ -1347,6 +1221,7 @@
     }
     function showB(){
       showingA = false;
+      stopAutoScroll(); // <-- adicione isso
       viewB.classList.add("active");
       viewA.classList.remove("active");
       dotB.classList.add("active");
@@ -1354,6 +1229,21 @@
       sideLabel.textContent = "DETALHES • HOJE";
     }
     setInterval(()=>{ showingA ? showB() : showA(); }, ROTATE_MS);
+
+    /* ===== SENS. TÉRMICA: aplica classes no #icFeel ===== */
+    function applyFeelsAnimation(apparent){
+      const el = document.getElementById("icFeel");
+      if (!el) return;
+
+      el.classList.remove("feel-ok","feel-hot","feel-cold","feel-hot-extreme","feel-cold-extreme");
+
+      if (apparent >= FEEL_EXTREME_HOT) { el.classList.add("feel-hot-extreme"); return; }
+      if (apparent <= FEEL_EXTREME_COLD) { el.classList.add("feel-cold-extreme"); return; }
+      if (apparent >= FEEL_HOT) { el.classList.add("feel-hot"); return; }
+      if (apparent <= FEEL_COLD) { el.classList.add("feel-cold"); return; }
+
+      el.classList.add("feel-ok");
+    }
 
     /* ===== RENDER ===== */
     function renderForecastList(){
@@ -1425,8 +1315,7 @@
       url.searchParams.set("longitude", CITY.lon);
       url.searchParams.set("timezone", TZ);
       url.searchParams.set("current", "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m");
-      // adicionados sunrise/sunset para regra sol/lua (não altera layout)
-      url.searchParams.set("daily", "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,sunrise,sunset");
+      url.searchParams.set("daily", "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum");
       url.searchParams.set("forecast_days", "6");
 
       const res = await fetch(url.toString(), { cache:"no-store" });
@@ -1436,18 +1325,8 @@
       document.getElementById("cityName").textContent = CITY.name;
       document.getElementById("footUpdated").textContent = `ATUALIZADO • ${ddmm_hhmm()}`;
 
-      dailyData = data.daily;
-
-      // sunrise/sunset do dia (idx 0)
-      const sr = dailyData?.sunrise?.[0] || null;
-      const ss = dailyData?.sunset?.[0] || null;
-      dayNight = { isNight: computeIsNight(sr, ss), sunrise: sr, sunset: ss };
-
       const cur = data.current;
-      let meta = codeToMeta(cur.weather_code);
-
-      // aplica sol/lua à noite (pedido)
-      meta = applySunMoon(meta);
+      const meta = codeToMeta(cur.weather_code);
 
       setAlert(cur.weather_code);
 
@@ -1455,187 +1334,105 @@
       document.getElementById("descToday").textContent = meta.text.toUpperCase();
       document.getElementById("todayIcon").innerHTML = buildAnimatedTodayIcon(meta.kind);
 
-      const feels = Math.round(cur.apparent_temperature);
-      document.getElementById("feels").textContent = `${feels}°`;
-
-      // aplica chip extremo (pedido)
-      updateFeelsUI(feels);
-
+      const feel = Math.round(cur.apparent_temperature);
+      document.getElementById("feels").textContent = `${feel}°`;
       document.getElementById("wind").textContent = `${Math.round(cur.wind_speed_10m)} km/h`;
       document.getElementById("humidity").textContent = `${Math.round(cur.relative_humidity_2m)}%`;
 
+      applyFeelsAnimation(feel);
+
+      dailyData = data.daily;
       renderForecastList();
       renderTodayDetails();
     }
 
-    /* ===== GEO (como o antigo “mais certo”, mas sem pedir permissão) ===== */
+    /* ===== Localização sem permissão:
+       usa serviço IP (bom pra painéis) e fallback estável ===== */
+/* ===== Localização robusta (2 provedores + cache) ===== */
+const CITY_CACHE_KEY = "pv_city_cache_v1";
 
-    function loadGeoCache(){
-      try{
-        const raw = localStorage.getItem("pv_geo");
-        if(!raw) return null;
-        const obj = JSON.parse(raw);
-        if(!obj || !Number.isFinite(obj.lat) || !Number.isFinite(obj.lon)) return null;
-        const ageMs = Date.now() - (obj.ts || 0);
-        if(ageMs > GEO_TTL_HOURS * 3600 * 1000) return null;
-        return obj;
-      }catch(_){ return null; }
-    }
-    function saveGeoCache(payload){
-      try{ localStorage.setItem("pv_geo", JSON.stringify({ ...payload, ts: Date.now() })); }catch(_){}
-    }
-    function setSubtitleFromState(state){
-      document.getElementById("subtitle").textContent = state ? `LOCAL • ${state}` : "LOCAL";
-    }
-    function withTimeout(promise, ms){
-      return new Promise((resolve, reject)=>{
-        const t = setTimeout(()=>reject(new Error("timeout")), ms);
-        promise.then(v=>{ clearTimeout(t); resolve(v); }).catch(e=>{ clearTimeout(t); reject(e); });
-      });
-    }
+function saveCityCache(cityObj){
+  try{ localStorage.setItem(CITY_CACHE_KEY, JSON.stringify({ t: Date.now(), city: cityObj })); }catch(e){}
+}
+function loadCityCache(){
+  try{
+    const raw = localStorage.getItem(CITY_CACHE_KEY);
+    if (!raw) return null;
+    const j = JSON.parse(raw);
+    return j?.city || null;
+  }catch(e){ return null; }
+}
 
-    async function reverseGeoOpenMeteo(lat, lon){
-      const u = new URL("https://geocoding-api.open-meteo.com/v1/reverse");
-      u.searchParams.set("latitude", lat);
-      u.searchParams.set("longitude", lon);
-      u.searchParams.set("language", "pt");
-      u.searchParams.set("format", "json");
-      u.searchParams.set("count", "1");
+async function fetchJson(url){
+  const res = await fetch(url, { cache:"no-store" });
+  if (!res.ok) throw new Error("fetch fail");
+  return res.json();
+}
 
-      const r = await fetch(u.toString(), { cache:"no-store" });
-      if(!r.ok) throw new Error("reverse geo falhou");
-      const j = await r.json();
-      const it = j?.results?.[0];
-      if(!it) throw new Error("reverse vazio");
-      const name = it.name ? it.name.trim() : "LOCAL";
-      const state = it.admin1_code ? String(it.admin1_code).trim() : (it.admin1 ? String(it.admin1).trim() : "");
-      return { city: name, region: state };
-    }
+async function resolveCityByIP(){
+  // 1) tenta cache primeiro (bom pra quando a internet oscila)
+  const cached = loadCityCache();
+  if (cached?.lat && cached?.lon){
+    CITY = cached;
+    document.getElementById("subtitle").textContent = (CITY.state === "ES") ? "LOCAL • ES" : "LOCAL";
+  }
 
-    async function tryDeviceGeolocationIfGranted(){
-      if(!("geolocation" in navigator)) throw new Error("no geolocation");
+  // 2) provedor A: ipapi.co
+  try{
+    const j = await fetchJson("https://ipapi.co/json/");
+    const lat = Number(j.latitude);
+    const lon = Number(j.longitude);
+    const city = (j.city || "").trim();
+    const region = (j.region_code || j.region || "").trim();
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) throw new Error("coords inválidas");
 
-      // sem popup: só segue se já estiver concedido
-      if(navigator.permissions && navigator.permissions.query){
-        const p = await navigator.permissions.query({ name: "geolocation" });
-        if(p.state !== "granted") throw new Error("geo not granted");
-      } else {
-        // se não tem Permissions API, não arrisca pedir popup
-        throw new Error("no permissions api");
-      }
+    const name = city ? `${city}${region ? " • " + region : ""}` : (region || "LOCAL");
+    CITY = { name, lat, lon, state: region || "" };
 
-      const pos = await new Promise((resolve, reject)=>{
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy:false,
-          timeout: 2500,
-          maximumAge: 30 * 60 * 1000
-        });
-      });
+    document.getElementById("subtitle").textContent = (CITY.state === "ES") ? "LOCAL • ES" : "LOCAL";
+    saveCityCache(CITY);
+    return;
+  }catch(e){ /* cai pro próximo */ }
 
-      const lat = Number(pos.coords.latitude);
-      const lon = Number(pos.coords.longitude);
-      if(!Number.isFinite(lat) || !Number.isFinite(lon)) throw new Error("coords inválidas");
+  // 3) provedor B: ipwho.is (costuma funcionar quando ipapi falha)
+  try{
+    const j = await fetchJson("https://ipwho.is/");
+    if (j.success === false) throw new Error("ipwho fail");
 
-      // nome da cidade via reverse geocode (mais certeiro)
-      const rev = await reverseGeoOpenMeteo(lat, lon);
-      return { lat, lon, city: rev.city, region: rev.region };
-    }
+    const lat = Number(j.latitude);
+    const lon = Number(j.longitude);
+    const city = (j.city || "").trim();
+    const region = (j.region_code || j.region || "").trim();
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) throw new Error("coords inválidas");
 
-    async function fetchIPGeoProviders(){
-      const providers = [
-        async ()=> {
-          const r = await fetch("https://ipapi.co/json/", { cache:"no-store" });
-          if(!r.ok) throw new Error("ipapi");
-          const j = await r.json();
-          return { city:(j.city||"").trim(), region:(j.region_code||j.region||"").trim(), lat:Number(j.latitude), lon:Number(j.longitude) };
-        },
-        async ()=> {
-          const r = await fetch("https://ipwho.is/", { cache:"no-store" });
-          if(!r.ok) throw new Error("ipwhois");
-          const j = await r.json();
-          if(j.success === false) throw new Error("ipwhois");
-          return { city:(j.city||"").trim(), region:(j.region_code||j.region||"").trim(), lat:Number(j.latitude), lon:Number(j.longitude) };
-        },
-        async ()=> {
-          const r = await fetch("https://ip-api.com/json/?fields=status,city,region,regionName,lat,lon", { cache:"no-store" });
-          if(!r.ok) throw new Error("ip-api");
-          const j = await r.json();
-          if(j.status !== "success") throw new Error("ip-api");
-          return { city:(j.city||"").trim(), region:(j.region||j.regionName||"").trim(), lat:Number(j.lat), lon:Number(j.lon) };
-        }
-      ];
+    const name = city ? `${city}${region ? " • " + region : ""}` : (region || "LOCAL");
+    CITY = { name, lat, lon, state: region || "" };
 
-      const settled = await Promise.allSettled(providers.map(fn => withTimeout(fn(), GEO_TIMEOUT_MS)));
-      const good = settled
-        .filter(r => r.status === "fulfilled")
-        .map(r => r.value)
-        .filter(v => Number.isFinite(v.lat) && Number.isFinite(v.lon));
+    document.getElementById("subtitle").textContent = (CITY.state === "ES") ? "LOCAL • ES" : "LOCAL";
+    saveCityCache(CITY);
+    return;
+  }catch(e){ /* fallback final */ }
 
-      if(!good.length) throw new Error("no-geo");
+  // 4) se tudo falhar: fica com cache (se houver) ou fallback fixo
+  if (cached?.lat && cached?.lon){
+    CITY = cached;
+    document.getElementById("subtitle").textContent = (CITY.state === "ES") ? "LOCAL • ES" : "LOCAL";
+    return;
+  }
 
-      good.sort((a,b)=>{
-        const sa = (a.city?1:0) + (a.region?1:0);
-        const sb = (b.city?1:0) + (b.region?1:0);
-        return sb - sa;
-      });
+  CITY = { ...FALLBACK_CITY };
+  document.getElementById("subtitle").textContent = "LOCAL • ES";
+}
 
-      return good[0];
-    }
-
-    function buildCityName(city, region){
-      const c = (city || "").trim();
-      const r = (region || "").trim();
-      if(c && r) return `${c} • ${r}`;
-      if(c) return c;
-      if(r) return `LOCAL • ${r}`;
-      return "LOCAL";
-    }
-
-    async function resolveCity(){
-      const cached = loadGeoCache();
-      if(cached){
-        CITY = { name: buildCityName(cached.city, cached.region), lat:Number(cached.lat), lon:Number(cached.lon), state:(cached.region||"").trim() };
-        setSubtitleFromState(CITY.state);
-      }
-
-      // 1) tenta “dispositivo” como no antigo (mas só se já autorizado)
-      try{
-        const g = await withTimeout(tryDeviceGeolocationIfGranted(), 3200);
-        saveGeoCache(g);
-        CITY = { name: buildCityName(g.city, g.region), lat:Number(g.lat), lon:Number(g.lon), state:(g.region||"").trim() };
-        setSubtitleFromState(CITY.state);
-        return;
-      }catch(_){ /* cai pro IP */ }
-
-      // 2) fallback IP
-      try{
-        const g = await fetchIPGeoProviders();
-
-        // melhora o nome via reverse do Open-Meteo (mais preciso)
-        let cityName = g.city, region = g.region;
-        try{
-          const rev = await reverseGeoOpenMeteo(g.lat, g.lon);
-          if(rev?.city) cityName = rev.city;
-          if(rev?.region) region = rev.region;
-        }catch(_){}
-
-        const best = { lat:g.lat, lon:g.lon, city: cityName, region };
-        saveGeoCache(best);
-
-        CITY = { name: buildCityName(best.city, best.region), lat:Number(best.lat), lon:Number(best.lon), state:(best.region||"").trim() };
-        setSubtitleFromState(CITY.state);
-      }catch(_){
-        if(!cached){
-          CITY = { ...FALLBACK_CITY };
-          document.getElementById("subtitle").textContent = "LOCAL • ES";
-        }
-      }
-    }
 
     // boot
     showA();
     (async ()=>{
-      await resolveCity();
+      try{ await resolveCityByIP(); }
+      catch(e){
+        CITY = { ...FALLBACK_CITY };
+        document.getElementById("subtitle").textContent = "LOCAL • ES";
+      }
 
       try{ await loadWeather(); }
       catch(err){
