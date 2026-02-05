@@ -21,7 +21,6 @@
       --topB:#2c6aa3;
       --topC:#0f3d63;
 
-      /* bordas maiores */
       --radiusOuter: 30px;
       --radius: 24px;
 
@@ -56,6 +55,11 @@
       --feelCold:#3b82f6;
       --feelColdBg: rgba(59,130,246,.14);
       --feelColdLine: rgba(59,130,246,.26);
+
+      /* === NOVO: tamanhos baseados também na ALTURA (evita quebrar em zoom alto) === */
+      --todayIconSize: clamp(82px, 12vmin, 150px);
+      --todayTempSize: clamp(64px, 14vmin, 150px);
+      --todayGap: clamp(12px, 1.6vw, 22px);
     }
 
     *{box-sizing:border-box}
@@ -312,6 +316,10 @@
       display:flex;
       flex-direction:column;
       min-height:0;
+
+      /* NOVO: cria contexto e evita “pintar por cima” em overflow */
+      position:relative;
+      isolation:isolate;
     }
     .todayHead{
       padding: 18px 18px 10px;
@@ -321,6 +329,11 @@
       gap: 12px;
       min-width:0;
       flex:0 0 auto;
+
+      /* NOVO: garante que o topo fique sempre “por cima” */
+      position:relative;
+      z-index:2;
+      background:#fff;
     }
     .city{
       font-size: 18px;
@@ -331,6 +344,7 @@
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      max-width: 100%;
     }
 
     .todayCenter{
@@ -340,18 +354,24 @@
       display:flex;
       align-items:center;
       justify-content:center;
+
+      /* NOVO: impede o conteúdo grande de “invadir” o cabeçalho */
+      position:relative;
+      z-index:1;
+      overflow:hidden;
     }
     .todayWrap{
       width:100%;
       max-width: 780px;
       display:grid;
-      grid-template-columns: clamp(90px, 9vw, 150px) 1fr;
+      grid-template-columns: var(--todayIconSize) 1fr;
       align-items:center;
-      gap: clamp(14px, 1.6vw, 22px);
+      gap: var(--todayGap);
+      min-width:0;
     }
     .todayIcon{
-      width: clamp(90px, 9vw, 150px);
-      height: clamp(90px, 9vw, 150px);
+      width: var(--todayIconSize);
+      height: var(--todayIconSize);
       display:grid;
       place-items:center;
       color:#0f3d63;
@@ -384,11 +404,12 @@
 
     .tempBlock{min-width:0}
     .tempBig{
-      font-size: clamp(72px, 7.0vw, 150px);
+      font-size: var(--todayTempSize);
       font-weight: 900;
       letter-spacing:-0.03em;
       line-height: .92;
       white-space:nowrap;
+      max-width: 100%;
     }
     .tempBig small{font-size:.42em; font-weight: 900; opacity:.92}
     .condLine{
@@ -399,6 +420,7 @@
       text-transform:uppercase;
       color:#2a3a50;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      max-width: 100%;
     }
 
     .todayBottom{
@@ -406,6 +428,10 @@
       border-top:1px solid var(--line);
       background:#fff;
       flex:0 0 auto;
+
+      /* NOVO: garante separação visual no compacto */
+      position:relative;
+      z-index:2;
     }
 
     .metricsRow{
@@ -756,10 +782,13 @@
         --pad: clamp(10px, 1.15vw, 18px);
         --gap: clamp(10px, 1.0vw, 14px);
         --footerH: clamp(44px, 5.2vh, 64px);
+        --safe: clamp(10px, 1.6vw, 18px);
+
+        /* reduz um pouco no modo compactado */
+        --todayIconSize: clamp(74px, 11vmin, 128px);
+        --todayTempSize: clamp(56px, 13vmin, 120px);
       }
       .pvShell{ padding: 12px; }
-      .todayWrap{ grid-template-columns: clamp(74px, 8vw, 120px) 1fr; }
-      .tempBig{ font-size: clamp(56px, 6.2vw, 120px); }
       .todayHead{ padding: 16px 16px 8px; }
       .todayCenter{ padding: 8px 16px 0; }
       .todayBottom{ padding: 12px 16px 14px; }
@@ -767,25 +796,50 @@
 
     @media (max-width: 920px), (max-height: 640px){
       #subSource{ display:none; }
-      .todayIcon{ width: clamp(70px, 7vw, 115px); height: clamp(70px, 7vw, 115px); }
-      .tempBig{ font-size: clamp(50px, 5.8vw, 102px); }
+
+      :root{
+        --todayIconSize: clamp(70px, 10.5vmin, 115px);
+        --todayTempSize: clamp(52px, 12vmin, 108px);
+      }
+
       .metricsRow{ grid-template-columns: repeat(2, 1fr); }
     }
 
-    /* ultracompacto (ex.: zoom 175% / telas muito pequenas) */
+    /* ===== ULTRACOMPACTO (zoom 175% / pouca altura) ===== */
     @media (max-width: 760px), (max-height: 560px){
       .layout{ grid-template-columns: 1fr !important; }
       .side{ display:none !important; }
       .metricsRow{ grid-template-columns: 1fr; }
+
       .pvClock{ font-size: clamp(20px, 4.8vw, 34px); }
       .pvFooterUpdate{ font-size: 10px; }
       .pvLogo{ height: 16px; }
+
+      /* NOVO: empilha ícone + temperatura para nunca sobrepor */
+      .todayWrap{
+        grid-template-columns: 1fr;
+        justify-items:center;
+        text-align:center;
+        max-width: 560px;
+      }
+      .condLine{
+        white-space:normal;
+        text-align:center;
+      }
+
+      /* deixa as métricas mais “baixas” no compacto */
+      .mCard{ padding: 10px 10px; }
+      .mVal{ font-size: 16px; }
     }
 
     @media (max-aspect-ratio: 4/5){
       .layout{ grid-template-columns: 1fr !important; }
       .side{ display:none !important; }
-      .tempBig{ font-size: clamp(56px, 9vw, 120px); }
+
+      :root{
+        --todayIconSize: clamp(80px, 14vmin, 140px);
+        --todayTempSize: clamp(60px, 16vmin, 132px);
+      }
     }
   </style>
 </head>
@@ -1291,7 +1345,7 @@
       document.getElementById("footUpdated").textContent = `ATUALIZADO • ${ddmm_hhmm()}`;
 
       const cur = data.current;
-      isDayNow = (cur.is_day === 1); // <- isso resolve sol/ lua de verdade
+      isDayNow = (cur.is_day === 1); // <- sol/ lua correto
 
       const meta = codeToMeta(cur.weather_code, isDayNow);
       setAlert(cur.weather_code);
@@ -1314,8 +1368,6 @@
 
     /* =========================================================
        Localização (ipwho.is) — robusta
-       - Usa latitude/longitude direto do ipwho (menos uma chamada)
-       - Se falhar: usa URL ?lat&lon, se não: fallback Colatina
        ========================================================= */
     function parseFromURL(){
       const p = new URLSearchParams(location.search);
@@ -1345,14 +1397,13 @@
         return;
       }
 
-      // 2) ipwho.is (sem permissão do dispositivo)
+      // 2) ipwho.is
       try{
         const d = await fetchJsonWithTimeout("https://ipwho.is/", 6500);
         if (d && d.success){
           if (d.city) CITY.city = String(d.city).trim();
           CITY.uf = String(d.region_code || CITY.uf || "").trim().toUpperCase();
 
-          // usa coordenadas do ipwho (mais robusto)
           const lat = Number(d.latitude);
           const lon = Number(d.longitude);
           if (Number.isFinite(lat) && Number.isFinite(lon)){
@@ -1363,9 +1414,7 @@
           CITY.name = `${CITY.city || DEFAULT_CITY} • ${CITY.uf || DEFAULT_UF}`;
           return;
         }
-      } catch(e){
-        // ignora e segue pro fallback
-      }
+      } catch(e){}
 
       // 3) fallback fixo (nada de Vitória)
       CITY.city = CITY.city || DEFAULT_CITY;
@@ -1385,7 +1434,6 @@
         await resolveCity();
         await loadWeather();
       } catch(err){
-        // mantém UI coerente mesmo offline
         document.getElementById("descToday").textContent = "SEM CONEXÃO";
         document.getElementById("cityName").textContent = (CITY.name || "LOCAL").toUpperCase();
         document.getElementById("subtitle").textContent = (CITY.name || "LOCAL").toUpperCase();
