@@ -291,18 +291,16 @@
     }
 
     /* =========================================================
-       LAYOUT PADRÃO: SIDE À ESQUERDA | TEMPERATURA À DIREITA (sempre)
+       LAYOUT: TEMPERATURA À ESQUERDA | PRÓXIMOS/DETALHES À DIREITA
        ========================================================= */
     .layout{
       width:100%;
       display:grid;
-      grid-template-columns: 0.85fr 1.15fr; /* esquerda (side) | direita (today) */
+      grid-template-columns: 1.15fr 0.85fr; /* left (today) | right (side) */
       gap: var(--gap);
       align-items: stretch;
       min-height:0;
     }
-    .side{ order: 1; }
-    .todayCard{ order: 2; }
 
     .todayCard{
       border:1px solid var(--line);
@@ -321,7 +319,6 @@
       gap: 12px;
       min-width:0;
       flex:0 0 auto;
-      background:#fff;
     }
     .city{
       font-size: 18px;
@@ -344,7 +341,6 @@
       justify-content:center;
       overflow:hidden;
     }
-
     .todayWrap{
       width:100%;
       max-width: 780px;
@@ -354,7 +350,6 @@
       gap: clamp(14px, 1.6vw, 22px);
       min-width:0;
     }
-
     .todayIcon{
       width: clamp(90px, 9vw, 150px);
       height: clamp(90px, 9vw, 150px);
@@ -740,7 +735,7 @@
       opacity:.90;
     }
 
-    /* ===== Ajustes responsivos gerais ===== */
+    /* ===== Responsivo geral ===== */
     @media (max-width: 1100px), (max-height: 760px){
       :root{
         --pad: clamp(10px, 1.15vw, 18px);
@@ -761,18 +756,16 @@
     }
 
     /* =========================================================
-       ULTRACOMPACTO (zoom 175%): remove VENTO/UMIDADE e mantém temp à direita
+       ULTRACOMPACTO: remove VENTO/UMIDADE e mantém 2 colunas (today esq / side dir)
        ========================================================= */
     @media (max-width: 980px), (max-height: 620px){
       .layout{
-        grid-template-columns: 0.95fr 1.05fr; /* side | today */
+        grid-template-columns: 1.05fr 0.95fr; /* today | side */
         min-height:0;
       }
 
       .todayCenter{
         padding: 10px 14px 0;
-        flex: 1 1 auto;
-        min-height: 0;
       }
 
       .todayWrap{
@@ -807,10 +800,9 @@
       .view{ inset: 12px; }
     }
 
-    /* MUITO estreito: ainda mantém duas colunas (temp continua à direita) */
     @media (max-width: 680px){
       .layout{
-        grid-template-columns: minmax(230px, 0.95fr) minmax(0, 1.05fr);
+        grid-template-columns: minmax(0, 1.05fr) minmax(230px, 0.95fr);
       }
       .fRow{ grid-template-columns: 52px 40px 1fr auto; }
       .pill{ min-width: 48px; padding: 10px 10px 8px; }
@@ -850,43 +842,8 @@
 
         <main class="pvMain">
           <div class="layout">
-            <aside class="side">
-              <div class="sideHeader">
-                <div class="label" id="sideLabel">PRÓXIMOS DIAS</div>
-                <div class="toggleDots" aria-hidden="true">
-                  <div class="tdot active" id="dotA"></div>
-                  <div class="tdot" id="dotB"></div>
-                </div>
-              </div>
 
-              <div class="slot">
-                <div class="view active" id="viewA">
-                  <div class="forecastList" id="forecastList"></div>
-                </div>
-
-                <div class="view" id="viewB">
-                  <div class="detailCard">
-                    <div class="bigMinMax">
-                      <div class="mmBlock">
-                        <div class="mmNum" id="tMax">--°</div>
-                        <div class="mmLbl">máx</div>
-                      </div>
-                      <div class="mmBlock">
-                        <div class="mmNum" id="tMin">--°</div>
-                        <div class="mmLbl">mín</div>
-                      </div>
-                    </div>
-
-                    <div class="detailPills">
-                      <div class="dPill" id="pillRain"><span id="rainMm">-- mm</span></div>
-                      <div class="dPill" id="pillPop"><span id="popPct">--% chuva</span></div>
-                      <div class="dPill" id="pillCond"><span id="condTxt">—</span></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </aside>
-
+            <!-- TEMPERATURA (ESQUERDA) -->
             <section class="todayCard">
               <div class="todayHead">
                 <div class="city" id="cityName">—</div>
@@ -930,6 +887,44 @@
                 </div>
               </div>
             </section>
+
+            <!-- PRÓXIMOS DIAS / DETALHES (DIREITA) -->
+            <aside class="side">
+              <div class="sideHeader">
+                <div class="label" id="sideLabel">PRÓXIMOS DIAS</div>
+                <div class="toggleDots" aria-hidden="true">
+                  <div class="tdot active" id="dotA"></div>
+                  <div class="tdot" id="dotB"></div>
+                </div>
+              </div>
+
+              <div class="slot">
+                <div class="view active" id="viewA">
+                  <div class="forecastList" id="forecastList"></div>
+                </div>
+
+                <div class="view" id="viewB">
+                  <div class="detailCard">
+                    <div class="bigMinMax">
+                      <div class="mmBlock">
+                        <div class="mmNum" id="tMax">--°</div>
+                        <div class="mmLbl">máx</div>
+                      </div>
+                      <div class="mmBlock">
+                        <div class="mmNum" id="tMin">--°</div>
+                        <div class="mmLbl">mín</div>
+                      </div>
+                    </div>
+
+                    <div class="detailPills">
+                      <div class="dPill" id="pillRain"><span id="rainMm">-- mm</span></div>
+                      <div class="dPill" id="pillPop"><span id="popPct">--% chuva</span></div>
+                      <div class="dPill" id="pillCond"><span id="condTxt">—</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </aside>
 
           </div>
         </main>
@@ -1082,6 +1077,9 @@
       return map[d.getDay()];
     }
 
+    /* =========================================================
+       UI init
+       ========================================================= */
     const panel = document.getElementById("panel");
     document.getElementById("title").textContent = panel.dataset.title || "PREVISÃO DO TEMPO";
     document.getElementById("subtitle").textContent = panel.dataset.subtitle || "LOCAL • BR";
@@ -1095,6 +1093,9 @@
     tickClock();
     setInterval(tickClock, 1000);
 
+    /* =========================================================
+       ALERTA
+       ========================================================= */
     function getAlertFor(code){
       if ([95,96,99].includes(code)) return { show:true, label:"ALERTA • TEMPESTADE" };
       if ([65,82].includes(code)) return { show:true, label:"ALERTA • CHUVA FORTE" };
@@ -1117,6 +1118,9 @@
       }
     }
 
+    /* =========================================================
+       SENSAÇÃO TÉRMICA (ícone)
+       ========================================================= */
     function setFeelIconState(apparent){
       const el = document.getElementById("icFeel");
       el.classList.remove("feel-hot","feel-cold","feel-normal");
@@ -1126,6 +1130,9 @@
       else el.classList.add("feel-normal");
     }
 
+    /* =========================================================
+       Alternância lateral + Auto-scroll
+       ========================================================= */
     const viewA = document.getElementById("viewA");
     const viewB = document.getElementById("viewB");
     const dotA = document.getElementById("dotA");
@@ -1151,8 +1158,11 @@
       sideLabel.textContent = "DETALHES • HOJE";
       stopAutoScroll();
     }
-    setInterval(()=>{ showingA ? showB() : showA(); }, 11000);
+    setInterval(()=>{ showingA ? showB() : showA(); }, ROTATE_MS);
 
+    /* =========================================================
+       Auto-scroll ping-pong suave
+       ========================================================= */
     let rafId = null;
     let pauseUntil = 0;
     let dir = 1;
@@ -1170,17 +1180,22 @@
 
       stopAutoScroll();
 
+      // dá tempo do layout calcular alturas antes de medir scrollHeight
       setTimeout(()=>{
         const maxScroll = list.scrollHeight - list.clientHeight;
         if (maxScroll <= 2){ list.scrollTop = 0; return; }
 
         let last = performance.now();
         dir = 1;
-        pauseUntil = performance.now() + 900;
+        pauseUntil = performance.now() + SCROLL_PAUSE_MS;
 
         const step = (now)=>{
           const max = list.scrollHeight - list.clientHeight;
-          if (max <= 2){ list.scrollTop = 0; rafId = requestAnimationFrame(step); return; }
+          if (max <= 2){
+            list.scrollTop = 0;
+            rafId = requestAnimationFrame(step);
+            return;
+          }
 
           const dt = Math.min(60, now - last) / 1000;
           last = now;
@@ -1190,17 +1205,16 @@
             return;
           }
 
-          const delta = dir * 22 * dt;
-          list.scrollTop += delta;
+          list.scrollTop += dir * SCROLL_PX_PER_SEC * dt;
 
           if (list.scrollTop >= max - 1){
             list.scrollTop = max;
             dir = -1;
-            pauseUntil = now + 900;
+            pauseUntil = now + SCROLL_PAUSE_MS;
           } else if (list.scrollTop <= 1){
             list.scrollTop = 0;
             dir = 1;
-            pauseUntil = now + 900;
+            pauseUntil = now + SCROLL_PAUSE_MS;
           }
 
           rafId = requestAnimationFrame(step);
@@ -1210,6 +1224,9 @@
       }, 250);
     }
 
+    /* =========================================================
+       Render
+       ========================================================= */
     function renderForecastList(){
       const list = document.getElementById("forecastList");
       list.innerHTML = "";
@@ -1273,6 +1290,9 @@
       document.getElementById("pillPop").innerHTML = `${svgDrop()}<span id="popPct">${Math.round(pop)}% chuva</span>`;
     }
 
+    /* =========================================================
+       Open-Meteo
+       ========================================================= */
     async function loadWeather(){
       const url = new URL("https://api.open-meteo.com/v1/forecast");
       url.searchParams.set("latitude", CITY.lat);
@@ -1311,6 +1331,9 @@
       renderTodayDetails();
     }
 
+    /* =========================================================
+       Localização (ipwho.is) — robusta
+       ========================================================= */
     function parseFromURL(){
       const p = new URLSearchParams(location.search);
       const city = (p.get("city") || "").trim();
@@ -1363,6 +1386,9 @@
       CITY.name = `${CITY.city} • ${CITY.uf}`;
     }
 
+    /* =========================================================
+       Boot
+       ========================================================= */
     showA();
 
     (async ()=>{
@@ -1376,7 +1402,7 @@
         document.getElementById("footUpdated").textContent = "ATUALIZADO • —";
         console.error(err);
       }
-      setInterval(()=>loadWeather().catch(()=>{}), 1000 * 60 * 25);
+      setInterval(()=>loadWeather().catch(()=>{}), 1000 * 60 * WEATHER_REFRESH_MIN);
     })();
   </script>
 </body>
