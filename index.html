@@ -41,13 +41,11 @@
       --footerH: clamp(48px, 6vh, 78px);
       --safe: clamp(12px, 2.0vw, 28px);
 
-      /* ALERT forte */
       --warnBg:#fff0c2;
       --warnInk:#5a3a00;
       --warnLine:#f2c66a;
       --warnHot:#f59e0b;
 
-      /* sensação térmica */
       --feelHot:#ef4444;
       --feelHotBg: rgba(239,68,68,.14);
       --feelHotLine: rgba(239,68,68,.26);
@@ -55,11 +53,6 @@
       --feelCold:#3b82f6;
       --feelColdBg: rgba(59,130,246,.14);
       --feelColdLine: rgba(59,130,246,.26);
-
-      /* === NOVO: tamanhos baseados também na ALTURA (evita quebrar em zoom alto) === */
-      --todayIconSize: clamp(82px, 12vmin, 150px);
-      --todayTempSize: clamp(64px, 14vmin, 150px);
-      --todayGap: clamp(12px, 1.6vw, 22px);
     }
 
     *{box-sizing:border-box}
@@ -296,17 +289,20 @@
       display:flex;
       overflow:hidden;
     }
+
+    /* =========================================================
+       LAYOUT PADRÃO: SIDE À ESQUERDA | TEMPERATURA À DIREITA (sempre)
+       ========================================================= */
     .layout{
       width:100%;
       display:grid;
-      grid-template-columns: 1.15fr 0.85fr;
+      grid-template-columns: 0.85fr 1.15fr; /* esquerda (side) | direita (today) */
       gap: var(--gap);
       align-items: stretch;
       min-height:0;
     }
-    @media (max-aspect-ratio: 4/3){
-      .layout{grid-template-columns:1fr;}
-    }
+    .side{ order: 1; }
+    .todayCard{ order: 2; }
 
     .todayCard{
       border:1px solid var(--line);
@@ -316,10 +312,6 @@
       display:flex;
       flex-direction:column;
       min-height:0;
-
-      /* NOVO: cria contexto e evita “pintar por cima” em overflow */
-      position:relative;
-      isolation:isolate;
     }
     .todayHead{
       padding: 18px 18px 10px;
@@ -329,10 +321,6 @@
       gap: 12px;
       min-width:0;
       flex:0 0 auto;
-
-      /* NOVO: garante que o topo fique sempre “por cima” */
-      position:relative;
-      z-index:2;
       background:#fff;
     }
     .city{
@@ -354,24 +342,22 @@
       display:flex;
       align-items:center;
       justify-content:center;
-
-      /* NOVO: impede o conteúdo grande de “invadir” o cabeçalho */
-      position:relative;
-      z-index:1;
       overflow:hidden;
     }
+
     .todayWrap{
       width:100%;
       max-width: 780px;
       display:grid;
-      grid-template-columns: var(--todayIconSize) 1fr;
+      grid-template-columns: clamp(90px, 9vw, 150px) 1fr;
       align-items:center;
-      gap: var(--todayGap);
+      gap: clamp(14px, 1.6vw, 22px);
       min-width:0;
     }
+
     .todayIcon{
-      width: var(--todayIconSize);
-      height: var(--todayIconSize);
+      width: clamp(90px, 9vw, 150px);
+      height: clamp(90px, 9vw, 150px);
       display:grid;
       place-items:center;
       color:#0f3d63;
@@ -379,37 +365,20 @@
     }
     .todayIcon svg{width:100%; height:100%}
 
-    .animFloat{
-      animation: floaty 2.8s var(--ease) infinite;
-      transform-origin: 50% 50%;
-    }
-    @keyframes floaty{
-      0%,100%{transform: translateY(0)}
-      50%{transform: translateY(-6px)}
-    }
+    .animFloat{animation: floaty 2.8s var(--ease) infinite; transform-origin: 50% 50%;}
+    @keyframes floaty{0%,100%{transform: translateY(0)}50%{transform: translateY(-6px)}}
     .animRainDrop{animation: drop 1.2s linear infinite;}
-    @keyframes drop{
-      0%{transform: translateY(-2px); opacity:.2}
-      35%{opacity:1}
-      100%{transform: translateY(10px); opacity:0}
-    }
-    .animLightning{
-      animation: flash 1.1s var(--ease) infinite;
-      transform-origin: 50% 50%;
-    }
-    @keyframes flash{
-      0%,60%,100%{opacity:1; transform: scale(1)}
-      30%{opacity:.2; transform: scale(.98)}
-    }
+    @keyframes drop{0%{transform: translateY(-2px); opacity:.2}35%{opacity:1}100%{transform: translateY(10px); opacity:0}}
+    .animLightning{animation: flash 1.1s var(--ease) infinite; transform-origin: 50% 50%;}
+    @keyframes flash{0%,60%,100%{opacity:1; transform: scale(1)}30%{opacity:.2; transform: scale(.98)}}
 
     .tempBlock{min-width:0}
     .tempBig{
-      font-size: var(--todayTempSize);
+      font-size: clamp(72px, 7.0vw, 150px);
       font-weight: 900;
       letter-spacing:-0.03em;
       line-height: .92;
       white-space:nowrap;
-      max-width: 100%;
     }
     .tempBig small{font-size:.42em; font-weight: 900; opacity:.92}
     .condLine{
@@ -420,7 +389,7 @@
       text-transform:uppercase;
       color:#2a3a50;
       white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-      max-width: 100%;
+      max-width:100%;
     }
 
     .todayBottom{
@@ -428,10 +397,6 @@
       border-top:1px solid var(--line);
       background:#fff;
       flex:0 0 auto;
-
-      /* NOVO: garante separação visual no compacto */
-      position:relative;
-      z-index:2;
     }
 
     .metricsRow{
@@ -557,7 +522,6 @@
       background:#fff;
       overflow:hidden;
     }
-
     .view{
       position:absolute;
       inset: 16px;
@@ -776,70 +740,80 @@
       opacity:.90;
     }
 
-    /* ===== RESPONSIVO / ZOOM ALTO ===== */
+    /* ===== Ajustes responsivos gerais ===== */
     @media (max-width: 1100px), (max-height: 760px){
       :root{
         --pad: clamp(10px, 1.15vw, 18px);
         --gap: clamp(10px, 1.0vw, 14px);
         --footerH: clamp(44px, 5.2vh, 64px);
-        --safe: clamp(10px, 1.6vw, 18px);
-
-        /* reduz um pouco no modo compactado */
-        --todayIconSize: clamp(74px, 11vmin, 128px);
-        --todayTempSize: clamp(56px, 13vmin, 120px);
       }
       .pvShell{ padding: 12px; }
       .todayHead{ padding: 16px 16px 8px; }
       .todayCenter{ padding: 8px 16px 0; }
       .todayBottom{ padding: 12px 16px 14px; }
+      .tempBig{ font-size: clamp(56px, 6.2vw, 120px); }
     }
 
     @media (max-width: 920px), (max-height: 640px){
       #subSource{ display:none; }
-
-      :root{
-        --todayIconSize: clamp(70px, 10.5vmin, 115px);
-        --todayTempSize: clamp(52px, 12vmin, 108px);
-      }
-
+      .tempBig{ font-size: clamp(50px, 5.8vw, 102px); }
       .metricsRow{ grid-template-columns: repeat(2, 1fr); }
     }
 
-    /* ===== ULTRACOMPACTO (zoom 175% / pouca altura) ===== */
-    @media (max-width: 760px), (max-height: 560px){
-      .layout{ grid-template-columns: 1fr !important; }
-      .side{ display:none !important; }
-      .metricsRow{ grid-template-columns: 1fr; }
+    /* =========================================================
+       ULTRACOMPACTO (zoom 175%): remove VENTO/UMIDADE e mantém temp à direita
+       ========================================================= */
+    @media (max-width: 980px), (max-height: 620px){
+      .layout{
+        grid-template-columns: 0.95fr 1.05fr; /* side | today */
+        min-height:0;
+      }
 
-      .pvClock{ font-size: clamp(20px, 4.8vw, 34px); }
-      .pvFooterUpdate{ font-size: 10px; }
-      .pvLogo{ height: 16px; }
+      .todayCenter{
+        padding: 10px 14px 0;
+        flex: 1 1 auto;
+        min-height: 0;
+      }
 
-      /* NOVO: empilha ícone + temperatura para nunca sobrepor */
       .todayWrap{
-        grid-template-columns: 1fr;
-        justify-items:center;
-        text-align:center;
-        max-width: 560px;
+        grid-template-columns: clamp(64px, 10vmin, 110px) 1fr;
+        gap: 12px;
+        max-width: 100%;
       }
-      .condLine{
-        white-space:normal;
-        text-align:center;
+      .todayIcon{
+        width: clamp(64px, 10vmin, 110px);
+        height: clamp(64px, 10vmin, 110px);
       }
 
-      /* deixa as métricas mais “baixas” no compacto */
-      .mCard{ padding: 10px 10px; }
+      .tempBig{
+        font-size: clamp(54px, 14vmin, 120px);
+        line-height: .92;
+      }
+
+      .todayBottom{
+        padding: 10px 14px 12px;
+      }
+
+      /* só 1 card (sensação) */
+      #cardWind, #cardHum{ display:none !important; }
+      .metricsRow{
+        grid-template-columns: 1fr !important;
+        gap: 8px;
+      }
+      .mCard{ padding: 10px 12px; }
       .mVal{ font-size: 16px; }
+
+      .slot{ padding: 12px; }
+      .view{ inset: 12px; }
     }
 
-    @media (max-aspect-ratio: 4/5){
-      .layout{ grid-template-columns: 1fr !important; }
-      .side{ display:none !important; }
-
-      :root{
-        --todayIconSize: clamp(80px, 14vmin, 140px);
-        --todayTempSize: clamp(60px, 16vmin, 132px);
+    /* MUITO estreito: ainda mantém duas colunas (temp continua à direita) */
+    @media (max-width: 680px){
+      .layout{
+        grid-template-columns: minmax(230px, 0.95fr) minmax(0, 1.05fr);
       }
+      .fRow{ grid-template-columns: 52px 40px 1fr auto; }
+      .pill{ min-width: 48px; padding: 10px 10px 8px; }
     }
   </style>
 </head>
@@ -876,50 +850,6 @@
 
         <main class="pvMain">
           <div class="layout">
-            <section class="todayCard">
-              <div class="todayHead">
-                <div class="city" id="cityName">—</div>
-              </div>
-
-              <div class="todayCenter">
-                <div class="todayWrap">
-                  <div class="todayIcon" id="todayIcon" aria-hidden="true"></div>
-                  <div class="tempBlock">
-                    <div class="tempBig" id="tempToday">--<small>°C</small></div>
-                    <div class="condLine" id="descToday">CARREGANDO…</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="todayBottom">
-                <div class="metricsRow">
-                  <div class="mCard">
-                    <div class="mLeft">
-                      <div class="mIcon feel-normal" aria-hidden="true" id="icFeel"></div>
-                      <div class="mLabel">SENSAÇÃO</div>
-                    </div>
-                    <div class="mVal" id="feels">--°</div>
-                  </div>
-
-                  <div class="mCard">
-                    <div class="mLeft">
-                      <div class="mIcon" aria-hidden="true" id="icWind"></div>
-                      <div class="mLabel">VENTO</div>
-                    </div>
-                    <div class="mVal" id="wind">-- km/h</div>
-                  </div>
-
-                  <div class="mCard">
-                    <div class="mLeft">
-                      <div class="mIcon" aria-hidden="true" id="icHum"></div>
-                      <div class="mLabel">UMIDADE</div>
-                    </div>
-                    <div class="mVal" id="humidity">--%</div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
             <aside class="side">
               <div class="sideHeader">
                 <div class="label" id="sideLabel">PRÓXIMOS DIAS</div>
@@ -957,6 +887,50 @@
               </div>
             </aside>
 
+            <section class="todayCard">
+              <div class="todayHead">
+                <div class="city" id="cityName">—</div>
+              </div>
+
+              <div class="todayCenter">
+                <div class="todayWrap">
+                  <div class="todayIcon" id="todayIcon" aria-hidden="true"></div>
+                  <div class="tempBlock">
+                    <div class="tempBig" id="tempToday">--<small>°C</small></div>
+                    <div class="condLine" id="descToday">CARREGANDO…</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="todayBottom">
+                <div class="metricsRow">
+                  <div class="mCard" id="cardFeel">
+                    <div class="mLeft">
+                      <div class="mIcon feel-normal" aria-hidden="true" id="icFeel"></div>
+                      <div class="mLabel">SENSAÇÃO</div>
+                    </div>
+                    <div class="mVal" id="feels">--°</div>
+                  </div>
+
+                  <div class="mCard" id="cardWind">
+                    <div class="mLeft">
+                      <div class="mIcon" aria-hidden="true" id="icWind"></div>
+                      <div class="mLabel">VENTO</div>
+                    </div>
+                    <div class="mVal" id="wind">-- km/h</div>
+                  </div>
+
+                  <div class="mCard" id="cardHum">
+                    <div class="mLeft">
+                      <div class="mIcon" aria-hidden="true" id="icHum"></div>
+                      <div class="mLabel">UMIDADE</div>
+                    </div>
+                    <div class="mVal" id="humidity">--%</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
           </div>
         </main>
 
@@ -972,23 +946,18 @@
     /* =========================================================
        CONFIG
        ========================================================= */
-    // fallback (NUNCA Vitória)
     const DEFAULT_CITY = "Colatina";
     const DEFAULT_UF   = "ES";
-    const DEFAULT_LAT  = -19.5397;  // Colatina aprox
+    const DEFAULT_LAT  = -19.5397;
     const DEFAULT_LON  = -40.6306;
 
-    // URL override: ?city=Colatina&uf=ES&lat=-19.53&lon=-40.63
-    // (se você quiser travar coordenada, é o método mais robusto em player)
     const TZ = "America/Sao_Paulo";
     const ROTATE_MS = 11000;
     const WEATHER_REFRESH_MIN = 25;
 
-    // auto-scroll ping-pong suave
-    const SCROLL_PX_PER_SEC = 22;   // velocidade
-    const SCROLL_PAUSE_MS   = 900;  // pausa topo/fundo
+    const SCROLL_PX_PER_SEC = 22;
+    const SCROLL_PAUSE_MS   = 900;
 
-    // sensação térmica: frio <= 19°C
     const FEEL_COLD_MAX = 19;
     const FEEL_HOT_MIN  = 30;
 
@@ -996,9 +965,6 @@
     let dailyData = null;
     let isDayNow = true;
 
-    /* =========================================================
-       Utils
-       ========================================================= */
     function pad2(n){ return String(n).padStart(2,"0"); }
     function hhmm(d=new Date()){ return pad2(d.getHours())+":"+pad2(d.getMinutes()); }
     function ddmm_hhmm(d=new Date()){
@@ -1116,9 +1082,6 @@
       return map[d.getDay()];
     }
 
-    /* =========================================================
-       UI init
-       ========================================================= */
     const panel = document.getElementById("panel");
     document.getElementById("title").textContent = panel.dataset.title || "PREVISÃO DO TEMPO";
     document.getElementById("subtitle").textContent = panel.dataset.subtitle || "LOCAL • BR";
@@ -1132,9 +1095,6 @@
     tickClock();
     setInterval(tickClock, 1000);
 
-    /* =========================================================
-       ALERTA
-       ========================================================= */
     function getAlertFor(code){
       if ([95,96,99].includes(code)) return { show:true, label:"ALERTA • TEMPESTADE" };
       if ([65,82].includes(code)) return { show:true, label:"ALERTA • CHUVA FORTE" };
@@ -1157,9 +1117,6 @@
       }
     }
 
-    /* =========================================================
-       SENSAÇÃO TÉRMICA (ícone)
-       ========================================================= */
     function setFeelIconState(apparent){
       const el = document.getElementById("icFeel");
       el.classList.remove("feel-hot","feel-cold","feel-normal");
@@ -1169,9 +1126,6 @@
       else el.classList.add("feel-normal");
     }
 
-    /* =========================================================
-       Alternância lateral
-       ========================================================= */
     const viewA = document.getElementById("viewA");
     const viewB = document.getElementById("viewB");
     const dotA = document.getElementById("dotA");
@@ -1197,11 +1151,8 @@
       sideLabel.textContent = "DETALHES • HOJE";
       stopAutoScroll();
     }
-    setInterval(()=>{ showingA ? showB() : showA(); }, ROTATE_MS);
+    setInterval(()=>{ showingA ? showB() : showA(); }, 11000);
 
-    /* =========================================================
-       Auto-scroll ping-pong suave
-       ========================================================= */
     let rafId = null;
     let pauseUntil = 0;
     let dir = 1;
@@ -1225,7 +1176,7 @@
 
         let last = performance.now();
         dir = 1;
-        pauseUntil = performance.now() + SCROLL_PAUSE_MS;
+        pauseUntil = performance.now() + 900;
 
         const step = (now)=>{
           const max = list.scrollHeight - list.clientHeight;
@@ -1239,17 +1190,17 @@
             return;
           }
 
-          const delta = dir * SCROLL_PX_PER_SEC * dt;
+          const delta = dir * 22 * dt;
           list.scrollTop += delta;
 
           if (list.scrollTop >= max - 1){
             list.scrollTop = max;
             dir = -1;
-            pauseUntil = now + SCROLL_PAUSE_MS;
+            pauseUntil = now + 900;
           } else if (list.scrollTop <= 1){
             list.scrollTop = 0;
             dir = 1;
-            pauseUntil = now + SCROLL_PAUSE_MS;
+            pauseUntil = now + 900;
           }
 
           rafId = requestAnimationFrame(step);
@@ -1259,9 +1210,6 @@
       }, 250);
     }
 
-    /* =========================================================
-       Render
-       ========================================================= */
     function renderForecastList(){
       const list = document.getElementById("forecastList");
       list.innerHTML = "";
@@ -1325,9 +1273,6 @@
       document.getElementById("pillPop").innerHTML = `${svgDrop()}<span id="popPct">${Math.round(pop)}% chuva</span>`;
     }
 
-    /* =========================================================
-       Open-Meteo
-       ========================================================= */
     async function loadWeather(){
       const url = new URL("https://api.open-meteo.com/v1/forecast");
       url.searchParams.set("latitude", CITY.lat);
@@ -1345,7 +1290,7 @@
       document.getElementById("footUpdated").textContent = `ATUALIZADO • ${ddmm_hhmm()}`;
 
       const cur = data.current;
-      isDayNow = (cur.is_day === 1); // <- sol/ lua correto
+      isDayNow = (cur.is_day === 1);
 
       const meta = codeToMeta(cur.weather_code, isDayNow);
       setAlert(cur.weather_code);
@@ -1366,9 +1311,6 @@
       renderTodayDetails();
     }
 
-    /* =========================================================
-       Localização (ipwho.is) — robusta
-       ========================================================= */
     function parseFromURL(){
       const p = new URLSearchParams(location.search);
       const city = (p.get("city") || "").trim();
@@ -1385,7 +1327,6 @@
     }
 
     async function resolveCity(){
-      // 1) URL tem prioridade
       const u = parseFromURL();
       if (u.city) CITY.city = u.city;
       if (u.uf) CITY.uf = u.uf;
@@ -1397,7 +1338,6 @@
         return;
       }
 
-      // 2) ipwho.is
       try{
         const d = await fetchJsonWithTimeout("https://ipwho.is/", 6500);
         if (d && d.success){
@@ -1416,7 +1356,6 @@
         }
       } catch(e){}
 
-      // 3) fallback fixo (nada de Vitória)
       CITY.city = CITY.city || DEFAULT_CITY;
       CITY.uf = CITY.uf || DEFAULT_UF;
       CITY.lat = Number.isFinite(CITY.lat) ? CITY.lat : DEFAULT_LAT;
@@ -1424,9 +1363,6 @@
       CITY.name = `${CITY.city} • ${CITY.uf}`;
     }
 
-    /* =========================================================
-       Boot
-       ========================================================= */
     showA();
 
     (async ()=>{
@@ -1440,7 +1376,7 @@
         document.getElementById("footUpdated").textContent = "ATUALIZADO • —";
         console.error(err);
       }
-      setInterval(()=>loadWeather().catch(()=>{}), 1000 * 60 * WEATHER_REFRESH_MIN);
+      setInterval(()=>loadWeather().catch(()=>{}), 1000 * 60 * 25);
     })();
   </script>
 </body>
