@@ -1083,36 +1083,84 @@
       return out;
     }
 
-    async function resolveCity(){
-      const u = parseFromURL();
-      if (u.city) CITY.city = u.city;
-      if (u.uf) CITY.uf = u.uf;
-      if (Number.isFinite(u.lat)) CITY.lat = u.lat;
-      if (Number.isFinite(u.lon)) CITY.lon = u.lon;
+   // Reverse geocoding (Open-Meteo) — NÃO quebra se falhar
+async function refineCityByReverseGeocode(lat, lon){
+  try{
+    const url = new URL("https://geocoding-api.open-meteo.com/v1/reverse");
+    url.searchParams.set("latitude", String(lat));
+    url.searchParams.set("longitude", String(lon));
+    url.searchParams.set("language", "pt");
+    url.searchParams.set("count", "1");
 
-      if (Number.isFinite(u.lat) && Number.isFinite(u.lon)) return;
+    const g = await fetchJsonWithTimeout(url.toString(), 6500);
+    const r = g && g.results && g.results[0];
+    if (!r) return null;
 
-      try{
-        const d = await fetchJsonWithTimeout("https://ipwho.is/", 6500);
-        if (d && d.success){
-          if (d.city) CITY.city = String(d.city).trim();
-          CITY.uf = String(d.region_code || CITY.uf || "").trim().toUpperCase();
+    return {
+      city: (r.name ? String(r.name).trim() : ""),
+      uf: (r.admin1_code ? String(r.admin1_code).trim().toUpperCase() : "")
+    };
+  } catch(e){
+    return null;
+  }
+}
 
-          const lat = Number(d.latitude);
-          const lon = Number(d.longitude);
-          if (Number.isFinite(lat) && Number.isFinite(lon)){
-            CITY.lat = lat;
-            CITY.lon = lon;
-          }
-          return;
-        }
-      } catch(e){}
+async function resolveCity(){
+  // 1) parâmetros via URL (se existirem)
+  try{
+    const u = (typeof parseFromURL === "function") ? parseFromURL() : {};
+    if (u.city) CITY.city = u.city;
+    if (u.uf) CITY.uf = u.uf;
+    if (Number.isFinite(u.lat)) CITY.lat = u.lat;
+    if (Number.isFinite(u.lon)) CITY.lon = u.lon;
 
-      CITY.city = CITY.city || DEFAULT_CITY;
-      CITY.uf = CITY.uf || DEFAULT_UF;
-      CITY.lat = Number.isFinite(CITY.lat) ? CITY.lat : DEFAULT_LAT;
-      CITY.lon = Number.isFinite(CITY.lon) ? CITY.lon : DEFAULT_LON;
+    // Se veio lat/lon, já pode usar e ainda refinar nome por reverse
+    if (Number.isFinite(CITY.lat) && Number.isFinite(CITY.lon)){
+      const refined = await refineCityByReverseGeocode(CITY.lat, CITY.lon);
+      if (refined && refined.city) CITY.city = refined.city;
+      if (refined && refined.uf) CITY.uf = refined.uf;
+      CITY.name = `${CITY.city || DEFAULT_CITY} • ${CITY.uf || DEFAULT_UF}`;
+      return;
     }
+  } catch(e){
+    // ignora, continua
+  }
+
+  // 2) IP (ipwho.is) — pega lat/lon
+  try{
+    const d = await fetchJsonWithTimeout("https://ipwho.is/", 6500);
+    if (d && d.success){
+      const lat = Number(d.latitude);
+      const lon = Number(d.longitude);
+
+      if (d.city) CITY.city = String(d.city).trim();
+      CITY.uf = String(d.region_code || CITY.uf || "").trim().toUpperCase();
+
+      if (Number.isFinite(lat) && Number.isFinite(lon)){
+        CITY.lat = lat;
+        CITY.lon = lon;
+
+        // 3) Refina o NOME da cidade pelo ponto (reverse)
+        const refined = await refineCityByReverseGeocode(CITY.lat, CITY.lon);
+        if (refined && refined.city) CITY.city = refined.city;
+        if (refined && refined.uf) CITY.uf = refined.uf;
+      }
+
+      CITY.name = `${CITY.city || DEFAULT_CITY} • ${CITY.uf || DEFAULT_UF}`;
+      return;
+    }
+  } catch(e){
+    // ignora, cai no fallback
+  }
+
+  // 4) fallback final (nunca deixa em branco)
+  CITY.city = CITY.city || DEFAULT_CITY;
+  CITY.uf = CITY.uf || DEFAULT_UF;
+  CITY.lat = Number.isFinite(CITY.lat) ? CITY.lat : DEFAULT_LAT;
+  CITY.lon = Number.isFinite(CITY.lon) ? CITY.lon : DEFAULT_LON;
+  CITY.name = `${CITY.city} • ${CITY.uf}`;
+}
+
 
     /* =========================================================
        Boot + re-render on resize/orientation
